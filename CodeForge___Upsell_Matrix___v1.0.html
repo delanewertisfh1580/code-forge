@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeForge · Upsell Matrix v1.0 · Self-Storage + OOH</title>
+<style>
+:root{
+--bg:#0a0a0f;--bg2:#11111a;--bg3:#16161f;--bg4:#1c1c28;
+--border:#23233a;--border2:#2d2d4a;
+--text:#e8e8f0;--text2:#a0a0b8;--text3:#6a6a82;
+--accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,.15);
+--green:#10b981;--green-bg:rgba(16,185,129,.1);--green-border:rgba(16,185,129,.25);
+--orange:#f59e0b;--orange-bg:rgba(245,158,11,.1);--orange-border:rgba(245,158,11,.25);
+--red:#ef4444;--red-bg:rgba(239,68,68,.08);
+--blue:#3b82f6;--blue-bg:rgba(59,130,246,.1);
+--purple:#a855f7;--purple-bg:rgba(168,85,247,.1);
+--radius:12px;--radius-sm:8px;--radius-lg:16px;
+--shadow:0 4px 24px rgba(0,0,0,.4);
+--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+--mono:"SF Mono","JetBrains Mono","Fira Code",monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+font-family:var(--font);background:var(--bg);color:var(--text);
+line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:#fff}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+/* NAV */
+.nav{
+position:sticky;top:0;z-index:100;
+background:rgba(10,10,15,.85);backdrop-filter:blur(16px);
+border-bottom:1px solid var(--border);
+padding:.75rem 1.5rem;
+}
+.nav-inner{
+max-width:1200px;margin:0 auto;
+display:flex;align-items:center;justify-content:space-between;gap:1rem;
+flex-wrap:wrap;
+}
+.nav-brand{
+display:flex;align-items:center;gap:.5rem;
+font-weight:700;font-size:.95rem;color:var(--text);
+}
+.nav-brand span{color:var(--accent2)}
+.nav-links{display:flex;gap:.25rem;flex-wrap:wrap;align-items:center}
+.nav-links a{
+color:var(--text2);text-decoration:none;font-size:.8rem;
+padding:.35rem .7rem;border-radius:var(--radius-sm);
+transition:.2s;
+}
+.nav-links a:hover{color:var(--text);background:var(--bg3)}
+.nav-cta{
+display:inline-flex;align-items:center;gap:.4rem;
+background:var(--accent);color:#fff;
+padding:.5rem 1rem;border-radius:var(--radius-sm);
+font-size:.8rem;font-weight:600;text-decoration:none;
+transition:.2s;
+}
+.nav-cta:hover{background:var(--accent2);transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+padding:5rem 1.5rem 3rem;text-align:center;
+background:radial-gradient(ellipse at top,rgba(99,102,241,.12),transparent 60%);
+border-bottom:1px solid var(--border);
+}
+.hero-badge{
+display:inline-flex;align-items:center;gap:.5rem;
+background:var(--accent-glow);border:1px solid var(--border2);
+padding:.4rem 1rem;border-radius:999px;
+font-size:.75rem;color:var(--accent2);font-weight:600;
+margin-bottom:1.5rem;
+}
+.hero h1{
+font-size:clamp(2rem,5vw,3.25rem);font-weight:800;
+letter-spacing:-.02em;margin-bottom:1rem;
+background:linear-gradient(135deg,#fff 0%,var(--accent2) 100%);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+background-clip:text;
+}
+.hero-sub{
+font-size:1.1rem;color:var(--text2);max-width:720px;margin:0 auto 3rem;
+}
+
+/* METRICS GRID */
+.metrics{
+max-width:1200px;margin:0 auto;padding:0 1.5rem 4rem;
+display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;
+}
+.metric-card{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);padding:1.5rem;
+transition:.2s;position:relative;overflow:hidden;
+}
+.metric-card::before{
+content:'';position:absolute;top:0;left:0;right:0;height:2px;
+background:linear-gradient(90deg,transparent,var(--accent),transparent);
+opacity:.6;
+}
+.metric-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.metric-value{
+font-size:2rem;font-weight:800;color:var(--text);margin-bottom:.25rem;
+font-family:var(--mono);
+}
+.metric-value .unit{font-size:.9rem;color:var(--accent2);font-weight:600;margin-left:.25rem}
+.metric-label{font-size:.85rem;color:var(--text2);font-weight:500}
+.metric-card.green{border-color:var(--green-border)}
+.metric-card.green::before{background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.metric-card.orange{border-color:var(--orange-border)}
+.metric-card.orange::before{background:linear-gradient(90deg,transparent,var(--orange),transparent)}
+.metric-card.purple{border-color:rgba(168,85,247,.25)}
+.metric-card.purple::before{background:linear-gradient(90deg,transparent,var(--purple),transparent)}
+
+/* SECTION */
+.section{max-width:1200px;margin:0 auto;padding:3rem 1.5rem}
+.section-header{margin-bottom:2.5rem}
+.section-num{
+font-family:var(--mono);color:var(--accent2);font-size:.8rem;
+font-weight:600;margin-bottom:.5rem;letter-spacing:.05em;
+}
+.section-title{
+font-size:clamp(1.5rem,3vw,2rem);font-weight:800;
+letter-spacing:-.01em;margin-bottom:.75rem;
+}
+.section-desc{color:var(--text2);font-size:1rem;max-width:760px}
+
+/* TABS */
+.tabs{
+display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap;
+background:var(--bg2);padding:.35rem;border-radius:var(--radius);
+border:1px solid var(--border);
+width:fit-content;
+}
+.tab-btn{
+background:transparent;border:none;color:var(--text2);
+padding:.6rem 1.25rem;border-radius:var(--radius-sm);
+font-size:.9rem;font-weight:600;cursor:pointer;
+font-family:var(--font);transition:.2s;
+display:flex;align-items:center;gap:.4rem;
+}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:var(--bg4);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.tab-panel{display:none;animation:fade .3s ease}
+.tab-panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS GRID */
+.cards-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem;
+}
+.card{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);padding:1.5rem;
+transition:.2s;position:relative;
+}
+.card:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.card-icon{
+width:40px;height:40px;border-radius:10px;
+display:flex;align-items:center;justify-content:center;
+font-size:1.25rem;margin-bottom:1rem;
+}
+.card-icon.ss{background:var(--blue-bg);color:var(--blue)}
+.card-icon.ooh{background:var(--orange-bg);color:var(--orange)}
+.card-icon.ai{background:var(--purple-bg);color:var(--purple)}
+.card-title{
+font-size:1.05rem;font-weight:700;margin-bottom:.75rem;
+color:var(--text);letter-spacing:-.01em;
+}
+.card-row{
+display:flex;flex-direction:column;gap:.4rem;
+margin-top:.75rem;padding-top:.75rem;
+border-top:1px dashed var(--border);
+}
+.card-row-item{
+display:flex;gap:.5rem;font-size:.85rem;
+align-items:flex-start;
+}
+.card-row-label{
+color:var(--text3);min-width:80px;font-weight:600;
+font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;
+padding-top:2px;
+}
+.card-row-value{color:var(--text2);flex:1}
+
+.badge{
+display:inline-flex;align-items:center;gap:.3rem;
+padding:.2rem .55rem;border-radius:6px;
+font-size:.72rem;font-weight:700;letter-spacing:.02em;
+}
+.badge-phase1{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-phase2{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,.25)}
+.badge-phase3{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.badge-phase4{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(168,85,247,.25)}
+.badge-phase5{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge-ai{background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(99,102,241,.15));color:var(--accent2);border:1px solid var(--border2)}
+
+/* TABLE */
+.table-wrap{
+overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);
+background:var(--bg2);
+}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead{background:var(--bg3)}
+th{
+padding:.85rem 1rem;text-align:left;font-weight:700;
+color:var(--text);border-bottom:1px solid var(--border);
+font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;
+}
+td{
+padding:.85rem 1rem;border-bottom:1px solid var(--border);
+color:var(--text2);vertical-align:top;
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--bg3)}
+td strong{color:var(--text);font-weight:700}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:2.5rem}
+.timeline::before{
+content:'';position:absolute;left:12px;top:8px;bottom:8px;
+width:2px;background:linear-gradient(180deg,var(--accent),var(--border));
+}
+.timeline-item{position:relative;padding-bottom:2rem}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-dot{
+position:absolute;left:-2.5rem;top:4px;
+width:26px;height:26px;border-radius:50%;
+background:var(--bg);border:2px solid var(--accent);
+display:flex;align-items:center;justify-content:center;
+font-size:.7rem;font-weight:800;color:var(--accent2);
+font-family:var(--mono);
+}
+.timeline-item:hover .timeline-dot{background:var(--accent);color:#fff;transition:.2s}
+.timeline-card{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);padding:1.25rem 1.5rem;
+}
+.timeline-title{
+font-size:1rem;font-weight:700;margin-bottom:.5rem;color:var(--text);
+display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+}
+.timeline-role{
+font-size:.72rem;padding:.2rem .5rem;border-radius:6px;
+background:var(--accent-glow);color:var(--accent2);
+font-weight:700;letter-spacing:.03em;
+}
+.timeline-text{font-size:.88rem;color:var(--text2);line-height:1.7}
+
+/* ACCORDION */
+.acc-item{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);margin-bottom:.75rem;
+overflow:hidden;transition:.2s;
+}
+.acc-item.open{border-color:var(--border2);box-shadow:var(--shadow)}
+.acc-header{
+padding:1.15rem 1.5rem;cursor:pointer;
+display:flex;align-items:center;justify-content:space-between;gap:1rem;
+user-select:none;
+}
+.acc-header:hover{background:var(--bg3)}
+.acc-q{
+font-weight:700;color:var(--text);font-size:.95rem;
+display:flex;align-items:flex-start;gap:.6rem;
+}
+.acc-q::before{
+content:'❌';font-size:.9rem;flex-shrink:0;margin-top:2px;
+}
+.acc-icon{
+color:var(--text3);font-size:1.25rem;transition:.3s;flex-shrink:0;
+}
+.acc-item.open .acc-icon{transform:rotate(45deg);color:var(--accent2)}
+.acc-body{
+max-height:0;overflow:hidden;transition:max-height .4s ease;
+}
+.acc-body-inner{
+padding:0 1.5rem 1.5rem;color:var(--text2);font-size:.9rem;line-height:1.75;
+border-top:1px solid var(--border);padding-top:1.25rem;
+}
+.acc-body-inner strong{color:var(--green);font-weight:700}
+.acc-body-inner em{color:var(--accent2);font-style:normal;font-weight:600}
+
+/* AUDIT STEPS */
+.steps{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;
+margin-top:2rem;
+}
+.step{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);padding:1.5rem;
+position:relative;
+}
+.step-num{
+font-family:var(--mono);font-size:2rem;font-weight:800;
+color:var(--accent);opacity:.3;
+position:absolute;top:.75rem;right:1rem;
+}
+.step-title{font-weight:700;margin-bottom:.5rem;font-size:.95rem}
+.step-text{font-size:.85rem;color:var(--text2);line-height:1.7}
+
+/* FOOTER */
+.footer{
+border-top:1px solid var(--border);
+padding:3rem 1.5rem;text-align:center;
+background:var(--bg2);margin-top:4rem;
+}
+.footer-brand{
+font-size:1.1rem;font-weight:800;margin-bottom:.5rem;color:var(--text);
+}
+.footer-sub{color:var(--text3);font-size:.85rem;margin-bottom:1.5rem}
+.footer-links{
+display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+}
+.footer-links a{
+color:var(--text2);text-decoration:none;font-size:.85rem;
+padding:.4rem .8rem;border-radius:var(--radius-sm);
+border:1px solid var(--border);transition:.2s;
+}
+.footer-links a:hover{color:var(--accent2);border-color:var(--border2)}
+.footer-date{color:var(--text3);font-size:.75rem;margin-top:1.5rem;font-family:var(--mono)}
+
+/* PHASE PILL */
+.phase-pill{
+display:inline-flex;align-items:center;gap:.35rem;
+padding:.35rem .75rem;border-radius:8px;
+font-weight:800;font-size:.85rem;font-family:var(--mono);
+}
+.phase-pill.p1{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.phase-pill.p2{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,.25)}
+.phase-pill.p3{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.phase-pill.p4{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(168,85,247,.25)}
+.phase-pill.p5{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.nav-links{display:none}
+.hero{padding:3rem 1rem 2rem}
+.section{padding:2rem 1rem}
+.tabs{width:100%}
+.tab-btn{flex:1;justify-content:center;font-size:.82rem;padding:.5rem .7rem}
+table{font-size:.78rem}
+th,td{padding:.6rem .5rem}
+.timeline{padding-left:2rem}
+.timeline-dot{left:-2rem}
+.acc-header{padding:1rem}
+.acc-body-inner{padding:0 1rem 1rem;padding-top:1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+<div class="nav-inner">
+<div class="nav-brand">
+<span>CF</span> Upsell Matrix
+</div>
+<div class="nav-links">
+<a href="#triggers">Триггеры</a>
+<a href="#mapping">Маппинг</a>
+<a href="#strategy">Стратегия</a>
+<a href="#objections">Возражения</a>
+</div>
+<a class="nav-cta" href="https://t.me/Sagat9881" target="_blank">💬 Обсудить →</a>
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-badge">Upsell Matrix · v1.0 · Август 2026</div>
+<h1>Матрица апсейла и стратегия роста MRR</h1>
+<p class="hero-sub">
+Фреймворк Expansion Revenue для двух ниш CodeForge — Self-Storage и Наружная реклама. Перевод клиентов с «малого входа» (Фазы 1-2) на глубокий рекуррент через триггеры роста, NRR-оптимизацию и жёсткий lock-in эффект.
+</p>
+</section>
+
+<!-- KEY METRICS -->
+<section class="metrics">
+<div class="metric-card green">
+<div class="metric-value">130%<span class="unit">NRR</span></div>
+<div class="metric-label">Целевой Net Revenue Retention</div>
+</div>
+<div class="metric-card">
+<div class="metric-value">5+1<span class="unit">Фаз</span></div>
+<div class="metric-label">Модулей для расширения чека</div>
+</div>
+<div class="metric-card orange">
+<div class="metric-value">&lt;2%<span class="unit">Churn</span></div>
+<div class="metric-label">Отток после подключения Фаз 3–5</div>
+</div>
+<div class="metric-card purple">
+<div class="metric-value">50K<span class="unit">₽/мес</span></div>
+<div class="metric-label">Целевой MRR на Enterprise-клиента</div>
+</div>
+</section>
+
+<!-- SECTION 01 · TRIGGERS -->
+<section class="section" id="triggers">
+<div class="section-header">
+<div class="section-num">01 · ТРИГГЕРЫ АПСЕЙЛА</div>
+<h2 class="section-title">События, при которых апсейл неизбежен</h2>
+<p class="section-desc">
+Каждый триггер — это бизнес-событие в жизни клиента, при котором текущий набор фаз перестаёт покрывать его потребности. Мы не «впариваем» — мы решаем острую проблему в нужный момент.
+</p>
+</div>
+
+<div class="tabs" id="tabs1">
+<button class="tab-btn active" data-tab="ss">📦 Self-Storage</button>
+<button class="tab-btn" data-tab="ooh">🚦 Наружная реклама</button>
+</div>
+
+<!-- SS PANEL -->
+<div class="tab-panel active" id="panel-ss">
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-icon ss">📈</div>
+<div class="card-title">Заполняемость 80% + пик сезона</div>
+<div style="font-size:.85rem;color:var(--text2)">Дачный сезон / предновогодний ажиотаж. Менеджер физически не успевает обрабатывать поток лидов из WhatsApp и Telegram.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Скачок открытых лидов в админке, время ответа > 30 мин</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase3">Фаза 3 · CRM</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Lead Recovery Rate (+40–60% потерянных лидов)</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ss">📋</div>
+<div class="card-title">200+ действующих договоров</div>
+<div style="font-size:.85rem;color:var(--text2)">Ручной сбор платежей и продления становятся невыносимыми. Менеджер жалуется на перегрузку, растёт просрочка.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Счётчик договоров в админке > 200</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase3">Фаза 3 · CRM + автоворонки</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Churn Rate ↓ · Time to Renewal ↓ · +134K LTV</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ss">🏢</div>
+<div class="card-title">Переход на B2B: юрлица и банки</div>
+<div style="font-size:.85rem;color:var(--text2)">Появляются корпоративные клиенты с требованием формального процесса: согласование макетов, цифровые двойники помещений.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Контакты с corporate-доменами, рост среднего чека</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase4">Фаза 4 · 3D / Image Repository</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Average Deal Size ↑ · Sales Cycle Time ↓</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ss">🔌</div>
+<div class="card-title">Запрос на интеграцию с 1С</div>
+<div style="font-size:.85rem;color:var(--text2)">Бизнес требует полной автоматизации. Ручной ввод в сторонние системы = источник ошибок и потерь.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Прямая просьба клиента / сложности с отчётностью</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase5">Фаза 5 · Real-time API</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Data Accuracy · Operational Efficiency · MAX lock-in</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ss">⚠️</div>
+<div class="card-title">Ошибка в расчёте стоимости</div>
+<div style="font-size:.85rem;color:var(--text2)">Первый негативный отзыв от арендатора о некорректной цене. Подрыв доверия ко всей системе бронирования.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Обратная связь пользователя / тикет в поддержку</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-ai">AI-слой · Dynamic Pricing</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">CSAT/NPS ↑ · Revenue Leakage Prevention</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ss">📂</div>
+<div class="card-title">>5 часов ручного ввода данных в месяц</div>
+<div style="font-size:.85rem;color:var(--text2)">Сотрудник тратит часы на копирование между системами. Растёт риск человеческих ошибок и финансовых расхождений.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Жалоба менеджера / анализ трудозатрат</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase2">Фаза 2 · Import/Export API</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Labor Cost ↓ · Payback < 1 месяца</div></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- OOH PANEL -->
+<div class="tab-panel" id="panel-ooh">
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-icon ooh">⏰</div>
+<div class="card-title">До продления аренды < 6 месяцев</div>
+<div style="font-size:.85rem;color:var(--text2)">По ФЗ-98 оператор обязан продлить договор вовремя. Потеря площадки = прямые убытки в сотни тысяч.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Дата окончания договора в админке приближается</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase1">Фаза 1 · Карта + алерты</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Contract Renewal Rate · Asset Protection</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ooh">📊</div>
+<div class="card-title">Новый запрос на котировку</div>
+<div style="font-size:.85rem;color:var(--text2)">Рынок растёт на 33%. Каждая минута задержки в подготовке КП = потерянный клиент. Ручной расчёт занимает 2 часа.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Новый контакт в системе / запрос на предложение</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase2">Фаза 2 · Data Export + Калькулятор</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Quoting Speed: 2 часа → 5 минут</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ooh">🏦</div>
+<div class="card-title">Выход на федеральных рекламодателей</div>
+<div style="font-size:.85rem;color:var(--text2)">Банки, ритейлеры, FMCG требуют профессионального подхода: цифровые двойники, согласование макетов, аналитика.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Крупный федеральный заказчик в системе</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase4">Фаза 4 · Image Repository / 3D</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Average Deal Size ↑ · Win Rate ↑</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ooh">💸</div>
+<div class="card-title">Проблемы со сбором платежей</div>
+<div style="font-size:.85rem;color:var(--text2)">Растут просрочки от рекламодателей. Cash Flow замедляется, оператор не может платить аренду за землю.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Жалобы на просрочки / запрос на онлайн-оплату</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase3">Фаза 3 · CRM + Invoicing</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Cash Flow Velocity ↑ · AR Days ↓</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ooh">🔌</div>
+<div class="card-title">Запрос интеграции с BI-системой</div>
+<div style="font-size:.85rem;color:var(--text2)">Клиент зрелый: решения принимаются на основе данных, а не интуиции. Нужны выгрузки в Tableau / PowerBI.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Запрос на экспорт данных для аналитики</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase5">Фаза 5 · Real-time API</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Strategic Decision-Making · MAX lock-in</div></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon ooh">⚡</div>
+<div class="card-title">Случай овербукинга</div>
+<div style="font-size:.85rem;color:var(--text2)">Один щит продан двум рекламодателям. Конфликт, штраф от города, потеря репутации. Excel не спасает.</div>
+<div class="card-row">
+<div class="card-row-item"><div class="card-row-label">Сигнал</div><div class="card-row-value">Тикет о конфликте / штраф от администрации</div></div>
+<div class="card-row-item"><div class="card-row-label">Фаза</div><div class="card-row-value"><span class="badge badge-phase2">Фаза 2 · Сетка вещания</span></div></div>
+<div class="card-row-item"><div class="card-row-label">Метрика</div><div class="card-row-value">Double-booking Prevention · Reputation</div></div>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- SECTION 02 · MAPPING TABLE -->
+<section class="section" id="mapping">
+<div class="section-header">
+<div class="section-num">02 · МАППИНГ ЭКОНОМИКИ</div>
+<h2 class="section-title">Триггер → Фаза → Экономика</h2>
+<p class="section-desc">
+Сводная матрица стоимости, триггеров и ROI каждой фазы. Аргументация для собственника — почему апсейл окупается за 1–3 месяца и как «цементирует» клиента.
+</p>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th style="width:13%">Фаза</th>
+<th style="width:10%">MRR база</th>
+<th style="width:25%">Триггеры покупки</th>
+<th style="width:32%">ROI-аргументация</th>
+<th style="width:20%">Влияние на Churn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="phase-pill p1">Фаза 1</span><br><small style="color:var(--text3);font-size:.72rem">Карта + Админка</small></td>
+<td><strong>5 000 ₽</strong><br><small style="color:var(--text3)">+AI: 10K</small></td>
+<td>• SS: Заполняемость >80% + пик<br>• OOH: Срок аренды <6 мес<br>• Новые объекты</td>
+<td><strong>Lead Recovery +40–60%</strong> для SS. Предотвращение потери площадки для OOH. <em>Payback &lt; 1 мес.</em></td>
+<td>🔒 <strong>Средний.</strong> Базовый lock-in через управление активами. Удерживает за счёт предотвращения прямых потерь.</td>
+</tr>
+<tr>
+<td><span class="phase-pill p2">Фаза 2</span><br><small style="color:var(--text3);font-size:.72rem">Import/Export API</small></td>
+<td><strong>6 000 ₽</strong><br><small style="color:var(--text3)">+AI: 10K</small></td>
+<td>• >5 часов ручного ввода/мес<br>• Необходимость быстрой котировки<br>• Партнёрские интеграции</td>
+<td>Экономия 10K+/мес на ФОТ. Устранение ошибок при вводе. <em>Payback ~1–2 мес.</em></td>
+<td>🔒 <strong>Средний.</strong> Удобство, но не критическая зависимость. Замена возможна через Zapier/скрипты.</td>
+</tr>
+<tr>
+<td><span class="phase-pill p3">Фаза 3</span><br><small style="color:var(--text3);font-size:.72rem">CRM-интеграции</small></td>
+<td><strong>8 000 ₽</strong><br><small style="color:var(--text3)">+AI: 11K</small></td>
+<td>• >200 действующих договоров<br>• Ручной сбор долгов<br>• Онлайн-оплата</td>
+<td>Автоматизация продлений + снижение оттока. Ускорение cash flow. <em>Payback vs CAC: 20 мес.</em></td>
+<td>🔒🔒 <strong>Высокий.</strong> История клиентов, автоворонки, SLA. Перенос данных = weeks работы.</td>
+</tr>
+<tr>
+<td><span class="phase-pill p4">Фаза 4</span><br><small style="color:var(--text3);font-size:.72rem">Image/3D</small></td>
+<td><strong>7 000 ₽</strong><br><small style="color:var(--text3)">+AI: 10K</small></td>
+<td>• Переход на B2B<br>• Федеральные рекламодатели<br>• Цифровые двойники</td>
+<td>Повышение <strong>Average Deal Size</strong> за счёт профессионального представления. <em>Payback ~3–4 мес.</em></td>
+<td>🔒🔒 <strong>Высокий.</strong> Медиа-активы (фото/3D) хранятся у нас. Перенос = потеря контента.</td>
+</tr>
+<tr>
+<td><span class="phase-pill p5">Фаза 5</span><br><small style="color:var(--text3);font-size:.72rem">Real-time API</small></td>
+<td><strong>9 000 ₽</strong><br><small style="color:var(--text3)">+AI: 12K</small></td>
+<td>• Интеграция с 1С/SAP<br>• BI-системы (Tableau)<br>• Enterprise-клиент</td>
+<td>Максимальная операционная эффективность. <em>Payback vs CAC: 155 мес (долгосрочный LTV).</em></td>
+<td>🔒🔒🔒 <strong>Критический.</strong> Технический lock-in. Повторная API-разработка = 200K+.</td>
+</tr>
+<tr>
+<td><span class="phase-pill" style="background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(99,102,241,.2));color:var(--accent2);border:1px solid var(--border2)">AI-слой</span><br><small style="color:var(--text3);font-size:.72rem">Подбор, теги, черновики</small></td>
+<td><strong>+3–5K</strong><br><small style="color:var(--text3)">к любой фазе</small></td>
+<td>• Ошибки в расчётах<br>• Масштабирование контента<br>• Потребность в прогнозах</td>
+<td><strong>Revenue Leakage Prevention.</strong> Предотвращение даже 1 недовольного клиента > стоимости подписки.</td>
+<td>🔒🔒 <strong>Высокий.</strong> Модель обучается на данных клиента. Замена = потеря «мозгов».</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- SECTION 03 · STRATEGY -->
+<section class="section" id="strategy">
+<div class="section-header">
+<div class="section-num">03 · СТРАТЕГИЯ ВНЕДРЕНИЯ</div>
+<h2 class="section-title">Точки контакта и механика апсейлов</h2>
+<p class="section-desc">
+Апсейл не «впаривается» — он естественно возникает в нужной точке жизненного цикла клиента. Ниже — 4 ключевых момента и механика бесплатного аудита нагрузки.
+</p>
+</div>
+
+<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;color:var(--accent2)">🗺 Жизненный цикл → Точки апсейла</h3>
+
+<div class="timeline">
+
+<div class="timeline-item">
+<div class="timeline-dot">1</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Onboarding (первые 30 дней)
+<span class="timeline-role">ACCOUNT MANAGER</span>
+</div>
+<div class="timeline-text">
+«Анализ денег и времени»: при подписании спросить, сколько часов/неделю уходит на ручные процессы (WhatsApp-лиды, продление договоров, ввод в 1С). Перевести в деньги. Намекнуть: «Когда заполняемость достигнет 80%, Фаза 3 вернёт стоимость подписки за считанные дни».
+</div>
+</div>
+</div>
+
+<div class="timeline-item">
+<div class="timeline-dot">2</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Первый плановый саппорт (30-й день)
+<span class="timeline-role">SUPPORT / AM</span>
+</div>
+<div class="timeline-text">
+Аудит использования: войти в админку клиента и показать его собственные данные. «У вас 150 договоров, менеджер тратит X часов/неделю. Фаза 3 сэкономит это время. Показать демо?». Собственные данные клиента = нулевое сопротивление.
+</div>
+</div>
+</div>
+
+<div class="timeline-item">
+<div class="timeline-dot">3</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Решение проблемы (ticket-based)
+<span class="timeline-role">TECH SUPPORT</span>
+</div>
+<div class="timeline-text">
+Жалоба → повод для решения. Клиент пишет: «Потерял лид ночью». Ответ: «Фаза 1 стоит 5K/мес и вернёт вам 600K упущенной выгоды. Проведём демо сейчас?». Каждый тикет — это потенциальная точка апсейла.
+</div>
+</div>
+</div>
+
+<div class="timeline-item">
+<div class="timeline-dot">4</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Ежеквартальная стратегическая встреча
+<span class="timeline-role">SENIOR AM / ОСНОВАТЕЛЬ</span>
+</div>
+<div class="timeline-text">
+Дорожная карта развития бизнеса клиента: «Вы на Фазе 3. С вашим ростом и B2B-клиентами, логичный следующий шаг — Фаза 4 для крупных контрактов от федеральных брендов. Это +Y% к среднему чеку».
+</div>
+</div>
+</div>
+
+</div>
+
+<h3 style="font-size:1.1rem;font-weight:700;margin:3rem 0 1rem;color:var(--accent2)">🔍 Механика «Бесплатного аудита нагрузки»</h3>
+<p style="color:var(--text2);font-size:.9rem;margin-bottom:1.5rem">
+Трёхшаговый процесс превращает абстрактное «улучшение» в конкретные цифры и деньги, которые теряет клиент.
+</p>
+
+<div class="steps">
+<div class="step">
+<div class="step-num">01</div>
+<div class="step-title">📥 Сбор данных</div>
+<div class="step-text">
+Встроенный отчёт в админке CodeForge автоматически собирает: количество лидов (обработано/потеряно), активные договоры, тикеты в поддержку, операции импорта/экспорта за 30 дней.
+</div>
+</div>
+<div class="step">
+<div class="step-num">02</div>
+<div class="step-title">💰 Оценка ущерба</div>
+<div class="step-text">
+Переводим метрики в деньги: «60 потерянных лидов × 10K средний чек = <strong style="color:var(--red)">600K упущенной выгоды/мес</strong>». Или: «2 часа на котировку × 10 запросов = <strong style="color:var(--red)">20K/мес</strong> на рутину».
+</div>
+</div>
+<div class="step">
+<div class="step-num">03</div>
+<div class="step-title">✅ Предложение</div>
+<div class="step-text">
+«Фаза 1 окупится за 0.5 мес. Фаза 3 — за 1.2 мес. Хотите начать с решения проблемы с потерей лидов?». Клиент видит свою проблему в своих цифрах. Решение = логичный шаг.
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 04 · OBJECTIONS -->
+<section class="section" id="objections">
+<div class="section-header">
+<div class="section-num">04 · BATTLECARDS</div>
+<h2 class="section-title">Работа с возражениями</h2>
+<p class="section-desc">
+Пять жёстких возражений клиентов при попытке продать Фазы 3–5 и развёрнутые ответы, опирающиеся на цифры и логику Playbook.
+</p>
+</div>
+
+<div class="acc-list">
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">Нам хватает базовой карты, мы сами справляемся</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Понимаю позицию. Но давайте посмотрим на ваши данные: за месяц вы получили <em>100 лидов</em>, ответили только на 40. Это <strong>60 потерянных клиентов × 10 000 ₽ = 600 000 ₽ упущенной выгоды в месяц</strong>. Фаза 1 стоит 5 000 ₽/мес и окупается за 10 дней. Отказываясь от неё, вы фактически отказываетесь от денег, которые уже потеряли. Мы просто предлагаем инструмент, чтобы эти деньги стали вашими.
+</div>
+</div>
+</div>
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">Это слишком дорого для нашего региона</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+В спокойной ситуации вы были бы правы. Но рынок OOH Екатеринбурга сейчас <em>растёт на 33% в год</em>, цены выросли на 20–30%. В таких условиях операционные преимущества становятся решающими. Способность подготовить котировку <strong>за 5 минут вместо 2 часов</strong> позволяет выигрывать больше крупных заказов. Наша цена — это инвестиция в то, чтобы не отстать от конкурентов, которые уже используют современные инструменты. +1–2% выигранных сделок перекрывают стоимость подписки.
+</div>
+</div>
+</div>
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">Мы сами настроим интеграцию с 1С</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Большинство клиентов думали так же. Разработка API — это <em>не разовая задача</em>, а постоянные затраты: поддержка, тестирование, исправление ошибок при каждом обновлении 1С. Это требует штатного разработчика. Фаза 5 стоит <strong>9 000 ₽/мес с гарантией стабильности 24/7</strong>. В пересчёте на экономию ручного труда это ~30 000 ₽/мес. Плюс lock-in: при переходе на другую систему придётся заново платить за интеграцию (200K+). Готовое решение дешевле и надёжнее.
+</div>
+</div>
+</div>
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">Мы не готовы к таким изменениям</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Понимаю осторожность. Но <em>мы берём внедрение и обучение на себя</em>. За первые 2 недели вы уже будете использовать новую фазу для самых простых задач — например, автоматическое продление 10 старых договоров. Увидите результат и удобство, потом масштабируете. Главное — не останавливаться, когда рынок растёт. Компании, которые внедряют технологии сейчас, опережают конкурентов на 2–3 года. Мы поможем сделать это плавно.
+</div>
+</div>
+</div>
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">У нас уже есть AmoCRM, зачем нам ваша Фаза 3?</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Отличный вопрос. Фаза 3 — это <em>не замена вашей AmoCRM</em>, а нативная интеграция с ней + отраслевые автоворонки, заточенные под Self-Storage / OOH. Стандартная AmoCRM не знает, что такое «продление договора аренды бокса» или «алерт о сроке щита». Наши воронки включают: напоминания за 30/14/7 дней, автосписание, SMS арендаторам, парсинг сроков договоров. <strong>Это экономит 15–20 часов работы менеджера в месяц</strong> и снижает churn на 40%. Плюс все данные остаются в вашей CRM — мы только усиливаем её.
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+<div class="footer-brand">CodeForge · Upsell Matrix v1.0</div>
+<div class="footer-sub">Внутренний инструмент отдела продаж · Стратегия Expansion Revenue</div>
+<div class="footer-links">
+<a href="https://t.me/Sagat9881" target="_blank">→ Telegram: @Sagat9881</a>
+<a href="mailto:apzakharov9881@gmail.com">→ apzakharov9881@gmail.com</a>
+<a href="https://github.com/Sagat9881" target="_blank">→ github.com/Sagat9881</a>
+</div>
+<div class="footer-date">Обновлено: 02 августа 2026 · Санкт-Петербург · работаем удалённо по миру</div>
+</footer>
+
+<script>
+// TABS
+document.querySelectorAll('#tabs1 .tab-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+document.querySelectorAll('#tabs1 .tab-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+const tab = btn.dataset.tab;
+document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+document.getElementById('panel-' + tab).classList.add('active');
+});
+});
+
+// ACCORDION
+document.querySelectorAll('.acc-header').forEach(header => {
+header.addEventListener('click', () => {
+const item = header.parentElement;
+const body = item.querySelector('.acc-body');
+const inner = body.querySelector('.acc-body-inner');
+const isOpen = item.classList.contains('open');
+
+// close all
+document.querySelectorAll('.acc-item').forEach(i => {
+i.classList.remove('open');
+i.querySelector('.acc-body').style.maxHeight = '0';
+});
+
+if (!isOpen) {
+item.classList.add('open');
+body.style.maxHeight = inner.scrollHeight + 40 + 'px';
+}
+});
+});
+</script>
+</body>
+</html>
