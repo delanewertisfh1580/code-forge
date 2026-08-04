@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeForge · White Label Strategy v1.0 · B2B2B</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/unbounded@5.1.0/cyrillic-400.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/unbounded@5.1.0/cyrillic-500.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/unbounded@5.1.0/cyrillic-600.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/unbounded@5.1.0/cyrillic-700.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@5.1.0/cyrillic-400.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@5.1.0/cyrillic-500.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@5.1.0/cyrillic-600.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@5.1.0/cyrillic-700.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.1.0/cyrillic-400.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.1.0/cyrillic-500.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.1.0/cyrillic-700.css" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d12;
+    --bg-2:#0d1118;
+    --surface:#12161e;
+    --surface-2:#161b25;
+    --surface-3:#1a2029;
+    --border:#212936;
+    --border-2:#2e3949;
+    --text:#e9edf4;
+    --muted:#8b98ab;
+    --dim:#5c6a7d;
+    --accent:#ff7a1c;
+    --accent-2:#ffb454;
+    --accent-soft:rgba(255,122,28,.12);
+    --accent-line:rgba(255,122,28,.35);
+    --green:#3ddc97;
+    --green-soft:rgba(61,220,151,.12);
+    --red:#ff6161;
+    --blue:#5aa9ff;
+    --blue-soft:rgba(90,169,255,.12);
+    --violet:#b490ff;
+    --display:'Unbounded',system-ui,sans-serif;
+    --body:'Golos Text',system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:96px}
+  body{
+    font-family:var(--body);
+    color:var(--text);
+    background:
+      radial-gradient(1100px 520px at 88% -8%, rgba(255,122,28,.10), transparent 62%),
+      radial-gradient(900px 460px at -12% 26%, rgba(90,169,255,.05), transparent 60%),
+      radial-gradient(700px 400px at 70% 110%, rgba(255,122,28,.05), transparent 60%),
+      var(--bg);
+    line-height:1.65;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:'';
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 100%);
+    -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 100%);
+  }
+  ::selection{background:rgba(255,122,28,.35);color:#fff}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:1180px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+
+  /* ---------- HEADER ---------- */
+  .site-header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(10,13,18,.82);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+    transition:box-shadow .3s ease, background .3s ease;
+  }
+  .site-header.scrolled{box-shadow:0 8px 32px rgba(0,0,0,.45);background:rgba(10,13,18,.94)}
+  .header-inner{display:flex;align-items:center;gap:24px;height:68px}
+  .logo{display:flex;align-items:center;gap:12px;flex-shrink:0}
+  .logo-mark{
+    width:38px;height:38px;border-radius:10px;
+    background:linear-gradient(145deg,#ff8f3d,#e05f06);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--display);font-weight:700;font-size:.85rem;color:#1a0d02;
+    box-shadow:0 4px 18px rgba(255,122,28,.35);
+  }
+  .logo-text{font-family:var(--display);font-size:.82rem;font-weight:600;letter-spacing:.02em;line-height:1.3}
+  .logo-text small{display:block;font-family:var(--mono);font-size:.62rem;font-weight:400;color:var(--muted);letter-spacing:.08em}
+  .nav-links{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+  .nav-links::-webkit-scrollbar{display:none}
+  .nav-links a{
+    font-size:.82rem;font-weight:500;color:var(--muted);
+    padding:8px 12px;border-radius:8px;white-space:nowrap;
+    transition:color .2s, background .2s;
+  }
+  .nav-links a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+  .nav-links a.active{color:var(--accent-2);background:var(--accent-soft)}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;flex-shrink:0;
+    font-family:var(--body);font-weight:600;font-size:.85rem;
+    padding:10px 18px;border-radius:10px;
+    background:linear-gradient(145deg,#ff8f3d,#e8650a);
+    color:#1a0d02;
+    box-shadow:0 4px 20px rgba(255,122,28,.3);
+    transition:transform .2s, box-shadow .2s;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,122,28,.45)}
+  .btn-ghost{
+    background:transparent;color:var(--accent-2);
+    border:1px solid var(--accent-line);box-shadow:none;
+  }
+  .btn-ghost:hover{background:var(--accent-soft);box-shadow:none}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:88px 0 64px;position:relative}
+  .orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;opacity:.5}
+  .orb-1{width:340px;height:340px;background:rgba(255,122,28,.14);top:-60px;right:-80px;animation:drift 14s ease-in-out infinite}
+  .orb-2{width:260px;height:260px;background:rgba(90,169,255,.08);bottom:-40px;left:-100px;animation:drift 18s ease-in-out infinite reverse}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,26px)}}
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent-2);
+    border:1px solid var(--accent-line);border-radius:100px;
+    padding:8px 16px;margin-bottom:28px;background:var(--accent-soft);
+  }
+  .hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .hero h1{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(1.9rem,4.6vw,3.3rem);
+    line-height:1.18;letter-spacing:-.01em;
+    max-width:900px;margin-bottom:24px;
+  }
+  .hero h1 .accent{color:var(--accent);text-shadow:0 0 40px rgba(255,122,28,.4)}
+  .hero-desc{max-width:760px;color:var(--muted);font-size:1.05rem;margin-bottom:44px}
+  .hero-desc strong{color:var(--text);font-weight:600}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .metric-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-top:2px solid var(--accent);
+    border-radius:var(--radius);padding:22px 20px;
+    transition:transform .25s, border-color .25s, box-shadow .25s;
+  }
+  .metric-card:hover{transform:translateY(-4px);border-color:var(--border-2);box-shadow:0 14px 34px rgba(0,0,0,.4)}
+  .metric-value{font-family:var(--mono);font-weight:700;font-size:1.9rem;color:var(--accent-2);line-height:1.1;margin-bottom:8px}
+  .metric-label{font-size:.8rem;color:var(--muted);line-height:1.45}
+
+  /* ---------- SECTIONS ---------- */
+  .section{padding:72px 0;border-top:1px solid var(--border)}
+  .section-label{
+    font-family:var(--mono);font-size:.75rem;font-weight:500;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:'';height:1px;width:64px;background:var(--accent-line)}
+  .section-title{
+    font-family:var(--display);font-weight:600;
+    font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.3;
+    margin-bottom:16px;max-width:820px;
+  }
+  .section-intro{color:var(--muted);max-width:780px;font-size:1rem;margin-bottom:40px}
+  .section-intro strong{color:var(--text)}
+
+  /* ---------- CARDS ---------- */
+  .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:26px;
+    transition:transform .25s, border-color .25s, box-shadow .25s;
+    position:relative;overflow:hidden;
+  }
+  .card::after{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--accent),transparent);
+    opacity:0;transition:opacity .3s;
+  }
+  .card:hover{transform:translateY(-5px);border-color:var(--border-2);box-shadow:0 18px 40px rgba(0,0,0,.42)}
+  .card:hover::after{opacity:1}
+  .card-icon{
+    width:46px;height:46px;border-radius:11px;
+    background:var(--accent-soft);border:1px solid var(--accent-line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.35rem;margin-bottom:18px;
+  }
+  .card-icon.blue{background:var(--blue-soft);border-color:rgba(90,169,255,.35)}
+  .card-icon.green{background:var(--green-soft);border-color:rgba(61,220,151,.35)}
+  .card h3{font-family:var(--display);font-size:1rem;font-weight:600;margin-bottom:12px;line-height:1.4}
+  .card p{color:var(--muted);font-size:.92rem}
+  .card p strong{color:var(--text)}
+  .card ul{list-style:none;margin-top:14px}
+  .card ul li{
+    font-size:.88rem;color:var(--muted);padding:6px 0 6px 22px;position:relative;
+    border-bottom:1px dashed rgba(255,255,255,.06);
+  }
+  .card ul li:last-child{border-bottom:none}
+  .card ul li::before{content:'▸';position:absolute;left:2px;color:var(--accent)}
+  .card ul li.blue::before{color:var(--blue)}
+  .card ul li strong{color:var(--text);font-weight:600}
+
+  /* ---------- TABLES ---------- */
+  .table-wrap{
+    overflow-x:auto;background:var(--surface);
+    border:1px solid var(--border);border-radius:var(--radius);
+    margin-top:8px;
+  }
+  table{width:100%;border-collapse:collapse;min-width:640px}
+  th{
+    font-family:var(--mono);font-size:.68rem;font-weight:500;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+    text-align:left;padding:16px 18px;
+    background:var(--surface-2);border-bottom:1px solid var(--border);
+  }
+  td{
+    padding:14px 18px;font-size:.9rem;color:var(--muted);
+    border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top;
+  }
+  tbody tr{transition:background .2s}
+  tbody tr:hover{background:rgba(255,255,255,.025)}
+  tbody tr:last-child td{border-bottom:none}
+  td:first-child{color:var(--text);font-weight:600}
+  td .mono{font-family:var(--mono)}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:.7rem;font-weight:500;
+    padding:4px 11px;border-radius:100px;white-space:nowrap;
+  }
+  .chip-ours{background:var(--accent-soft);color:var(--accent-2);border:1px solid var(--accent-line)}
+  .chip-studio{background:var(--blue-soft);color:var(--blue);border:1px solid rgba(90,169,255,.35)}
+  .chip-green{background:var(--green-soft);color:var(--green);border:1px solid rgba(61,220,151,.35)}
+  .chip-red{background:rgba(255,97,97,.1);color:var(--red);border:1px solid rgba(255,97,97,.3)}
+  .dash{color:var(--dim)}
+
+  /* ---------- CUSTOMIZATION GRID ---------- */
+  .mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px}
+  .mini-card{
+    background:var(--surface-2);border:1px solid var(--border);
+    border-radius:12px;padding:20px;
+    transition:transform .25s, border-color .25s;
+  }
+  .mini-card:hover{transform:translateY(-4px);border-color:var(--accent-line)}
+  .mini-card .emoji{font-size:1.5rem;margin-bottom:12px;display:block}
+  .mini-card h4{font-size:.92rem;font-weight:600;margin-bottom:8px}
+  .mini-card p{font-size:.82rem;color:var(--muted)}
+  .tech-note{
+    margin-top:24px;padding:18px 22px;
+    border:1px dashed var(--border-2);border-radius:12px;
+    font-family:var(--mono);font-size:.8rem;color:var(--muted);
+    display:flex;gap:14px;align-items:flex-start;background:rgba(255,255,255,.015);
+  }
+  .tech-note .ico{font-size:1.1rem;flex-shrink:0}
+  .tech-note strong{color:var(--accent-2)}
+
+  /* ---------- TABS ---------- */
+  .tabs-nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+  .tab-btn{
+    font-family:var(--body);font-weight:600;font-size:.88rem;
+    color:var(--muted);background:var(--surface);
+    border:1px solid var(--border);border-radius:11px;
+    padding:12px 20px;cursor:pointer;
+    transition:all .25s;
+  }
+  .tab-btn:hover{border-color:var(--border-2);color:var(--text);transform:translateY(-2px)}
+  .tab-btn.active{
+    background:var(--accent-soft);border-color:var(--accent-line);
+    color:var(--accent-2);box-shadow:0 6px 22px rgba(255,122,28,.14);
+  }
+  .tab-panel{display:none}
+  .tab-panel.active{display:block;animation:panelIn .45s ease}
+  @keyframes panelIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .segment-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+  .segment-head .medal{font-size:1.6rem}
+  .segment-head h3{font-family:var(--display);font-size:1.15rem;font-weight:600}
+  .segment-head .examples{font-family:var(--mono);font-size:.74rem;color:var(--dim);letter-spacing:.05em}
+  .segment-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .trigger-banner{
+    margin-top:18px;padding:20px 24px;
+    background:linear-gradient(120deg, rgba(255,122,28,.12), rgba(255,122,28,.04));
+    border:1px solid var(--accent-line);border-left:3px solid var(--accent);
+    border-radius:12px;
+  }
+  .trigger-banner .label{
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:8px;display:block;
+  }
+  .trigger-banner p{font-size:.92rem;color:var(--text)}
+  .stats-row{
+    display:flex;gap:0;flex-wrap:wrap;margin-top:18px;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;
+  }
+  .stat{
+    flex:1;min-width:170px;padding:16px 20px;
+    border-right:1px solid var(--border);
+  }
+  .stat:last-child{border-right:none}
+  .stat .v{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--accent-2)}
+  .stat .l{font-size:.74rem;color:var(--muted);margin-top:4px}
+
+  /* ---------- ECONOMICS ---------- */
+  .formula-bar{
+    background:var(--surface);border:1px solid var(--border);
+    border-left:3px solid var(--accent);border-radius:var(--radius);
+    padding:26px 30px;margin-bottom:28px;
+    font-family:var(--mono);font-size:clamp(.85rem,1.8vw,1.05rem);
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;line-height:1.9;
+  }
+  .formula-bar .op{color:var(--accent);font-weight:700}
+  .formula-bar .val{color:var(--accent-2);font-weight:700}
+  .formula-bar .note{width:100%;font-family:var(--body);font-size:.85rem;color:var(--muted)}
+  .example-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .example-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:transform .25s,border-color .25s}
+  .example-card:hover{transform:translateY(-4px);border-color:var(--border-2)}
+  .example-card h4{font-family:var(--display);font-size:.95rem;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+  .frow{
+    display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+    padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.08);
+    font-size:.87rem;color:var(--muted);
+  }
+  .frow:last-child{border-bottom:none}
+  .frow .fv{font-family:var(--mono);font-weight:500;color:var(--text);white-space:nowrap}
+  .frow .fv.pos{color:var(--green)}
+  .frow .fv.acc{color:var(--accent-2)}
+  .ltv-card{
+    margin-top:18px;background:linear-gradient(135deg,var(--surface-2),var(--surface));
+    border:1px solid var(--border-2);border-radius:var(--radius);padding:30px;
+  }
+  .ltv-card h4{font-family:var(--display);font-size:1.05rem;font-weight:600;margin-bottom:8px}
+  .ltv-formula{
+    font-family:var(--mono);font-size:.82rem;color:var(--accent-2);
+    background:rgba(255,122,28,.07);border:1px solid var(--accent-line);
+    border-radius:10px;padding:14px 18px;margin:16px 0 20px;overflow-x:auto;white-space:nowrap;
+  }
+  .ltv-result{
+    margin-top:18px;padding-top:18px;border-top:1px dashed var(--border-2);
+    display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  }
+  .ltv-result .big{font-family:var(--mono);font-weight:700;font-size:2rem;color:var(--green)}
+  .ltv-result .cap{font-size:.85rem;color:var(--muted)}
+  .verdict-row td{background:rgba(255,122,28,.05)}
+
+  /* ---------- ACCORDION ---------- */
+  .accordion{display:flex;flex-direction:column;gap:14px}
+  .acc-item{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);overflow:hidden;
+    transition:border-color .3s, box-shadow .3s;
+  }
+  .acc-item.open{border-color:var(--accent-line);box-shadow:0 10px 32px rgba(255,122,28,.08)}
+  .acc-head{
+    width:100%;display:flex;align-items:center;gap:16px;
+    padding:20px 24px;cursor:pointer;background:none;border:none;
+    color:var(--text);font-family:var(--body);text-align:left;
+    transition:background .2s;
+  }
+  .acc-head:hover{background:rgba(255,255,255,.025)}
+  .acc-head .emoji{font-size:1.3rem;flex-shrink:0}
+  .acc-head .title{font-weight:600;font-size:1rem;flex:1}
+  .acc-head .title small{display:block;font-weight:400;font-size:.78rem;color:var(--muted);margin-top:3px}
+  .acc-plus{
+    width:30px;height:30px;flex-shrink:0;border-radius:8px;
+    border:1px solid var(--border-2);color:var(--accent-2);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:1.1rem;font-weight:400;
+    transition:transform .35s, background .35s, border-color .35s;
+  }
+  .acc-item.open .acc-plus{transform:rotate(45deg);background:var(--accent-soft);border-color:var(--accent-line)}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .acc-inner{padding:0 24px 24px 68px;color:var(--muted);font-size:.92rem}
+  .acc-inner strong{color:var(--text)}
+  .acc-inner ol{margin:12px 0 0 18px}
+  .acc-inner ol li{padding:4px 0}
+  .acc-inner .variant{
+    margin-top:14px;padding:14px 18px;border-radius:10px;
+    background:var(--surface-2);border:1px solid var(--border);
+  }
+  .acc-inner .variant b{color:var(--accent-2);font-family:var(--mono);font-size:.8rem;letter-spacing:.06em}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{position:relative;padding-left:0}
+  .timeline::before{
+    content:'';position:absolute;left:25px;top:12px;bottom:12px;width:2px;
+    background:linear-gradient(180deg,var(--accent),var(--border-2) 70%,transparent);
+  }
+  .tl-item{display:grid;grid-template-columns:52px 1fr;gap:22px;margin-bottom:20px;position:relative}
+  .tl-node{
+    width:52px;height:52px;border-radius:50%;flex-shrink:0;
+    background:var(--surface);border:2px solid var(--accent-line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:700;font-size:.85rem;color:var(--accent-2);
+    position:relative;z-index:1;box-shadow:0 0 0 6px var(--bg);
+    transition:transform .25s, border-color .25s, box-shadow .25s;
+  }
+  .tl-item:hover .tl-node{transform:scale(1.1);border-color:var(--accent);box-shadow:0 0 0 6px var(--bg),0 0 24px rgba(255,122,28,.35)}
+  .tl-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:22px 26px;
+    transition:transform .25s, border-color .25s;
+  }
+  .tl-item:hover .tl-card{transform:translateX(6px);border-color:var(--border-2)}
+  .tl-card h4{font-size:1rem;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .tl-card p{font-size:.9rem;color:var(--muted)}
+  .tl-card p strong{color:var(--text)}
+  .tl-tag{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent-2);background:var(--accent-soft);border:1px solid var(--accent-line);
+    padding:3px 10px;border-radius:100px;
+  }
+  .sla-block{margin-top:36px}
+  .sla-block h3{font-family:var(--display);font-size:1.05rem;font-weight:600;margin-bottom:6px}
+  .sla-block .sub{font-size:.88rem;color:var(--muted);margin-bottom:18px}
+  .sev{font-family:var(--mono);font-weight:700;font-size:.78rem;padding:3px 10px;border-radius:6px}
+  .sev-1{background:rgba(255,97,97,.12);color:var(--red);border:1px solid rgba(255,97,97,.35)}
+  .sev-2{background:var(--accent-soft);color:var(--accent-2);border:1px solid var(--accent-line)}
+  .sev-3{background:rgba(255,180,84,.1);color:#ffd28a;border:1px solid rgba(255,180,84,.3)}
+  .sev-4{background:var(--blue-soft);color:var(--blue);border:1px solid rgba(90,169,255,.35)}
+
+  /* ---------- ROADMAP ---------- */
+  .roadmap{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .stage{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;
+    transition:transform .25s, border-color .25s, box-shadow .25s;position:relative;overflow:hidden;
+  }
+  .stage:hover{transform:translateY(-6px);box-shadow:0 20px 44px rgba(0,0,0,.45)}
+  .stage.s1{border-top:3px solid var(--accent)}
+  .stage.s2{border-top:3px solid var(--accent-2)}
+  .stage.s3{border-top:3px solid var(--green)}
+  .stage .phase{
+    font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.16em;
+    text-transform:uppercase;margin-bottom:14px;display:inline-flex;align-items:center;gap:8px;
+  }
+  .stage.s1 .phase{color:var(--accent)}
+  .stage.s2 .phase{color:var(--accent-2)}
+  .stage.s3 .phase{color:var(--green)}
+  .stage h3{font-family:var(--display);font-size:1.02rem;font-weight:600;margin-bottom:16px;line-height:1.4}
+  .stage ul{list-style:none;flex:1}
+  .stage ul li{
+    font-size:.87rem;color:var(--muted);padding:7px 0 7px 22px;position:relative;
+    border-bottom:1px dashed rgba(255,255,255,.06);
+  }
+  .stage ul li:last-child{border-bottom:none}
+  .stage ul li::before{content:'▸';position:absolute;left:2px;color:var(--accent)}
+  .stage ul li strong{color:var(--text)}
+  .stage .kpi{
+    margin-top:18px;padding-top:16px;border-top:1px dashed var(--border-2);
+    font-size:.8rem;color:var(--muted);
+  }
+  .stage .kpi b{color:var(--accent-2);font-family:var(--mono);font-weight:700}
+  .geo-strip{
+    margin-top:28px;padding:22px 26px;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  }
+  .geo-strip .label{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin-right:auto;
+  }
+  .geo-chip{
+    font-size:.88rem;font-weight:600;padding:9px 18px;border-radius:100px;
+    background:var(--surface-2);border:1px solid var(--border-2);
+    transition:all .25s;cursor:default;
+  }
+  .geo-chip:hover{border-color:var(--accent-line);color:var(--accent-2);transform:translateY(-2px)}
+  .geo-arrow{color:var(--accent);font-family:var(--mono)}
+
+  /* ---------- FOOTER ---------- */
+  .site-footer{border-top:1px solid var(--border);background:var(--bg-2);padding:56px 0 36px;margin-top:40px}
+  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:40px;margin-bottom:36px}
+  .footer-brand p{color:var(--muted);font-size:.88rem;max-width:440px;margin-top:14px}
+  .footer-links{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+  .footer-links a{
+    display:inline-flex;align-items:center;gap:10px;
+    font-size:.9rem;color:var(--muted);transition:color .2s, transform .2s;
+  }
+  .footer-links a:hover{color:var(--accent-2);transform:translateX(4px)}
+  .footer-links .ico{font-family:var(--mono);color:var(--accent);font-size:.8rem}
+  .footer-bottom{
+    border-top:1px solid var(--border);padding-top:24px;
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:.72rem;color:var(--dim);letter-spacing:.05em;
+  }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease, transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:1020px){
+    .metrics{grid-template-columns:repeat(2,1fr)}
+    .card-grid{grid-template-columns:1fr}
+    .mini-grid{grid-template-columns:repeat(2,1fr)}
+    .roadmap{grid-template-columns:1fr}
+    .example-grid{grid-template-columns:1fr}
+    .segment-grid{grid-template-columns:1fr}
+    .footer-grid{grid-template-columns:1fr}
+  }
+  @media (max-width:720px){
+    .nav-links{display:none}
+    .hero{padding:60px 0 48px}
+    .section{padding:52px 0}
+    .mini-grid{grid-template-columns:1fr}
+    .metrics{grid-template-columns:1fr 1fr}
+    .acc-inner{padding:0 20px 22px 20px}
+    .tl-item{grid-template-columns:44px 1fr;gap:14px}
+    .tl-node{width:44px;height:44px}
+    .timeline::before{left:21px}
+    .logo-text small{display:none}
+  }
+  @media (max-width:460px){
+    .metrics{grid-template-columns:1fr}
+    .stat{min-width:100%}
+  }
+</style>
+</head>
+<body id="top">
+
+<!-- ================= HEADER ================= -->
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a href="#top" class="logo">
+      <span class="logo-mark">CF</span>
+      <span class="logo-text">CodeForge · White Label Strategy v1.0<small>Стратегия B2B2B · Track G</small></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#model">Суть модели</a>
+      <a href="#partners">Партнёры</a>
+      <a href="#economics">Экономика</a>
+      <a href="#dealreg">Защита каналов</a>
+      <a href="#ops">Операционка</a>
+      <a href="#roadmap">Дорожная карта</a>
+    </nav>
+    <a href="https://t.me/Sagat9881" class="btn" target="_blank" rel="noopener">Обсудить партнёрство →</a>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="container">
+    <div class="hero-badge reveal"><span class="dot"></span>White Label Strategy · v1.0 · Август 2026 · Канал «Партнёрства со студиями»</div>
+    <h1 class="reveal">White Label Strategy: <span class="accent">невидимый backend-движок</span> для дизайн-студий</h1>
+    <p class="hero-desc reveal">
+      CodeForge забирает на себя всю серверную часть, базы данных, интеграции (<strong>CRM, 1С, платёжки</strong>), хостинг и 2-ю линию поддержки.
+      Дизайн-студии продают сложные IT-продукты <strong>под своим брендом</strong>, сохраняют маржу и не раздувают штат.
+      Клиент думает, что работает только со студией — <strong>и это суть модели</strong>.
+    </p>
+    <div class="metrics reveal">
+      <div class="metric-card">
+        <div class="metric-value"><span data-count="20">0</span>%</div>
+        <div class="metric-label">Партнёрская скидка от розничного прайса Playbook v4.0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">0 ₽</div>
+        <div class="metric-label">CAC на энд-клиента — клиента приводит студия</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">B2B2B</div>
+        <div class="metric-label">Модель канала: CodeForge → Студия → Энд-клиент</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value"><span data-count="10">0</span>+</div>
+        <div class="metric-label">Пилотных студий на этапе M1–M3</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 01 · СУТЬ WL-МОДЕЛИ ================= -->
+<section class="section" id="model">
+  <div class="container">
+    <div class="section-label reveal">01 · Суть WL-модели</div>
+    <h2 class="section-title reveal">Границы ответственности: мы — движок, студия — кузов</h2>
+    <p class="section-intro reveal">
+      Клиент никогда не должен узнать о существовании CodeForge. Студия получает полноценный backend-цех,
+      который работает под её брендом, на её домене и в её цветах — <strong>без написания уникального кода под каждого партнёра</strong>.
+    </p>
+
+    <div class="card-grid">
+      <div class="card reveal">
+        <div class="card-icon">👻</div>
+        <h3>Принцип «Невидимки»</h3>
+        <p>Для студии мы — <strong>надёжный backend-партнёр</strong> и невидимый подрядчик. Для энд-клиента единственный исполнитель — студия: её бренд, её домен, её коммуникация.</p>
+        <ul>
+          <li>Никаких наших логотипов в футере и упоминаний в коде</li>
+          <li>Никаких прямых контактов с клиентом студии</li>
+          <li>Все письма, КП и договоры — от имени студии</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">⚙️</div>
+        <h3>Что забираем мы</h3>
+        <p>Вся «невидимая» часть продукта — наша зона ответственности и наш COGS.</p>
+        <ul>
+          <li><strong>Серверная часть и базы данных</strong> — архитектура, разработка</li>
+          <li><strong>API и интеграции</strong> — CRM, 1С, платёжки, СКУД</li>
+          <li><strong>Хостинг и бэкапы</strong> — РФ, ФЗ-152, daily snapshots</li>
+          <li><strong>Безопасность и обновления</strong> — мониторинг 24/7</li>
+          <li><strong>2-я линия поддержки</strong> — техническая, по SLA</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon blue">🎨</div>
+        <h3>Что остаётся у студии</h3>
+        <p>Всё, что делает студию уникальной и за что клиент платит деньги.</p>
+        <ul>
+          <li class="blue"><strong>Дизайн и UX/UI</strong> — визуальный слой продукта</li>
+          <li class="blue"><strong>Фронтенд</strong> — вёрстка и клиентская часть</li>
+          <li class="blue"><strong>Продажи и переговоры</strong> — ценообразование за студией</li>
+          <li class="blue"><strong>1-я линия поддержки</strong> — общение с клиентом</li>
+          <li class="blue"><strong>Бренд и отношения</strong> — клиент принадлежит студии</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="table-wrap reveal" style="margin-top:28px">
+      <table>
+        <thead>
+          <tr><th style="width:44%">Зона ответственности</th><th style="width:28%">CodeForge</th><th style="width:28%">Студия</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Серверная часть, БД, API</td><td><span class="chip chip-ours">● CodeForge</span></td><td><span class="dash">—</span></td></tr>
+          <tr><td>Интеграции: CRM, 1С, платёжки, СКУД</td><td><span class="chip chip-ours">● CodeForge</span></td><td><span class="dash">—</span></td></tr>
+          <tr><td>Хостинг, бэкапы, безопасность, обновления</td><td><span class="chip chip-ours">● CodeForge</span></td><td><span class="dash">—</span></td></tr>
+          <tr><td>2-я линия поддержки (техническая)</td><td><span class="chip chip-ours">● CodeForge</span></td><td><span class="dash">—</span></td></tr>
+          <tr><td>Дизайн, UX/UI, фронтенд</td><td><span class="dash">—</span></td><td><span class="chip chip-studio">● Студия</span></td></tr>
+          <tr><td>Продажи, ценообразование, КП</td><td><span class="dash">—</span></td><td><span class="chip chip-studio">● Студия</span></td></tr>
+          <tr><td>1-я линия поддержки (общение с клиентом)</td><td><span class="dash">—</span></td><td><span class="chip chip-studio">● Студия</span></td></tr>
+          <tr><td>Бренд, домен, коммуникация с клиентом</td><td><span class="dash">—</span></td><td><span class="chip chip-studio">● Студия</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mini-grid">
+      <div class="mini-card reveal">
+        <span class="emoji">🎨</span>
+        <h4>Бренд студии</h4>
+        <p>Темизация через CSS-переменные: логотип, цвета, шрифты. Брендинг включается за один клик — без переписывания кода.</p>
+      </div>
+      <div class="mini-card reveal">
+        <span class="emoji">🌐</span>
+        <h4>Свой домен</h4>
+        <p>Виджеты и админки открываются на домене студии. Клиент видит в адресной строке только её URL.</p>
+      </div>
+      <div class="mini-card reveal">
+        <span class="emoji">🧩</span>
+        <h4>SDK-виджеты</h4>
+        <p>Встройка через &lt;iframe&gt; / &lt;script&gt; в любой сайт независимо от CMS. Две строки кода — модуль на сайте студии.</p>
+      </div>
+      <div class="mini-card reveal">
+        <span class="emoji">🖥</span>
+        <h4>Партнёрская админка</h4>
+        <p>Единое окно: проекты, тикеты, биллинг, аналитика. Студия управляет всем сама, без менеджера с нашей стороны.</p>
+      </div>
+    </div>
+
+    <div class="tech-note reveal">
+      <span class="ico">🔧</span>
+      <span><strong>Multi-tenancy:</strong> проекты разных студий изолированы Docker-контейнерами + vhosts на общей инфраструктуре. Данные каждого партнёра независимы и недоступны другим — безопасность и масштабируемость без роста COGS.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 · ПОРТРЕТ ПАРТНЁРА ================= -->
+<section class="section" id="partners">
+  <div class="container">
+    <div class="section-label reveal">02 · Портрет WL-партнёра</div>
+    <h2 class="section-title reveal">Сегментация студий: три боли — один продукт</h2>
+    <p class="section-intro reveal">
+      Каждый сегмент упирается в свой <strong>Gap</strong> — разрыв между амбициями и возможностями.
+      CodeForge закрывает все три одним и тем же невидимым backend-движком.
+    </p>
+
+    <div class="tabs reveal">
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-target="#tab-p1">🥇 P1 · Tilda-студии с амбициями</button>
+        <button class="tab-btn" data-target="#tab-p2">🥈 P2 · Наградные дизайн-студии</button>
+        <button class="tab-btn" data-target="#tab-p3">🥈 P3 · Малые корп-студии</button>
+      </div>
+
+      <!-- P1 -->
+      <div class="tab-panel active" id="tab-p1">
+        <div class="segment-head">
+          <span class="medal">🥇</span>
+          <div>
+            <h3>Tilda-студии с амбициями</h3>
+            <span class="examples">Marmelad · Yusmp · и другие студии на Tilda</span>
+          </div>
+        </div>
+        <div class="segment-grid">
+          <div class="card">
+            <div class="card-icon">🧱</div>
+            <h3>Боль · Tilda-gap</h3>
+            <p>Студии переросли Tilda: сложные CRM, e-commerce, кастомные бизнес-процессы и интеграции с 1С платформа не тянет. Клиенты уходят к подрядчикам с full-stack-разработкой, а студия упирается в потолок по чекам и проектам.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon green">🚀</div>
+            <h3>Как закрываем</h3>
+            <p>Студия берёт проекты «за пределами Tilda», не нанимая backend-разработчиков: серверная часть, интеграции с CRM/1С и платёжками — на нас. Студия сохраняет привычную скорость процессов, но продаёт продукт совершенно другого уровня.</p>
+          </div>
+        </div>
+        <div class="trigger-banner">
+          <span class="label">⚡ Триггер для начала партнёрства</span>
+          <p>Первый клиентский запрос, который студия была вынуждена <strong>отклонить из-за отсутствия backend</strong> — или проигранный тендер, где победил конкурент с full-stack-командой.</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><div class="v">80–150K ₽</div><div class="l">Входной чек (розница Playbook)</div></div>
+          <div class="stat"><div class="v">15–25K ₽</div><div class="l">MRR на энд-клиента</div></div>
+          <div class="stat"><div class="v">40–75%</div><div class="l">Маржа студии на WL-проектах</div></div>
+        </div>
+      </div>
+
+      <!-- P2 -->
+      <div class="tab-panel" id="tab-p2">
+        <div class="segment-head">
+          <span class="medal">🥈</span>
+          <div>
+            <h3>Наградные дизайн-студии</h3>
+            <span class="examples">Pinkman · RED COLLAR · студии с фокусом на дизайн</span>
+          </div>
+        </div>
+        <div class="segment-grid">
+          <div class="card">
+            <div class="card-icon">💸</div>
+            <h3>Боль · No-backend / Margin-gap</h3>
+            <p>Экспертиза — дизайн и награды, а не код. Собственная backend-команда стоит дорого: найм, зарплаты, менеджмент и кадровые войны съедают маржу проектов. Аутсорс — непредсказуемые сроки и сметы.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon green">🛡</div>
+            <h3>Как закрываем</h3>
+            <p>Backend «под ключ» и невидимо: серверная часть, БД, интеграции — на нас. Студия не раздувает штат, сохраняет маржу и фокусируется на дизайне и продажах. Фиксированная оценка за 2 дня — без сюрпризов в смете.</p>
+          </div>
+        </div>
+        <div class="trigger-banner">
+          <span class="label">⚡ Триггер для начала партнёрства</span>
+          <p>Крупный проект со сложным backend, где маржа <strong>сгорает на фонде оплаты backend-разработчиков</strong> — или неудачный опыт найма штатного сеньора.</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><div class="v">2 дня</div><div class="l">Фиксированная оценка по ТЗ</div></div>
+          <div class="stat"><div class="v">0</div><div class="l">Новых штатных разработчиков</div></div>
+          <div class="stat"><div class="v">40%+</div><div class="l">Маржа сохраняется на проектах</div></div>
+        </div>
+      </div>
+
+      <!-- P3 -->
+      <div class="tab-panel" id="tab-p3">
+        <div class="segment-head">
+          <span class="medal">🥈</span>
+          <div>
+            <h3>Малые корпоративные студии</h3>
+            <span class="examples">15–50 место Рейтинга Рунета · корпоративные клиенты</span>
+          </div>
+        </div>
+        <div class="segment-grid">
+          <div class="card">
+            <div class="card-icon">📈</div>
+            <h3>Боль · Scale-gap</h3>
+            <p>Для поддержки текущих клиентов и масштабирования нужен Senior Backend-разработчик в штат — от 150K ₽/мес с налогами и риском простоя. Дорого, сложно найти, долго вводить в проект.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon green">🔄</div>
+            <h3>Как закрываем</h3>
+            <p>Заменяем штатного сеньора целой backend-командой: разработка, DevOps, 2-я линия поддержки. Студия платит только за фактические работы и масштабирует канал без найма и кадровых рисков.</p>
+          </div>
+        </div>
+        <div class="trigger-banner">
+          <span class="label">⚡ Триггер для начала партнёрства</span>
+          <p>Момент, когда единственный «универсальный разработчик» студии становится <strong>бутылочным горлышком</strong>: очередь задач, срыв сроков, деградация поддержки клиентов.</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><div class="v">150K+ ₽/мес</div><div class="l">Senior Backend в штате (Урал)</div></div>
+          <div class="stat"><div class="v">Pay-as-you-go</div><div class="l">Оплата только за фактические работы</div></div>
+          <div class="stat"><div class="v">SLA 99.5%</div><div class="l">Гарантия, которую студия передаёт клиенту</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 · ЭКОНОМИКА ================= -->
+<section class="section" id="economics">
+  <div class="container">
+    <div class="section-label reveal">03 · Экономика WL-партнёрства</div>
+    <h2 class="section-title reveal">Математика канала: делимся маржой — получаем LTV</h2>
+    <p class="section-intro reveal">
+      Мы отдаём студии <strong>20% от розничного прайса</strong> и контроль над клиентом. Взамен получаем канал с нулевым CAC,
+      рекуррентный доход и партнёра, который продаёт за нас.
+    </p>
+
+    <div class="formula-bar reveal">
+      <span>Розничный прайс (Playbook v4.0)</span>
+      <span class="op">−</span>
+      <span class="val">20% партнёрская скидка</span>
+      <span class="op">=</span>
+      <span>Цена для студии</span>
+      <span class="note">Студия зарабатывает наценкой сверху: сама назначает цену энд-клиенту. Разница между её ценой и нашей — её маржа. Мы не видим и не ограничиваем наценку студии.</span>
+    </div>
+
+    <div class="example-grid">
+      <div class="example-card reveal">
+        <h4>📦 Пример · Self-Storage — сеть, 3 локации</h4>
+        <div class="frow"><span>Входной чек (розничный прайс)</span><span class="fv">150K ₽</span></div>
+        <div class="frow"><span>Доход CodeForge (−20%)</span><span class="fv acc">120K ₽</span></div>
+        <div class="frow"><span>Цена студии для энд-клиента</span><span class="fv">200K ₽</span></div>
+        <div class="frow"><span>Маржа студии на проекте</span><span class="fv pos">+80K ₽ (40%)</span></div>
+        <div class="frow"><span>MRR: розница 20K → доход CF</span><span class="fv acc">16K ₽/мес</span></div>
+        <div class="frow"><span>Студия берёт с клиента 25K</span><span class="fv pos">+9K ₽/мес</span></div>
+      </div>
+      <div class="example-card reveal">
+        <h4>🚦 Пример · OOH — региональный оператор</h4>
+        <div class="frow"><span>Входной чек (розничный прайс)</span><span class="fv">75K ₽</span></div>
+        <div class="frow"><span>Доход CodeForge (−20%)</span><span class="fv acc">60K ₽</span></div>
+        <div class="frow"><span>Цена студии для энд-клиента</span><span class="fv">100K ₽</span></div>
+        <div class="frow"><span>Маржа студии на проекте</span><span class="fv pos">+40K ₽ (40%)</span></div>
+        <div class="frow"><span>MRR: розница 10K → доход CF</span><span class="fv acc">8K ₽/мес</span></div>
+        <div class="frow"><span>Студия берёт с клиента 15K</span><span class="fv pos">+7K ₽/мес</span></div>
+      </div>
+    </div>
+
+    <div class="ltv-card reveal">
+      <h4>💎 LTV одного WL-партнёра</h4>
+      <p style="color:var(--muted);font-size:.9rem">Студия — это не разовая сделка, а канал с собственным LTV: она приводит N клиентов в год и остаётся с нами на годы.</p>
+      <div class="ltv-formula">LTV партнёра = N клиентов/год × (Проектный доход CF + MRR_CF × GM 97.5% × Lifetime) × Retention × Срок партнёрства</div>
+      <div class="frow"><span>Студия приводит (сегмент Self-Storage)</span><span class="fv">2 клиента/год</span></div>
+      <div class="frow"><span>Доход CF с 1 клиента (проект 120K + MRR 16K × 12 мес)</span><span class="fv">312K ₽</span></div>
+      <div class="frow"><span>Доход CF с одной студии в год</span><span class="fv acc">312K × 2 = 624K ₽</span></div>
+      <div class="ltv-result">
+        <span class="big">≈ 1.5M ₽</span>
+        <span class="cap">LTV партнёра за 3 года сотрудничества при Retention 0.8 — без учёта роста MRR через подключение Фаз 2–5</span>
+      </div>
+    </div>
+
+    <div class="table-wrap reveal" style="margin-top:28px">
+      <table>
+        <thead>
+          <tr><th>Метрика</th><th>WL-канал (Track G)</th><th>Прямые продажи (Playbook v4.0)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CAC на энд-клиента</td><td><span class="chip chip-green">0 ₽ — клиента приводит студия</span></td><td><span class="mono">5–15K (SS) · 0–4K (OOH)</span></td></tr>
+          <tr><td>Маржа на проекте</td><td><span class="mono">80% розницы (−20% скидка)</span></td><td><span class="mono">100% розницы</span></td></tr>
+          <tr><td>LTV / CAC</td><td><span class="chip chip-green">&gt; 100x (на уровне партнёра)</span></td><td><span class="mono">25–50x</span></td></tr>
+          <tr><td>Цикл продажи</td><td>Короче: продаёт студия, мы только оцениваем</td><td>2–5 часов времени основателя на клиента</td></tr>
+          <tr><td>Контроль над клиентом</td><td>Ограниченный: отношения у студии</td><td>Полный</td></tr>
+          <tr><td>Масштабируемость</td><td>Высокая: 10+ студий параллельно</td><td>Ограничена: ≤ 6 проектов + ≤ 10 support-клиентов</td></tr>
+          <tr class="verdict-row"><td>Вердикт</td><td><strong style="color:var(--accent-2)">Стратегический канал долгосрочного роста</strong></td><td><strong style="color:var(--text)">Cash flow и верификация рынка</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 · DEAL REGISTRATION ================= -->
+<section class="section" id="dealreg">
+  <div class="container">
+    <div class="section-label reveal">04 · Защита каналов</div>
+    <h2 class="section-title reveal">Deal Registration: жёсткие правила разграничения территорий</h2>
+    <p class="section-intro reveal">
+      Студия должна быть уверена: мы <strong>не «перехватим» её клиента</strong>. Поэтому каждое касание фиксируется в реестре,
+      а запрет на перехват закреплён договором с подписью студии.
+    </p>
+
+    <div class="accordion reveal">
+      <div class="acc-item open">
+        <button class="acc-head" aria-expanded="true">
+          <span class="emoji">⚡</span>
+          <span class="title">Правило «Первого касания»<small>Кто привёл клиента — определяется по первой зафиксированной точке контакта</small></span>
+          <span class="acc-plus">+</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-inner">
+            <p>Любое обращение потенциального клиента в CodeForge — <strong>почта, телефон, форма на сайте</strong> — регистрируется в CRM как новый лид с фиксацией источника и даты. С момента регистрации работа с этим клиентом <strong>категорически запрещена без согласования с директором по продажам</strong>.</p>
+            <ol>
+              <li>Клиент студии закреплён за ней с момента внесения в реестр — даже если он позже сам написал нам напрямую.</li>
+              <li>Клиент из нашей воронки (Playbook v4.0) закреплён за нами — с датой первого outreach-касания.</li>
+              <li>Спорные случаи разбирает директор по продажам в течение 24 часов. Решение финальное.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-head" aria-expanded="false">
+          <span class="emoji">📒</span>
+          <span class="title">Реестр WL-клиентов<small>Механика регистрации сделок — защита инвестиций студии в привлечение</small></span>
+          <span class="acc-plus">+</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-inner">
+            <p>Реестр — общий сегмент в CRM (дублируется в совместный документ), доступный каждой студии-партнёру. Студия видит уже закреплённых клиентов и <strong>не тратит усилия на бесполезные переговоры</strong>.</p>
+            <ol>
+              <li><strong>Уведомление:</strong> студия сообщает о намерении работать с конкретным клиентом.</li>
+              <li><strong>Регистрация:</strong> клиент вносится в реестр со статусом «В работе».</li>
+              <li><strong>Период ожидания 7 дней:</strong> время на заключение договора с клиентом.</li>
+              <li><strong>Финал:</strong> договор заключён — клиент закреплён навсегда. Не заключён — статус «Свободен», клиент доступен CodeForge.</li>
+            </ol>
+            <p style="margin-top:12px">Запрет на «перехват» закреплённых клиентов <strong>прописан в договоре и подтверждён подписью студии</strong> — это юридическая основа доверия канала.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-head" aria-expanded="false">
+          <span class="emoji">🔀</span>
+          <span class="title">Исключения · п. 6.1 договора<small>Если WL-клиент студии просит проект не из профиля студии</small></span>
+          <span class="acc-plus">+</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-inner">
+            <p>Ситуация: клиент студии из Self-Storage в процессе переговоров просит решение для наружной рекламы — <strong>вне основного профиля студии</strong>. Основной профиль студии остаётся неприкосновенным при любых обстоятельствах, а смежные запросы решаются по одному из двух вариантов:</p>
+            <div class="variant">
+              <b>ВАРИАНТ A · ВНУТРИ СЕТИ</b>
+              <p style="margin-top:6px">Передаём запрос партнёрской студии B соответствующей специализации. Сделка остаётся внутри WL-сети, студия A получает благодарность канала и приоритет при будущих передачах.</p>
+            </div>
+            <div class="variant">
+              <b>ВАРИАНТ B · ПРЯМАЯ СДЕЛКА</b>
+              <p style="margin-top:6px">Если подходящего партнёра нет — CodeForge работает с клиентом напрямую, с <strong>обязательным уведомлением студии A и компенсацией за инициированный контакт</strong>. Прозрачно, по согласованию, без кулуарных сделок.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 · ОПЕРАЦИОНКА ================= -->
+<section class="section" id="ops">
+  <div class="container">
+    <div class="section-label reveal">05 · Операционка WL-потока</div>
+    <h2 class="section-title reveal">End-to-end процесс: от ТЗ до поддержки</h2>
+    <p class="section-intro reveal">
+      Стандартизированный конвейер, в котором студия всегда знает: <strong>что нужно от неё, что получит и когда</strong>.
+      Мы сдаём работу студии, студия сдаёт клиенту. Клиент общается только со студией.
+    </p>
+
+    <div class="timeline">
+      <div class="tl-item reveal">
+        <div class="tl-node">01</div>
+        <div class="tl-card">
+          <h4>📥 Вход — ТЗ от студии <span class="tl-tag">Онлайн-форма + чек-лист</span></h4>
+          <p>Студия заполняет форму требований, прикладывает брендбук и доступы. Чек-лист помогает собрать полное ТЗ с первого раза — <strong>минимум вопросов на старте, максимум контекста</strong>.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-node">02</div>
+        <div class="tl-card">
+          <h4>⏱ Оценка — фикс за 2 дня <span class="tl-tag">SLA оценки</span></h4>
+          <p>Фиксированная оценка сроков и стоимости за <strong>2 рабочих дня</strong>. Предсказуемость, на которую студия может опираться в своих продажах и КП.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-node">03</div>
+        <div class="tl-card">
+          <h4>📄 Договор и оплата <span class="tl-tag">30 / 70</span></h4>
+          <p>Стандартный договор, оплата частями: <strong>30% при старте работ, 70% при приёмке</strong>. Без сюрпризов для обеих сторон, кассовый разрыв исключён.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-node">04</div>
+        <div class="tl-card">
+          <h4>🛠 Разработка + QA Sign-off <span class="tl-tag">Внутреннее тестирование</span></h4>
+          <p>Разработка параллельно с работами студии. Перед сдачей продукт проходит <strong>внутренний QA Sign-off</strong> — студия получает стабильный протестированный результат, а не сырой код.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-node">05</div>
+        <div class="tl-card">
+          <h4>📦 Сдача: CF → Студия → Клиент <span class="tl-tag">Двойная приёмка</span></h4>
+          <p>Мы сдаём работу студии, студия — клиенту под своим брендом. <strong>Мы не фигурируем в клиентском поле</strong>: ни на созвонах, ни в актах, ни в переписке.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-node">06</div>
+        <div class="tl-card">
+          <h4>🛡 Поддержка и SLA <span class="tl-tag">Партнёрская админка</span></h4>
+          <p>Студия передаёт тикеты через партнёрскую админку. <strong>1-я линия — студия, 2-я линия — CodeForge</strong>. Клиент всегда общается только со студией и получает гарантированные сроки реакции.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sla-block reveal">
+      <h3>📊 SLA-матрица: сроки, которые студия гарантирует своему клиенту</h3>
+      <p class="sub">Классификация инцидентов по серьёзности. Эти сроки студия может переносить в свои договоры с энд-клиентами.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Уровень</th><th>Описание инцидента</th><th>Срок решения</th><th>Коммуникация</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="sev sev-1">SEV-1</span></td><td><strong>Критический:</strong> полностью блокирует работу системы или бизнес-процесс клиента</td><td class="mono" style="color:var(--red)">&lt; 4 часов</td><td>Немедленно — на главный контакт студии</td></tr>
+            <tr><td><span class="sev sev-2">SEV-2</span></td><td><strong>Высокий:</strong> серьёзная функциональная ошибка, значительный сбой</td><td class="mono" style="color:var(--accent-2)">&lt; 24 часов</td><td>Чат / почта в течение 1 часа</td></tr>
+            <tr><td><span class="sev sev-3">SEV-3</span></td><td><strong>Средний:</strong> доработка или добавление нового функционала</td><td class="mono" style="color:#ffd28a">&lt; 72 часов</td><td>Чат / почта в течение 4 часов</td></tr>
+            <tr><td><span class="sev sev-4">SEV-4</span></td><td><strong>Низкий:</strong> нетехнические вопросы, уточнения, консультации</td><td class="mono" style="color:var(--blue)">&lt; 5 рабочих дней</td><td>Чат / почта в течение 8 часов</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tech-note">
+        <span class="ico">📌</span>
+        <span><strong>Uptime 99.5%</strong> (допустимый простой 3.6 ч/мес) · при превышении — финансовая компенсация 10% месячной подписки за каждые 0.1% ниже SLA. Студия транслирует эти условия своему клиенту как собственные гарантии.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 06 · ROADMAP ================= -->
+<section class="section" id="roadmap">
+  <div class="container">
+    <div class="section-label reveal">06 · Дорожная карта</div>
+    <h2 class="section-title reveal">Масштабирование канала G: 12 месяцев</h2>
+    <p class="section-intro reveal">
+      От 10 пилотов с ручной отладкой процессов — к самообслуживаемому комьюнити партнёров,
+      которые <strong>сами продают наш backend</strong> под своим брендом.
+    </p>
+
+    <div class="roadmap">
+      <div class="stage s1 reveal">
+        <span class="phase">🧪 Этап 1 · M1–M3</span>
+        <h3>Пилоты и отладка процессов</h3>
+        <ul>
+          <li><strong>10 пилотных студий</strong> из сегментов P1–P3</li>
+          <li>Персональный менеджер на каждую студию</li>
+          <li>Полный цикл: Deal Registration, ТЗ, SLA</li>
+          <li>Еженедельные ретро, <strong>сбор факапов</strong> и правка процессов</li>
+        </ul>
+        <div class="kpi">KPI: <b>черновик Partnership Playbook</b> по итогам пилотов</div>
+      </div>
+      <div class="stage s2 reveal">
+        <span class="phase">🤝 Этап 2 · M4–M6</span>
+        <h3>Реферальная программа</h3>
+        <ul>
+          <li><strong>«Студия приводит студию»</strong> — бонус или бесплатный месяц MRR</li>
+          <li>Пилоты становятся амбассадорами канала</li>
+          <li>Закрытый клуб: чат в Telegram / Slack для партнёров</li>
+          <li>Вебинары и ранний доступ к новым фичам</li>
+        </ul>
+        <div class="kpi">KPI: <b>+10 студий</b> по рефералам за квартал</div>
+      </div>
+      <div class="stage s3 reveal">
+        <span class="phase">🌍 Этап 3 · M7–M12</span>
+        <h3>Комьюнити и география</h3>
+        <ul>
+          <li>Комьюнити WL-партнёров: обмен опытом и кейсами</li>
+          <li><strong>Готовые КП-шаблоны, KPI и кейсы</strong> — студии сами продают backend</li>
+          <li>Рекламная кампания на владельцев студий</li>
+          <li>Self-service онбординг новых партнёров</li>
+        </ul>
+        <div class="kpi">KPI: <b>30+ активных студий</b> в канале</div>
+      </div>
+    </div>
+
+    <div class="geo-strip reveal">
+      <span class="label">🗺 Выход за пределы Урала</span>
+      <span class="geo-chip">🏙 Москва</span>
+      <span class="geo-arrow">→</span>
+      <span class="geo-chip">🌉 Санкт-Петербург</span>
+      <span class="geo-arrow">→</span>
+      <span class="geo-chip">🏔 Новосибирск</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#top" class="logo">
+          <span class="logo-mark">CF</span>
+          <span class="logo-text">CodeForge · White Label Strategy v1.0<small>Стратегия B2B2B · Track G</small></span>
+        </a>
+        <p>Внутренний стратегический документ канала «Партнёрства со студиями» (Track G). Невидимый backend-движок для дизайн-студий: мы — инфраструктура и разработка, студия — бренд и клиент.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://t.me/Sagat9881" target="_blank" rel="noopener"><span class="ico">→</span> Telegram: @Sagat9881</a>
+        <a href="mailto:apzakharov9881@gmail.com"><span class="ico">→</span> apzakharov9881@gmail.com</a>
+        <a href="https://github.com/Sagat9881" target="_blank" rel="noopener"><span class="ico">→</span> github.com/Sagat9881</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>CodeForge · Цифровая Кузница · Внутренний документ</span>
+      <span>Обновлено: 02 августа 2026 · Санкт-Петербург · работаем удалённо по миру</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ---------- Tabs ---------- */
+  document.querySelectorAll('.tabs').forEach(function(tabs){
+    var btns = tabs.querySelectorAll('.tab-btn');
+    var panels = tabs.querySelectorAll('.tab-panel');
+    btns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        btns.forEach(function(b){ b.classList.remove('active'); });
+        panels.forEach(function(p){ p.classList.remove('active'); });
+        btn.classList.add('active');
+        var target = tabs.querySelector(btn.dataset.target);
+        if(target){ target.classList.add('active'); }
+      });
+    });
+  });
+
+  /* ---------- Accordion ---------- */
+  document.querySelectorAll('.acc-item').forEach(function(item){
+    var head = item.querySelector('.acc-head');
+    var body = item.querySelector('.acc-body');
+    if(item.classList.contains('open')){
+      body.style.maxHeight = body.scrollHeight + 'px';
+    }
+    head.addEventListener('click', function(){
+      var isOpen = item.classList.toggle('open');
+      head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      body.style.maxHeight = isOpen ? body.scrollHeight + 'px' : '0';
+    });
+  });
+  window.addEventListener('resize', function(){
+    document.querySelectorAll('.acc-item.open .acc-body').forEach(function(body){
+      body.style.maxHeight = body.scrollHeight + 'px';
+    });
+  });
+
+  /* ---------- Scroll reveal ---------- */
+  var revealObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(function(el){ revealObserver.observe(el); });
+
+  /* ---------- Count-up metrics ---------- */
+  function animateCount(el){
+    var target = parseInt(el.dataset.count, 10);
+    var duration = 1200;
+    var startTime = null;
+    function step(ts){
+      if(!startTime){ startTime = ts; }
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(target * eased);
+      if(progress < 1){ requestAnimationFrame(step); }
+    }
+    requestAnimationFrame(step);
+  }
+  var countObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        animateCount(entry.target);
+        countObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-count]').forEach(function(el){ countObserver.observe(el); });
+
+  /* ---------- Header shadow + scrollspy ---------- */
+  var header = document.getElementById('siteHeader');
+  var navLinks = document.querySelectorAll('#navLinks a');
+  var sections = [];
+  navLinks.forEach(function(a){
+    var sec = document.querySelector(a.getAttribute('href'));
+    if(sec){ sections.push({ id: a.getAttribute('href').slice(1), el: sec, link: a }); }
+  });
+  function onScroll(){
+    header.classList.toggle('scrolled', window.scrollY > 10);
+    var pos = window.scrollY + 140;
+    var currentId = '';
+    sections.forEach(function(s){
+      if(s.el.offsetTop <= pos){ currentId = s.id; }
+    });
+    navLinks.forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+</body>
+</html>
