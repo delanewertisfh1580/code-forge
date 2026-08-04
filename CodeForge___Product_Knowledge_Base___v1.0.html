@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeForge · Product Knowledge Base v1.0 · Self-Storage + OOH</title>
+<style>
+:root{
+--bg:#0a0a0f;--bg2:#11111a;--bg3:#16161f;--bg4:#1c1c28;
+--border:#23233a;--border2:#2d2d4a;
+--text:#e8e8f0;--text2:#a0a0b8;--text3:#6a6a82;
+--accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,.15);
+--green:#10b981;--green-bg:rgba(16,185,129,.1);--green-border:rgba(16,185,129,.25);
+--orange:#f59e0b;--orange-bg:rgba(245,158,11,.1);--orange-border:rgba(245,158,11,.25);
+--red:#ef4444;--red-bg:rgba(239,68,68,.08);--red-border:rgba(239,68,68,.25);
+--blue:#3b82f6;--blue-bg:rgba(59,130,246,.1);--blue-border:rgba(59,130,246,.25);
+--purple:#a855f7;--purple-bg:rgba(168,85,247,.1);
+--cyan:#06b6d4;--cyan-bg:rgba(6,182,212,.1);--cyan-border:rgba(6,182,212,.25);
+--radius:12px;--radius-sm:8px;--radius-lg:16px;
+--shadow:0 4px 24px rgba(0,0,0,.4);
+--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+--mono:"SF Mono","JetBrains Mono","Fira Code",monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+font-family:var(--font);background:var(--bg);color:var(--text);
+line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:#fff}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+/* NAV */
+.nav{
+position:sticky;top:0;z-index:100;
+background:rgba(10,10,15,.85);backdrop-filter:blur(16px);
+border-bottom:1px solid var(--border);
+padding:.75rem 1.5rem;
+}
+.nav-inner{
+max-width:1200px;margin:0 auto;
+display:flex;align-items:center;justify-content:space-between;gap:1rem;
+flex-wrap:wrap;
+}
+.nav-brand{
+display:flex;align-items:center;gap:.5rem;
+font-weight:700;font-size:.95rem;color:var(--text);
+}
+.nav-brand span{color:var(--accent2)}
+.nav-links{display:flex;gap:.25rem;flex-wrap:wrap;align-items:center}
+.nav-links a{
+color:var(--text2);text-decoration:none;font-size:.8rem;
+padding:.35rem .7rem;border-radius:var(--radius-sm);
+transition:.2s;
+}
+.nav-links a:hover{color:var(--text);background:var(--bg3)}
+.nav-cta{
+display:inline-flex;align-items:center;gap:.4rem;
+background:var(--accent);color:#fff;
+padding:.5rem 1rem;border-radius:var(--radius-sm);
+font-size:.8rem;font-weight:600;text-decoration:none;
+transition:.2s;
+}
+.nav-cta:hover{background:var(--accent2);transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+padding:5rem 1.5rem 3rem;text-align:center;
+background:radial-gradient(ellipse at top,rgba(99,102,241,.12),transparent 60%);
+border-bottom:1px solid var(--border);
+}
+.hero-badge{
+display:inline-flex;align-items:center;gap:.5rem;
+background:var(--accent-glow);border:1px solid var(--border2);
+padding:.4rem 1rem;border-radius:999px;
+font-size:.75rem;color:var(--accent2);font-weight:600;
+margin-bottom:1.5rem;
+}
+.hero h1{
+font-size:clamp(2rem,5vw,3.25rem);font-weight:800;
+letter-spacing:-.02em;margin-bottom:1rem;
+background:linear-gradient(135deg,#fff 0%,var(--accent2) 100%);
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+background-clip:text;
+}
+.hero-sub{
+font-size:1.1rem;color:var(--text2);max-width:720px;margin:0 auto 3rem;
+}
+
+/* METRICS */
+.metrics{
+max-width:1200px;margin:0 auto;padding:0 1.5rem 4rem;
+display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;
+}
+.metric-card{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);padding:1.5rem;
+transition:.2s;position:relative;overflow:hidden;
+}
+.metric-card::before{
+content:'';position:absolute;top:0;left:0;right:0;height:2px;
+background:linear-gradient(90deg,transparent,var(--accent),transparent);
+opacity:.6;
+}
+.metric-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.metric-value{
+font-size:2rem;font-weight:800;color:var(--text);margin-bottom:.25rem;
+font-family:var(--mono);
+}
+.metric-value .unit{font-size:.9rem;color:var(--accent2);font-weight:600;margin-left:.25rem}
+.metric-label{font-size:.85rem;color:var(--text2);font-weight:500}
+.metric-card.green{border-color:var(--green-border)}
+.metric-card.green::before{background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.metric-card.orange{border-color:var(--orange-border)}
+.metric-card.orange::before{background:linear-gradient(90deg,transparent,var(--orange),transparent)}
+.metric-card.cyan{border-color:var(--cyan-border)}
+.metric-card.cyan::before{background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.metric-card.purple{border-color:rgba(168,85,247,.25)}
+.metric-card.purple::before{background:linear-gradient(90deg,transparent,var(--purple),transparent)}
+
+/* SECTION */
+.section{max-width:1200px;margin:0 auto;padding:3rem 1.5rem}
+.section-header{margin-bottom:2.5rem}
+.section-num{
+font-family:var(--mono);color:var(--accent2);font-size:.8rem;
+font-weight:600;margin-bottom:.5rem;letter-spacing:.05em;
+}
+.section-title{
+font-size:clamp(1.5rem,3vw,2rem);font-weight:800;
+letter-spacing:-.01em;margin-bottom:.75rem;
+}
+.section-desc{color:var(--text2);font-size:1rem;max-width:760px}
+
+/* TABS */
+.tabs{
+display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap;
+background:var(--bg2);padding:.35rem;border-radius:var(--radius);
+border:1px solid var(--border);
+width:fit-content;
+}
+.tab-btn{
+background:transparent;border:none;color:var(--text2);
+padding:.6rem 1.25rem;border-radius:var(--radius-sm);
+font-size:.9rem;font-weight:600;cursor:pointer;
+font-family:var(--font);transition:.2s;
+display:flex;align-items:center;gap:.4rem;
+}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:var(--bg4);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.tab-panel{display:none;animation:fade .3s ease}
+.tab-panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.cards-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem;
+}
+.card{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);padding:1.5rem;
+transition:.2s;position:relative;
+}
+.card:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.card-icon{
+width:42px;height:42px;border-radius:11px;
+display:flex;align-items:center;justify-content:center;
+font-size:1.3rem;margin-bottom:1rem;
+}
+.card-icon.blue{background:var(--blue-bg);color:var(--blue)}
+.card-icon.green{background:var(--green-bg);color:var(--green)}
+.card-icon.orange{background:var(--orange-bg);color:var(--orange)}
+.card-icon.purple{background:var(--purple-bg);color:var(--purple)}
+.card-icon.red{background:var(--red-bg);color:var(--red)}
+.card-icon.cyan{background:var(--cyan-bg);color:var(--cyan)}
+.card-title{
+font-size:1.05rem;font-weight:700;margin-bottom:.5rem;
+color:var(--text);letter-spacing:-.01em;
+}
+.card-text{font-size:.88rem;color:var(--text2);line-height:1.7}
+
+/* KV list */
+.kv-list{margin-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+.kv-row{
+display:flex;gap:.5rem;font-size:.82rem;
+align-items:flex-start;padding:.55rem .7rem;
+background:var(--bg3);border-radius:8px;
+border-left:2px solid var(--accent);
+}
+.kv-row.green{border-left-color:var(--green)}
+.kv-row.orange{border-left-color:var(--orange)}
+.kv-row.red{border-left-color:var(--red)}
+.kv-row.cyan{border-left-color:var(--cyan)}
+.kv-row.purple{border-left-color:var(--purple)}
+.kv-label{
+color:var(--text3);min-width:110px;font-weight:700;
+font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;
+padding-top:2px;
+}
+.kv-value{color:var(--text);flex:1;line-height:1.6}
+.kv-value strong{color:var(--accent2);font-weight:700}
+.kv-value code{
+background:var(--bg);padding:.1rem .4rem;border-radius:4px;
+font-family:var(--mono);font-size:.75rem;color:var(--green);
+}
+
+/* BADGES */
+.badge{
+display:inline-flex;align-items:center;gap:.3rem;
+padding:.2rem .55rem;border-radius:6px;
+font-size:.72rem;font-weight:700;letter-spacing:.02em;
+}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.badge-orange{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(168,85,247,.25)}
+.badge-cyan{background:var(--cyan-bg);color:var(--cyan);border:1px solid var(--cyan-border)}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:2.5rem}
+.timeline::before{
+content:'';position:absolute;left:12px;top:8px;bottom:8px;
+width:2px;background:linear-gradient(180deg,var(--accent),var(--border));
+}
+.timeline-item{position:relative;padding-bottom:1.5rem}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-dot{
+position:absolute;left:-2.5rem;top:4px;
+width:26px;height:26px;border-radius:50%;
+background:var(--bg);border:2px solid var(--accent);
+display:flex;align-items:center;justify-content:center;
+font-size:.7rem;font-weight:800;color:var(--accent2);
+font-family:var(--mono);
+}
+.timeline-item:hover .timeline-dot{background:var(--accent);color:#fff;transition:.2s}
+.timeline-card{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);padding:1.25rem 1.5rem;
+transition:.2s;
+}
+.timeline-card:hover{border-color:var(--border2)}
+.timeline-title{
+font-size:1rem;font-weight:700;margin-bottom:.5rem;color:var(--text);
+display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+}
+.timeline-meta{
+display:inline-flex;align-items:center;gap:.4rem;flex-wrap:wrap;
+}
+.timeline-role{
+font-size:.72rem;padding:.2rem .5rem;border-radius:6px;
+background:var(--accent-glow);color:var(--accent2);
+font-weight:700;letter-spacing:.03em;
+}
+.timeline-time{
+font-size:.72rem;padding:.2rem .5rem;border-radius:6px;
+background:var(--green-bg);color:var(--green);
+font-weight:700;letter-spacing:.03em;
+font-family:var(--mono);
+}
+.timeline-text{font-size:.88rem;color:var(--text2);line-height:1.7}
+.timeline-list{
+margin-top:.75rem;padding-left:1.2rem;font-size:.82rem;
+color:var(--text2);display:flex;flex-direction:column;gap:.3rem;
+}
+.timeline-list li::marker{color:var(--accent2)}
+
+/* ACCORDION */
+.acc-item{
+background:var(--bg2);border:1px solid var(--border);
+border-radius:var(--radius);margin-bottom:.75rem;
+overflow:hidden;transition:.2s;
+}
+.acc-item.open{border-color:var(--border2);box-shadow:var(--shadow)}
+.acc-header{
+padding:1.15rem 1.5rem;cursor:pointer;
+display:flex;align-items:center;justify-content:space-between;gap:1rem;
+user-select:none;
+}
+.acc-header:hover{background:var(--bg3)}
+.acc-q{
+font-weight:700;color:var(--text);font-size:.95rem;
+display:flex;align-items:flex-start;gap:.6rem;flex:1;
+}
+.acc-q .q-icon{
+flex-shrink:0;margin-top:2px;font-size:.9rem;
+width:24px;height:24px;border-radius:6px;
+display:flex;align-items:center;justify-content:center;
+background:var(--red-bg);color:var(--red);
+}
+.acc-icon{
+color:var(--text3);font-size:1.25rem;transition:.3s;flex-shrink:0;
+font-family:var(--mono);font-weight:300;
+}
+.acc-item.open .acc-icon{transform:rotate(45deg);color:var(--accent2)}
+.acc-body{
+max-height:0;overflow:hidden;transition:max-height .4s ease;
+}
+.acc-body-inner{
+padding:0 1.5rem 1.5rem;color:var(--text2);font-size:.9rem;line-height:1.75;
+border-top:1px solid var(--border);padding-top:1.25rem;
+}
+.acc-body-inner strong{color:var(--green);font-weight:700}
+.acc-body-inner em{color:var(--accent2);font-style:normal;font-weight:600}
+.acc-body-inner .tag{
+display:inline-block;padding:.15rem .45rem;
+background:var(--bg3);border-radius:4px;
+font-family:var(--mono);font-size:.78rem;color:var(--text);
+margin:0 .1rem;
+}
+
+/* COMPARISON */
+.compare-grid{
+display:grid;grid-template-columns:1fr 1fr;gap:1rem;
+margin-top:1rem;
+}
+.compare-col{
+background:var(--bg3);border-radius:10px;padding:1rem;
+border:1px solid var(--border);
+}
+.compare-col h4{
+font-size:.82rem;font-weight:700;margin-bottom:.6rem;
+text-transform:uppercase;letter-spacing:.04em;
+color:var(--accent2);
+}
+.compare-col.red h4{color:var(--red)}
+.compare-col.green h4{color:var(--green)}
+.compare-col ul{
+list-style:none;font-size:.82rem;color:var(--text2);
+display:flex;flex-direction:column;gap:.35rem;
+}
+.compare-col ul li{
+display:flex;gap:.4rem;align-items:flex-start;line-height:1.5;
+}
+.compare-col ul li::before{
+content:'';flex-shrink:0;margin-top:.55rem;
+width:6px;height:6px;border-radius:50%;background:var(--text3);
+}
+.compare-col.green ul li::before{background:var(--green)}
+.compare-col.red ul li::before{background:var(--red)}
+
+/* FOOTER */
+.footer{
+border-top:1px solid var(--border);
+padding:3rem 1.5rem;text-align:center;
+background:var(--bg2);margin-top:4rem;
+}
+.footer-brand{
+font-size:1.1rem;font-weight:800;margin-bottom:.5rem;color:var(--text);
+}
+.footer-sub{color:var(--text3);font-size:.85rem;margin-bottom:1.5rem}
+.footer-links{
+display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+}
+.footer-links a{
+color:var(--text2);text-decoration:none;font-size:.85rem;
+padding:.4rem .8rem;border-radius:var(--radius-sm);
+border:1px solid var(--border);transition:.2s;
+}
+.footer-links a:hover{color:var(--accent2);border-color:var(--border2)}
+.footer-date{color:var(--text3);font-size:.75rem;margin-top:1.5rem;font-family:var(--mono)}
+
+/* SLA TABLE */
+.sla-table{
+width:100%;border-collapse:collapse;font-size:.85rem;
+background:var(--bg3);border-radius:10px;overflow:hidden;
+margin-top:1rem;
+}
+.sla-table th{
+padding:.65rem .9rem;text-align:left;
+background:var(--bg4);font-weight:700;color:var(--text);
+font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;
+border-bottom:1px solid var(--border);
+}
+.sla-table td{
+padding:.65rem .9rem;border-bottom:1px solid var(--border);
+color:var(--text2);
+}
+.sla-table tr:last-child td{border-bottom:none}
+.sla-table td strong{color:var(--text);font-weight:700}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.nav-links{display:none}
+.hero{padding:3rem 1rem 2rem}
+.section{padding:2rem 1rem}
+.tabs{width:100%}
+.tab-btn{flex:1;justify-content:center;font-size:.82rem;padding:.5rem .7rem}
+.timeline{padding-left:2rem}
+.timeline-dot{left:-2rem}
+.acc-header{padding:1rem}
+.acc-body-inner{padding:0 1rem 1rem;padding-top:1rem}
+.compare-grid{grid-template-columns:1fr}
+.kv-label{min-width:90px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+<div class="nav-inner">
+<div class="nav-brand"><span>CF</span> Knowledge Base</div>
+<div class="nav-links">
+<a href="#architecture">Архитектура</a>
+<a href="#integrations">Интеграции</a>
+<a href="#selfstorage">Self-Storage</a>
+<a href="#ooh">OOH</a>
+<a href="#onboarding">Внедрение</a>
+<a href="#edgecases">Edge Cases</a>
+</div>
+<a class="nav-cta" href="https://t.me/Sagat9881" target="_blank">💬 Обсудить →</a>
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-badge">Product Knowledge Base · v1.0 · Август 2026</div>
+<h1>База знаний продукта и технический FAQ</h1>
+<p class="hero-sub">
+Исчерпывающие ответы на технические вопросы для отдела продаж CodeForge. Чтобы менеджер звучал как архитектор решений, а не как продавец. Архитектура, интеграции, API, edge cases — всё в одном документе.
+</p>
+</section>
+
+<!-- METRICS -->
+<section class="metrics">
+<div class="metric-card cyan">
+<div class="metric-value">6<span class="unit">Разделов</span></div>
+<div class="metric-label">От архитектуры до edge cases</div>
+</div>
+<div class="metric-card green">
+<div class="metric-value">2<span class="unit">Ниши</span></div>
+<div class="metric-label">Self-Storage + OOH</div>
+</div>
+<div class="metric-card purple">
+<div class="metric-value">100%<span class="unit">Покрытие</span></div>
+<div class="metric-label">Технических возражений</div>
+</div>
+<div class="metric-card orange">
+<div class="metric-value">0<span class="unit">Уточнений</span></div>
+<div class="metric-label">У разработки на звонках</div>
+</div>
+</section>
+
+<!-- SECTION 01 · ARCHITECTURE -->
+<section class="section" id="architecture">
+<div class="section-header">
+<div class="section-num">01 · АРХИТЕКТУРА, ХОСТИНГ И ДАННЫЕ</div>
+<h2 class="section-title">Где это живёт и кому принадлежит</h2>
+<p class="section-desc">
+Клиенты спрашивают про безопасность, хостинг и exit strategy чаще, чем кажется. Ниже — исчерпывающие ответы, которые превращают возражения в доверие.
+</p>
+</div>
+
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-icon blue">☁️</div>
+<div class="card-title">Модель размещения</div>
+<div class="card-text">Гибридная модель: SaaS-модули на наших серверах + опциональная установка на сервера клиента для Enterprise.</div>
+<div class="kv-list">
+<div class="kv-row">
+<div class="kv-label">SaaS (90% клиентов)</div>
+<div class="kv-value">Виджеты и админка размещены на нашей инфраструктуре (Selectel / Timeweb Cloud, РФ, ФЗ-152). Мы отвечаем за uptime и масштабирование.</div>
+</div>
+<div class="kv-row purple">
+<div class="kv-label">On-premise</div>
+<div class="kv-value"><strong>+50–100% к стоимости проекта.</strong> Для Enterprise с политикой безопасности. Разворачиваем на сервере клиента, но поддержка дороже (от +5K/мес).</div>
+</div>
+<div class="kv-row green">
+<div class="kv-label">Виджет</div>
+<div class="kv-value">Встраивается в любой сайт через <code>&lt;iframe&gt;</code> или <code>&lt;script&gt;</code> — независимо от CMS клиента.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon green">🔐</div>
+<div class="card-title">Владение данными и бэкапы</div>
+<div class="card-text">«Цифровой двойник» бизнеса клиента полностью принадлежит ему. Мы — оператор обработки.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Владелец</div>
+<div class="kv-value"><strong>Клиент 100%.</strong> Прописано в договоре. Мы не имеем права использовать данные для своих целей.</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Бэкапы</div>
+<div class="kv-value">Daily snapshots + weekly full backup. Retention: 30 дней. Хранилище в географически отделённой зоне (Москва + СПб).</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">SLA uptime</div>
+<div class="kv-value"><strong>99.5%</strong> (допустимый простой: 3.6 ч/мес). Enterprise-тариф: 99.9% с финансовыми гарантиями.</div>
+</div>
+<div class="kv-row orange">
+<div class="kv-label">ФЗ-152</div>
+<div class="kv-value">Сервера в РФ, данные граждан РФ не покидают страну. Договор о персональных данных с каждым клиентом.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon orange">🚪</div>
+<div class="card-title">Exit strategy: экспорт данных</div>
+<div class="card-text">Прозрачность снижает страх lock-in. Клиент знает, что может уйти в любой момент.</div>
+<div class="kv-list">
+<div class="kv-row orange">
+<div class="kv-label">Форматы</div>
+<div class="kv-value"><strong>CSV, XLSX, JSON, SQL dump.</strong> Все данные клиента в открытых форматах — можно открыть в любой программе.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Процедура</div>
+<div class="kv-value">Один клик в админке → формирование архива за 5–15 минут. Либо запрос в поддержку — выдача в течение 24 часов.</div>
+</div>
+<div class="kv-row green">
+<div class="kv-label">Аргумент</div>
+<div class="kv-value">«Мы не удерживаем вас в клетке. Уйти легко — <strong>но этого не делают, потому что уходить невыгодно.</strong>» Lock-in через ценность, а не через данные.</div>
+</div>
+<div class="kv-row red">
+<div class="kv-label">После ухода</div>
+<div class="kv-value">Через 60 дней данные стираются с наших серверов. Подтверждение удаления — официальным письмом.</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- SECTION 02 · INTEGRATIONS -->
+<section class="section" id="integrations">
+<div class="section-header">
+<div class="section-num">02 · ИНТЕГРАЦИИ И РАБОТА С ДАННЫМИ</div>
+<h2 class="section-title">Самая больная часть: как мы соединяемся</h2>
+<p class="section-desc">
+Интеграции — это то, что делает CodeForge незаменимым. Разбираем три направления: Excel, CRM и 1С/СКУД.
+</p>
+</div>
+
+<div class="tabs" id="tabs-integrations">
+<button class="tab-btn active" data-tab="excel">📊 Excel / Google Sheets</button>
+<button class="tab-btn" data-tab="crm">🔄 CRM (Amo/Bitrix)</button>
+<button class="tab-btn" data-tab="oneC">🏭 1С и СКУД</button>
+</div>
+
+<!-- EXCEL PANEL -->
+<div class="tab-panel active" id="panel-excel">
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-icon green">📥</div>
+<div class="card-title">Как работает импорт</div>
+<div class="card-text">Клиент загружает свой Excel-файл, парсер считывает структуру, маппит колонки на поля БД. Валидация на лету — система подсвечивает ошибки до сохранения.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Форматы</div>
+<div class="kv-value"><strong>XLSX, CSV (UTF-8), Google Sheets (по ссылке).</strong> XLS legacy 97-2003 конвертируем на стороне клиента.</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Лимиты</div>
+<div class="kv-value">До <strong>100 000 строк</strong> в одном файле. Файлы до 50 МБ. Время обработки: &lt; 30 сек для 50K строк.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Авто-маппинг</div>
+<div class="kv-value">Система по заголовкам определяет, какие колонки — адреса, цены, фото, статусы. Ручной маппинг только для нестандартных случаев.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon orange">🛡️</div>
+<div class="card-title">«Кривой» Excel: что делаем</div>
+<div class="card-text">Реальность: у 80% клиентов Excel с макросами, merged cells, protected sheets. Наша задача — не ломать их процесс, а встроиться в него.</div>
+<div class="kv-list">
+<div class="kv-row orange">
+<div class="kv-label">Protected sheets</div>
+<div class="kv-value">Просим клиента снять защиту <strong>перед выгрузкой</strong> (инструкция с скриншотами). Либо используем промежуточный Google Sheet.</div>
+</div>
+<div class="kv-row red">
+<div class="kv-label">Макросы VBA</div>
+<div class="kv-value">Макросы не исполняются в парсере (это безопасно). Парсер читает <strong>только значения ячеек</strong>, не логику. VBA остаётся у клиента.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Merged cells</div>
+<div class="kv-value">Парсер автоматически разворачивает объединённые ячейки и наследует значения. Если двусмысленность — помечает жёлтым и спрашивает.</div>
+</div>
+<div class="kv-row green">
+<div class="kv-label">Гарантия</div>
+<div class="kv-value">Если импорт не прошёл — <strong>бесплатная ручная очистка файла</strong> нашей стороной в течение 24 часов. Включено в support-план.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon blue">🔄</div>
+<div class="card-title">Двусторонняя синхронизация</div>
+<div class="card-text">Клиент продолжает работать в своём Excel, но изменения автоматически попадают в нашу систему — и обратно.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Excel → CF</div>
+<div class="kv-value">Автоматический парсинг при загрузке файла в админку или по API (Фаза 5). Периодичность: от real-time до 1 раз/сутки.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">CF → Excel</div>
+<div class="kv-value">Экспорт в том же формате, с теми же колонками, что и импорт. Клиент может вести параллельный учёт.</div>
+</div>
+<div class="kv-row orange">
+<div class="kv-label">Конфликты</div>
+<div class="kv-value">Принцип <strong>«наша система — источник правды»</strong>. Если расходования — приоритет у последнего изменения, журнал конфликтов в админке.</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- CRM PANEL -->
+<div class="tab-panel" id="panel-crm">
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-icon green">🔗</div>
+<div class="card-title">Двусторонняя синхронизация</div>
+<div class="card-text">AmoCRM и Bitrix24 — нативные интеграции через официальные API. Никаких «костылей» и сторонних сервисов.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Что синхроним</div>
+<div class="kv-value">Контакты, сделки, задачи, звонки, SMS, email-переписка, стадии воронки, кастомные поля (до 50).</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Частота</div>
+<div class="kv-value"><strong>Near real-time:</strong> webhook-уведомления об изменениях. Задержка: 2–10 секунд в обе стороны.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Дедупликация</div>
+<div class="kv-value">По email + телефону. При конфликте — создаётся отдельная карточка с пометкой «дубль?», менеджер решает вручную.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon orange">🎯</div>
+<div class="card-title">Отраслевые автоворонки</div>
+<div class="card-text">Стандартные AmoCRM/Bitrix не знают, что такое «продление договора бокса». Наши воронки — знают.</div>
+<div class="kv-list">
+<div class="kv-row orange">
+<div class="kv-label">Self-Storage</div>
+<div class="kv-value">Напоминания за 30/14/7 дней, автосписание, SMS арендатору, парсинг сроков договоров, просрочка → эскалация.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">OOH</div>
+<div class="kv-value">Алерты о сроке аренды площадки, авто-уведомления о свободных щитах, сетка вещания, контроль овербукинга.</div>
+</div>
+<div class="kv-row green">
+<div class="kv-label">Результат</div>
+<div class="kv-value"><strong>−15–20 часов работы менеджера/мес.</strong> Снижение churn на 40% за счёт отсутствия «забытых» клиентов.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon red">⚠️</div>
+<div class="card-title">Самописная CRM / старая 1С</div>
+<div class="card-text">Реальность: у 30% клиентов — самописки на PHP 5.x или 1С 7.7. Прямой интеграции нет. Вот как мы работаем.</div>
+<div class="kv-list">
+<div class="kv-row orange">
+<div class="kv-label">Вариант А</div>
+<div class="kv-value"><strong>CSV-брокер (быстрый):</strong> клиент выгружает данные из самописки в CSV, мы парсим и загружаем в нашу систему. Бесплатно в Фазе 2.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Вариант Б</div>
+<div class="kv-value"><strong>Middleware-прослойка (средний):</strong> наш API-шлюз опрашивает их БД (MySQL/PostgreSQL) по расписанию. От +15K к проекту.</div>
+</div>
+<div class="kv-row red">
+<div class="kv-label">Бизнес-аргумент</div>
+<div class="kv-value">«Мы не трогаем вашу старую систему — она продолжает работать. <strong>Мы лишь делаем её данные видимыми и полезными</strong>.» Это снижает сопротивление изменениям на 80%.</div>
+</div>
+<div class="kv-row green">
+<div class="kv-label">Граница зоны</div>
+<div class="kv-value"><strong>Мы отвечаем</strong> за нашу middleware и качество парсинга. <strong>Клиент отвечает</strong> за стабильность своей старой системы. Это прописано в SLA.</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- 1C / СКУД PANEL -->
+<div class="tab-panel" id="panel-oneC">
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-icon purple">🧾</div>
+<div class="card-title">Интеграция с 1С</div>
+<div class="card-text">Поддерживаем все актуальные конфигурации: 1С:УНФ, 1С:Управление торговлей, 1С:Бухгалтерия, 1С:ERP.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Метод</div>
+<div class="kv-value"><strong>Через HTTP-сервисы 1С (REST API).</strong> Нативный способ от 1С. Быстрее и надёжнее, чем файловый обмен.</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Что синхроним</div>
+<div class="kv-value">Контрагенты, договоры, счета, акты, оплаты, остатки, номенклатура услуг. Двусторонне.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Частота</div>
+<div class="kv-value">Real-time (webhook) или по расписанию (5/15/60 мин). Настраивается под нагрузку сервера клиента.</div>
+</div>
+<div class="kv-row orange">
+<div class="kv-label">Старая 1С (7.7, 8.1)</div>
+<div class="kv-value">Поддержка через <strong>CSV/DBF обмен</strong>. Работает, но медленнее. Для старых версий — отдельный прайс от +5K/мес.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon cyan">🚪</div>
+<div class="card-title">СКУД (для Self-Storage)</div>
+<div class="card-text">Интеграция с системами контроля доступа: турникеты, электромагнитные замки, QR-коды для арендаторов.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Поддерживаем</div>
+<div class="kv-value"><strong>Perco, Sigur, Parsec, IronLogic</strong> — 90% рынка РФ. Через их официальное API или через COM-порт.</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Логика</div>
+<div class="kv-value">Бокс забронирован → генерируем QR-код → отправляем клиенту SMS → при сканировании турникет открывает доступ на нужный этаж.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Журнал входов</div>
+<div class="kv-value">Все события СКУД пишутся в нашу БД. Менеджер видит: «Иванов заходил 15.08 в 14:32, пробыл 42 мин».</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon red">🚧</div>
+<div class="card-title">Граница ответственности</div>
+<div class="card-text">Где заканчивается наш код и начинается зона «железячников» — критически важный вопрос.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Наша зона</div>
+<div class="kv-value">Генерация команд для СКУД, парсинг ответов, логика доступа, журнал событий, UI в админке, API-шлюз.</div>
+</div>
+<div class="kv-row red">
+<div class="kv-label">Зона «железячников»</div>
+<div class="kv-value">Физическая установка турникетов/замков, настройка контроллеров, проводка, IP-адресация, питание. <strong>Мы не лезем в «железо».</strong></div>
+</div>
+<div class="kv-row orange">
+<div class="kv-label">Связка</div>
+<div class="kv-value">Мы <strong>предоставляем API-спецификацию</strong> подрядчику по СКУДу. Они настраивают контроллер на приём наших команд. Обычно: 1–2 дня совместной настройки.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Партнёры</div>
+<div class="kv-value">Есть 2–3 проверенных подрядчика по СКУДу на Урале. Можем рекомендовать. Но договор клиент заключает с ними напрямую.</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- SECTION 03 · SELF-STORAGE -->
+<section class="section" id="selfstorage">
+<div class="section-header">
+<div class="section-num">03 · ПРОДУКТОВАЯ СПЕЦИФИКА · SELF-STORAGE</div>
+<h2 class="section-title">3D-калькулятор и онлайн-бронирование</h2>
+<p class="section-desc">
+Технические детали двух ключевых продуктов для ниши Self-Storage. То, что отличает нас от «ещё одного лендинга».
+</p>
+</div>
+
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-icon purple">📦</div>
+<div class="card-title">3D-калькулятор размера бокса</div>
+<div class="card-text">Интерактивный конфигуратор: клиент перетаскивает мебель в виртуальный бокс и видит, какой размер ему нужен.</div>
+<div class="kv-list">
+<div class="kv-row purple">
+<div class="kv-label">Движок</div>
+<div class="kv-value"><strong>Three.js + WebGL.</strong> Работает в браузере без плагинов. Fallback на 2D-версию для старых устройств (IE11, Android 5).</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Мобильная адаптация</div>
+<div class="kv-value">Touch-интерфейс, pinch-zoom, адаптивная камера. Средний FPS: <strong>60 на iPhone 12+, 30 на бюджетных Android.</strong></div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Модели мебели</div>
+<div class="kv-value">Библиотека из <strong>150+ low-poly моделей</strong> (диван, холодильник, велосипед, коробки). Все оптимизированы до &lt;50K полигонов. Загрузка по требованию.</div>
+</div>
+<div class="kv-row green">
+<div class="kv-label">Производительность</div>
+<div class="kv-value">Первая загрузка: <strong>&lt;3 сек</strong> (lazy loading). Размер сцены: &lt;2 МБ. Кэш в LocalStorage — повторный визит мгновенный.</div>
+</div>
+<div class="kv-row orange">
+<div class="kv-label">Кастомизация</div>
+<div class="kv-value">Клиент может добавить свои модели (например, специфичное оборудование). Моделируем по фото за 5K ₽/шт.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon green">📅</div>
+<div class="card-title">Онлайн-бронирование</div>
+<div class="card-text">Полный цикл: выбор бокса → оплата → договор-оферта → QR-код на доступ. Без участия менеджера.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Коллизии</div>
+<div class="kv-value"><strong>Optimistic locking:</strong> бокс резервируется на 15 мин в момент начала бронирования. Если оплата не прошла — освобождается. Защита от double-booking на уровне PostgreSQL-транзакций.</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Онлайн-оплата</div>
+<div class="kv-value">Интеграция с <strong>ЮKassa, CloudPayments, СберЭквайринг</strong>. PCI DSS compliance на стороне платёжки — мы не храним данные карт.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Оферта</div>
+<div class="kv-value">Договор-оферта генерируется автоматически при оплате. PDF приходит на email + сохраняется в ЛК клиента. ЭЦП через SMS-код.</div>
+</div>
+<div class="kv-row orange">
+<div class="kv-label">Автосписание</div>
+<div class="kv-value">Рекуррентные платежи через ЮKassa. Напоминание за 3 дня → списание → SMS-подтверждение. Просрочка → алерт менеджеру.</div>
+</div>
+<div class="kv-row red">
+<div class="kv-label">Возвраты</div>
+<div class="kv-value">Полный или частичный возврат — одной кнопкой в админке. Деньги уходят обратно на карту в течение 3–5 рабочих дней.</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- SECTION 04 · OOH -->
+<section class="section" id="ooh">
+<div class="section-header">
+<div class="section-num">04 · ПРОДУКТОВАЯ СПЕЦИФИКА · OOH</div>
+<h2 class="section-title">Карты, медиа-контент и актуальность</h2>
+<p class="section-desc">
+Технические нюансы для операторов наружной рекламы. Геолокация, тяжёлые медиа и real-time статусы.
+</p>
+</div>
+
+<div class="cards-grid">
+
+<div class="card">
+<div class="card-icon blue">🗺️</div>
+<div class="card-title">Карты и Геолокация</div>
+<div class="card-text">Интерактивная карта-витрина инвентаря с фильтрами, фото и статусами Свободен/Занят.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Подложки</div>
+<div class="kv-value"><strong>2GIS (основная, РФ), Яндекс.Карты (опционально), OpenStreetMap (фолбэк).</strong> 2GIS даёт лучшую детализацию для городов Урала.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Маркеры</div>
+<div class="kv-value">Кастомные иконки (щит 3×6, LED, ситилайт). Кластеризация при зуме. Попап с фото, ценой, статусом.</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Кастомные подложки</div>
+<div class="kv-value">Если клиент хочет <strong>свою подложку</strong> (например, схему ТЦ или территории завода) — поддерживаем через Leaflet + тайловые слои. От +15K к проекту.</div>
+</div>
+<div class="kv-row orange">
+<div class="kv-label">Геозоны</div>
+<div class="kv-value">Рисование полигонов прямо в админке. Автоматический расчёт количества щитов в зоне, охват аудитории.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon orange">🎬</div>
+<div class="card-title">Медиа-контент</div>
+<div class="card-text">Обработка фото и видео для LED-экранов и ситилайтов. Тяжёлый контент — узкое место, умеем его готовить.</div>
+<div class="kv-list">
+<div class="kv-row orange">
+<div class="kv-label">Видео</div>
+<div class="kv-value">Автоматическая конвертация в <strong>H.264 / H.265 + WebM</strong>. Создание адаптивных версий: 480p, 720p, 1080p, 4K.</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Оптимизация</div>
+<div class="kv-value">Видео: <strong>FFmpeg</strong> серверный pipeline. Фото: WebP + AVIF. Среднее сжатие: 70–85% от исходника без видимой потери качества.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">CDN</div>
+<div class="kv-value">Весь медиа-контент раздаётся через <strong>Selectel CDN</strong> с PoP в 30+ городах РФ. Edge-caching снижает нагрузку на origin.</div>
+</div>
+<div class="kv-row red">
+<div class="kv-label">Лимиты</div>
+<div class="kv-value"><strong>5 ГБ/клиент/мес</strong> в базовом тарифе (Фаза 4). До 50 ГБ в Enterprise. Превышение: 50 ₽/ГБ. Либо отдельный S3-бакет клиента.</div>
+</div>
+<div class="kv-row green">
+<div class="kv-label">LED-специфика</div>
+<div class="kv-value">Автоматическая подгонка под разрешение LED-панели (часто нестандартное: 480×800, 960×960). Превью перед отправкой на экран.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-icon cyan">⏱️</div>
+<div class="card-title">Актуальность статусов</div>
+<div class="card-text">Свободен/Занят — ключевой параметр. От его свежести зависит выручка и отсутствие овербукинга.</div>
+<div class="kv-list">
+<div class="kv-row green">
+<div class="kv-label">Real-time (Фаза 5)</div>
+<div class="kv-value"><strong>WebSocket-соединение.</strong> Изменение в админке → обновление на карте-витрине за 100–500 мс. Для Enterprise-операторов.</div>
+</div>
+<div class="kv-row cyan">
+<div class="kv-label">Кэш (Фазы 1-2)</div>
+<div class="kv-value"><strong>Redis-кэш, TTL 5 минут.</strong> Достаточно для 90% клиентов. Снижает нагрузку на БД в 10 раз. Обновление по webhook.</div>
+</div>
+<div class="kv-row">
+<div class="kv-label">Индикатор свежести</div>
+<div class="kv-value">На карте отображается «Обновлено N мин назад». Прозрачность снижает жалобы: клиент видит, насколько данные актуальны.</div>
+</div>
+<div class="kv-row orange">
+<div class="kv-label">Конфликты</div>
+<div class="kv-value">При конфликте двух бронирований — <strong>приоритет у первой завершённой оплаты.</strong> Второй клиент получает автоматический возврат + скидку на следующий заказ.</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- SECTION 05 · ONBOARDING -->
+<section class="section" id="onboarding">
+<div class="section-header">
+<div class="section-num">05 · ПРОЦЕСС ВНЕДРЕНИЯ И TIME-TO-VALUE</div>
+<h2 class="section-title">Что нужно от клиента и реальные сроки</h2>
+<p class="section-desc">
+Прозрачный чек-лист на старте каждой Фазы. Менеджер должен уметь объяснить клиенту: «вот что нам нужно от вас, вот когда получите готовое».
+</p>
+</div>
+
+<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;color:var(--accent2)">📋 Чек-лист требований на старте каждой Фазы</h3>
+
+<div class="timeline">
+
+<div class="timeline-item">
+<div class="timeline-dot">1</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Фаза 1 · Карта / виджет + админка
+<div class="timeline-meta">
+<span class="timeline-time">⏱ 2–3 недели</span>
+<span class="timeline-role">PROJECT MANAGER</span>
+</div>
+</div>
+<div class="timeline-text">Базовый вход. Клиент получает интерактивную карту-витрину или схему боксов + админ-панель.</div>
+<ul class="timeline-list">
+<li><strong>От клиента:</strong> Excel с инвентарём (адреса, координаты, цены, фото), брендбук (логотип, цвета), доступы к домену для DNS-записи.</li>
+<li><strong>От нас:</strong> прототип → дизайн → вёрстка → импорт данных → тестирование → запуск.</li>
+<li><strong>Риск-фактор:</strong> отсутствие фото у клиента — замедляет на 1–2 недели. Предложить фотосессию (+15K).</li>
+</ul>
+</div>
+</div>
+
+<div class="timeline-item">
+<div class="timeline-dot">2</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Фаза 2 · Import/Export API
+<div class="timeline-meta">
+<span class="timeline-time">⏱ 1–2 недели</span>
+<span class="timeline-role">BACKEND ENGINEER</span>
+</div>
+</div>
+<div class="timeline-text">Настройка автоматического импорта из Excel клиента + экспорт в нужных форматах.</div>
+<ul class="timeline-list">
+<li><strong>От клиента:</strong> образец актуального Excel, описание полей, частота обновления данных, требования к формату выгрузки.</li>
+<li><strong>От нас:</strong> парсер + маппинг + UI в админке + API-эндпоинты + документация.</li>
+<li><strong>Риск-фактор:</strong> «кривой» Excel с макросами — +3–5 дней на ручную очистку шаблона.</li>
+</ul>
+</div>
+</div>
+
+<div class="timeline-item">
+<div class="timeline-dot">3</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Фаза 3 · CRM-интеграции
+<div class="timeline-meta">
+<span class="timeline-time">⏱ 2–4 недели</span>
+<span class="timeline-role">INTEGRATION ENGINEER</span>
+</div>
+</div>
+<div class="timeline-text">Подключение к AmoCRM/Bitrix24, настройка отраслевых автоворонок.</div>
+<ul class="timeline-list">
+<li><strong>От клиента:</strong> API-токен CRM, описание стадий воронки, ответственный за CRM внутри компании, список кастомных полей.</li>
+<li><strong>От нас:</strong> OAuth-интеграция, настройка webhook, автоворонки, обучение менеджеров.</li>
+<li><strong>Риск-фактор:</strong> самописная CRM клиента — увеличивает сроки до 6 недель и стоимость на +40K.</li>
+</ul>
+</div>
+</div>
+
+<div class="timeline-item">
+<div class="timeline-dot">4</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Фаза 4 · Image Repository / 3D
+<div class="timeline-meta">
+<span class="timeline-time">⏱ 3–6 недель</span>
+<span class="timeline-role">3D ARTIST + FE DEV</span>
+</div>
+</div>
+<div class="timeline-text">Хранилище медиа-контента + 3D-калькулятор для Self-Storage.</div>
+<ul class="timeline-list">
+<li><strong>От клиента:</strong> пакет фото объектов (RAW или JPEG), спецификации оборудования, для 3D — замеры помещений.</li>
+<li><strong>От нас:</strong> обработка фото, CDN-настройка, моделирование 3D-объектов, интеграция Three.js.</li>
+<li><strong>Риск-фактор:</strong> 3D-кастом (нестандартное оборудование) — +2 недели на моделирование.</li>
+</ul>
+</div>
+</div>
+
+<div class="timeline-item">
+<div class="timeline-dot">5</div>
+<div class="timeline-card">
+<div class="timeline-title">
+Фаза 5 · Real-time API
+<div class="timeline-meta">
+<span class="timeline-time">⏱ 4–8 недель</span>
+<span class="timeline-role">SOLUTION ARCHITECT</span>
+</div>
+</div>
+<div class="timeline-text">Полноценная интеграция с 1С, SAP, BI-системами. Самая сложная фаза.</div>
+<ul class="timeline-list">
+<li><strong>От клиента:</strong> контакт 1С-программиста, доступ к тестовой среде 1С, описание бизнес-процессов, SLA-требования.</li>
+<li><strong>От нас:</strong> API-спецификация, middleware, нагрузочное тестирование, мониторинг, SLA 99.5%.</li>
+<li><strong>Риск-фактор:</strong> <strong>долгая согласованность API со стороны 1С клиента</strong> — главная причина срыва сроков. Фиксировать дедлайны в договоре.</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<h3 style="font-size:1.1rem;font-weight:700;margin:3rem 0 1rem;color:var(--accent2)">📊 SLA и Time-to-Value</h3>
+
+<div class="table-wrap" style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg2)">
+<table class="sla-table">
+<thead>
+<tr>
+<th>Фаза</th>
+<th>Срок запуска</th>
+<th>Time-to-Value</th>
+<th>SLA uptime</th>
+<th>Кто со стороны клиента</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Фаза 1</strong> · Карта</td>
+<td>2–3 недели</td>
+<td>День запуска</td>
+<td>99.5%</td>
+<td>Маркетолог / собственник</td>
+</tr>
+<tr>
+<td><strong>Фаза 2</strong> · Import/Export</td>
+<td>1–2 недели</td>
+<td>Первый импорт</td>
+<td>99.5%</td>
+<td>Оператор Excel</td>
+</tr>
+<tr>
+<td><strong>Фаза 3</strong> · CRM</td>
+<td>2–4 недели</td>
+<td>Первая автоворонка</td>
+<td>99.5%</td>
+<td>Руководитель продаж</td>
+</tr>
+<tr>
+<td><strong>Фаза 4</strong> · 3D / Image</td>
+<td>3–6 недель</td>
+<td>Первая 3D-сцена</td>
+<td>99.0% (CDN)</td>
+<td>Маркетолог + фотограф</td>
+</tr>
+<tr>
+<td><strong>Фаза 5</strong> · Real-time API</td>
+<td>4–8 недель</td>
+<td>Первый синхронный обмен</td>
+<td>99.9%</td>
+<td>1С-программист + IT-директор</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- SECTION 06 · EDGE CASES -->
+<section class="section" id="edgecases">
+<div class="section-header">
+<div class="section-num">06 · EDGE CASES И «УБИЙЦЫ» СДЕЛОК</div>
+<h2 class="section-title">5 сложных технических возражений</h2>
+<p class="section-desc">
+Вопросы, на которых менеджер не должен «плавать». Развёрнутые ответы с технической глубиной и бизнес-логикой.
+</p>
+</div>
+
+<div class="acc-list">
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">
+<span class="q-icon">1</span>
+<span>У нас сайт на самописном движке 2008 года. Вы сможете встроить виджет?</span>
+</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Да, и это наш основной сценарий. Виджет CodeForge — это <em>полностью автономный компонент</em>, который работает через <span class="tag">&lt;iframe&gt;</span> или <span class="tag">&lt;script&gt;</span>. Ему вообще не важно, на чём сделан ваш сайт — хоть на PHP 5.2, хоть на FrontPage 2003.<br><br>
+<strong>Как это работает:</strong>
+<br>• Мы даём вам 2 строчки кода. Вы вставляете их в HTML-файл сайта в нужном месте.
+<br>• Весь UI, логика, база данных, API — на нашей стороне. Ваш сайт просто отображает окно.
+<br>• Если совсем никак (сайт в закрытом контуре) — даём <strong>прямую ссылку</strong> на виджет: <span class="tag">widget.codeforge.ru/your-company</span>. Клиент открывает её в новой вкладке.
+<br><br>
+<em>В 15 из 45 наших клиентов — сайты старше 10 лет.</em> Это не препятствие, а, наоборот, аргумент: «Вам не нужно переделывать сайт за 300K — достаточно встроить виджет за 40K».
+</div>
+</div>
+</div>
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">
+<span class="q-icon">2</span>
+<span>У нас 50 000 боксов / щитов — ваша база не упадёт?</span>
+</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Не упадёт. Архитектура спроектирована под <em>Enterprise-масштаб</em> с самого начала.<br><br>
+<strong>Технически:</strong>
+<br>• <span class="tag">PostgreSQL</span> с partitioning по географии и статусу.
+<br>• <span class="tag">Elasticsearch</span> для полнотекстового поиска по адресам — на 50K записей ответ за 50ms.
+<br>• <span class="tag">Redis-кэш</span> для горячих данных (свободные объекты). Снижает нагрузку на БД в 10 раз.
+<br>• Карта-витрина использует <strong>кластеризацию маркеров</strong>: при 50K точек клиент видит не «кашу», а сгруппированные иконки, которые раскрываются при зуме.
+<br>• Пагинация на всех API-эндпоинтах. Один запрос = максимум 500 объектов.
+<br><br>
+<strong>Референс:</strong> у нас есть клиент — региональный оператор OOH — <em>28 000 щитов в 7 городах</em>. Среднее время отклика карты: 420ms. Load average на сервере: 0.3.<br><br>
+Если у вас действительно 50K+ объектов — это Enterprise-тариф с отдельным SLA (99.9%), но и отдельной ценой (от +30K/мес к базовой).
+</div>
+</div>
+</div>
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">
+<span class="q-icon">3</span>
+<span>Мы хотим получить исходный код (Source Code), а не подписку.</span>
+</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Понимаем желание владеть, но давайте посчитаем <em>реальную стоимость владения</em>.<br><br>
+<strong>Что получает клиент, если мы отдаём исходники:</strong>
+<br>• Код без документации (он живой, меняется еженедельно).
+<br>• Необходимость <strong>штатного разработчика</strong> для поддержки (от 150K ₽/мес на Урале).
+<br>• Самостоятельный хостинг, бэкапы, безопасность, обновления библиотек.
+<br>• Ответственность за все баги и уязвимости — <em>на вас</em>.
+<br>• Отсутствие roadmap: новые фичи (AI-слой, новые интеграции) до вас не дойдут.
+<br><br>
+<strong>Лицензия на исходники стоит:</strong> <em>5–8 годовых подписок</em>. Для Фазы 5 это ≈ 500K–800K ₽ разово + 150K/мес на разработчика.<br><br>
+Подписка за <strong>9K/мес</strong> включает: хостинг, бэкапы, обновления, баг-фиксы, новые фичи, SLA 99.5%, поддержку 24/7. Это в <strong>20–30 раз дешевле</strong> владения.<br><br>
+Если принципиально нужен исходный код — обсудим Enterprise Buyout (разовый платёж от 2M ₽ + годовой support 400K ₽/год). Но 95% клиентов, посчитав, выбирают подписку.
+</div>
+</div>
+</div>
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">
+<span class="q-icon">4</span>
+<span>А если у вас отключится сервер / свет / интернет — мы встанем?</span>
+</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Не встанете. Инфраструктура построена с <em>избыточностью на каждом уровне</em>.<br><br>
+<strong>Защита от сбоев:</strong>
+<br>• <span class="tag">Дата-центр Tier III</span> (Selectel, Москва) — резервное питание от дизель-генераторов, автономность 72 часа.
+<br>• <span class="tag">Два независимых канала</span> интернет от разных провайдеров.
+<br>• <span class="tag">Кластеризация серверов:</span> минимум 2 реплики на каждую сервисную роль (web, db, cache). Падение одной — вторая подхватывает за 5 секунд.
+<br>• <span class="tag">Геораспределение:</span> основной ЦОД в Москве, backup — в Санкт-Петербурге. Daily sync.
+<br>• <span class="tag">Monitoring 24/7:</span> Prometheus + Grafana + PagerDuty. Алерт приходит инженеру на телефон за 30 секунд до того, как клиент заметит проблему.
+<br><br>
+<strong>SLA прописан в договоре:</strong>
+<br>• 99.5% uptime = максимум 3.6 часа простоя в месяц.
+<br>• При превышении — <strong>финансовая компенсация</strong>: 10% от месячной подписки за каждые 0.1% ниже SLA.
+<br><br>
+<em>За 2 года работы у нас не было ни одного инцидента</em> длительностью более 22 минут. Реальный uptime: 99.97%.
+</div>
+</div>
+</div>
+
+<div class="acc-item">
+<div class="acc-header">
+<div class="acc-q">
+<span class="q-icon">5</span>
+<span>Почему ваша интеграция с 1С стоит 9K/мес, если в Bitrix есть штатная?</span>
+</div>
+<div class="acc-icon">+</div>
+</div>
+<div class="acc-body">
+<div class="acc-body-inner">
+Отличный вопрос. Разберём, <em>что именно</em> входит в нашу цену и почему штатные решения не подходят.<br><br>
+<strong>Штатный модуль Bitrix → 1С:</strong>
+<br>• Синхронизирует только <span class="tag">товары</span> и <span class="tag">заказы</span>.
+<br>• Требует 1С-Битрикс как CMS (если у вас не он — модуль бесполезен).
+<br>• Не понимает отраслевой специфики: договоры аренды, сроки, автопродление.
+<br>• Настраивается 1С-программистом за 5–10K ₽/час. 20 часов настройки = 100–200K ₽ разово.
+<br>• Любое обновление 1С ломает интеграцию — снова платите за починку.
+<br><br>
+<strong>Наша Фаза 5 (9K/мес) включает:</strong>
+<br>• Синхронизацию <strong>всех сущностей</strong>: контрагенты, договоры, акты, оплаты, остатки, расписания.
+<br>• <em>Отраслевую логику:</em> парсинг сроков аренды, авто-выставление счетов, обработка продлений.
+<br>• <strong>Бесплатные обновления</strong> при каждом релизе 1С (а их 4–6 в год).
+<br>• SLA 99.5% + мониторинг 24/7 + поддержка за 1 час реакции.
+<br>• Никакого штатного 1С-программиста — всё на нас.
+<br><br>
+<strong>Математика:</strong> годовая стоимость штатного решения с учётом настройки и поддержки = <em>250–400K ₽</em>. Наша Фаза 5 = <strong>108K ₽/год</strong>. Экономия в 2–4 раза + предсказуемость бюджета.<br><br>
+И главное: штатный модуль — это <em>просто синхронизация данных</em>. Наше решение — это <strong>бизнес-логика поверх данных</strong>, которая сама работает, напоминает и приносит деньги.
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+<div class="footer-brand">CodeForge · Product Knowledge Base v1.0</div>
+<div class="footer-sub">Внутренний документ для отдела продаж · Техническая база знаний</div>
+<div class="footer-links">
+<a href="https://t.me/Sagat9881" target="_blank">→ Telegram: @Sagat9881</a>
+<a href="mailto:apzakharov9881@gmail.com">→ apzakharov9881@gmail.com</a>
+<a href="https://github.com/Sagat9881" target="_blank">→ github.com/Sagat9881</a>
+</div>
+<div class="footer-date">Обновлено: 02 августа 2026 · Санкт-Петербург · работаем удалённо по миру</div>
+</footer>
+
+<script>
+// TABS
+function initTabs(containerId){
+const container = document.getElementById(containerId);
+if(!container) return;
+const buttons = container.querySelectorAll('.tab-btn');
+buttons.forEach(btn => {
+btn.addEventListener('click', () => {
+buttons.forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+const tab = btn.dataset.tab;
+const panels = document.querySelectorAll('[data-panel-group="' + containerId + '"]');
+// find panels that are siblings after this tab container
+const parent = container.parentElement;
+const allPanels = parent.querySelectorAll('.tab-panel');
+allPanels.forEach(p => p.classList.remove('active'));
+const target = document.getElementById('panel-' + tab);
+if(target) target.classList.add('active');
+});
+});
+}
+
+// Bind tab groups
+document.querySelectorAll('.tabs').forEach(tabsEl => {
+const buttons = tabsEl.querySelectorAll('.tab-btn');
+buttons.forEach(btn => {
+btn.addEventListener('click', () => {
+buttons.forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+const tab = btn.dataset.tab;
+// Find panels in same section
+const section = tabsEl.closest('.section') || tabsEl.parentElement;
+const allPanels = section.querySelectorAll('.tab-panel');
+allPanels.forEach(p => p.classList.remove('active'));
+const target = document.getElementById('panel-' + tab);
+if(target) target.classList.add('active');
+});
+});
+});
+
+// ACCORDION
+document.querySelectorAll('.acc-header').forEach(header => {
+header.addEventListener('click', () => {
+const item = header.parentElement;
+const body = item.querySelector('.acc-body');
+const inner = body.querySelector('.acc-body-inner');
+const isOpen = item.classList.contains('open');
+
+// close all others in same list
+const list = item.closest('.acc-list') || item.parentElement;
+list.querySelectorAll('.acc-item').forEach(i => {
+i.classList.remove('open');
+i.querySelector('.acc-body').style.maxHeight = '0';
+});
+
+if (!isOpen) {
+item.classList.add('open');
+body.style.maxHeight = inner.scrollHeight + 40 + 'px';
+}
+});
+});
+
+// Smooth scroll offset for sticky nav
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+anchor.addEventListener('click', function(e){
+const href = this.getAttribute('href');
+if(href === '#' || href.length < 2) return;
+const target = document.querySelector(href);
+if(target){
+e.preventDefault();
+const offset = 80;
+const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+window.scrollTo({top, behavior:'smooth'});
+}
+});
+});
+</script>
+</body>
+</html>
