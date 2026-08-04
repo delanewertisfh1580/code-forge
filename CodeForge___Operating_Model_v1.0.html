@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeForge · Operating Model · Dual-Track Revenue Engine</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg2: #11111a;
+            --bg3: #16161f;
+            --bg4: #1c1c28;
+            --bg-card: #1a2234;
+            --border: #23233a;
+            --border2: #2d2d4a;
+            --text: #e8e8f0;
+            --text2: #a0a0b8;
+            --text3: #6a6a82;
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --accent-glow: rgba(99, 102, 241, .15);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, .1);
+            --green-border: rgba(16, 185, 129, .25);
+            --orange: #f59e0b;
+            --orange-bg: rgba(245, 158, 11, .1);
+            --orange-border: rgba(245, 158, 11, .25);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, .08);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, .1);
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, .1);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 16px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, .4);
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --mono: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ─── NAV ─── */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 15, .85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: .75rem 1.5rem;
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 700;
+            font-size: .95rem;
+            color: var(--text);
+        }
+        .nav-brand span {
+            color: var(--accent2);
+        }
+        .nav-links {
+            display: flex;
+            gap: .25rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: .8rem;
+            padding: .35rem .7rem;
+            border-radius: var(--radius-sm);
+            transition: .2s;
+        }
+        .nav-links a:hover {
+            color: var(--text);
+            background: var(--bg3);
+        }
+        .nav-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: var(--accent);
+            color: #fff;
+            padding: .5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: .8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: .2s;
+        }
+        .nav-cta:hover {
+            background: var(--accent2);
+            transform: translateY(-1px);
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            padding: 5rem 1.5rem 3rem;
+            text-align: center;
+            background: radial-gradient(ellipse at top, rgba(99, 102, 241, .12), transparent 60%);
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--border2);
+            padding: .4rem 1rem;
+            border-radius: 999px;
+            font-size: .75rem;
+            color: var(--accent2);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.25rem);
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-sub {
+            font-size: 1.1rem;
+            color: var(--text2);
+            max-width: 760px;
+            margin: 0 auto 3rem;
+        }
+
+        .metrics {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+        .metric-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: .2s;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: .6;
+        }
+        .metric-card:hover {
+            border-color: var(--border2);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: .25rem;
+            font-family: var(--mono);
+        }
+        .metric-value .unit {
+            font-size: .9rem;
+            color: var(--accent2);
+            font-weight: 600;
+            margin-left: .25rem;
+        }
+        .metric-label {
+            font-size: .85rem;
+            color: var(--text2);
+            font-weight: 500;
+        }
+        .metric-card.green {
+            border-color: var(--green-border);
+        }
+        .metric-card.green::before {
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+        }
+        .metric-card.orange {
+            border-color: var(--orange-border);
+        }
+        .metric-card.orange::before {
+            background: linear-gradient(90deg, transparent, var(--orange), transparent);
+        }
+        .metric-card.purple {
+            border-color: rgba(168, 85, 247, .25);
+        }
+        .metric-card.purple::before {
+            background: linear-gradient(90deg, transparent, var(--purple), transparent);
+        }
+        .metric-card.cyan {
+            border-color: rgba(6, 182, 212, .25);
+        }
+        .metric-card.cyan::before {
+            background: linear-gradient(90deg, transparent, #06b6d4, transparent);
+        }
+
+        /* ─── SECTIONS ─── */
+        .section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .section:last-of-type {
+            border-bottom: none;
+        }
+        .section-header {
+            margin-bottom: 2.5rem;
+        }
+        .section-num {
+            font-family: var(--mono);
+            color: var(--accent2);
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: .5rem;
+            letter-spacing: .05em;
+        }
+        .section-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 800;
+            letter-spacing: -.01em;
+            margin-bottom: .75rem;
+        }
+        .section-desc {
+            color: var(--text2);
+            font-size: 1rem;
+            max-width: 760px;
+        }
+
+        /* ─── CARDS ─── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+        .card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: .2s;
+            position: relative;
+        }
+        .card:hover {
+            border-color: var(--border2);
+            box-shadow: var(--shadow);
+        }
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .card-icon.blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+        }
+        .card-icon.green {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+        .card-icon.orange {
+            background: var(--orange-bg);
+            color: var(--orange);
+        }
+        .card-icon.purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+        }
+        .card-icon.red {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+        .card-icon.cyan {
+            background: rgba(6, 182, 212, .1);
+            color: #06b6d4;
+        }
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+            color: var(--text);
+            letter-spacing: -.01em;
+        }
+        .card-text {
+            font-size: .88rem;
+            color: var(--text2);
+            line-height: 1.7;
+        }
+
+        /* ─── TABS ─── */
+        .tabs {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            background: var(--bg2);
+            padding: .35rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            width: fit-content;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text2);
+            padding: .6rem 1.25rem;
+            border-radius: var(--radius-sm);
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: .2s;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        .tab-btn:hover {
+            color: var(--text);
+        }
+        .tab-btn.active {
+            background: var(--bg4);
+            color: var(--text);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+        }
+        .tab-panel {
+            display: none;
+            animation: fade .3s ease;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── BADGES ─── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            padding: .2rem .55rem;
+            border-radius: 6px;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .02em;
+        }
+        .badge-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-border);
+        }
+        .badge-blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, .25);
+        }
+        .badge-orange {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-border);
+        }
+        .badge-red {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .25);
+        }
+        .badge-purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, .25);
+        }
+
+        /* ─── TIMELINE ─── */
+        .timeline {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent), var(--border));
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -2.5rem;
+            top: 4px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-weight: 800;
+            color: var(--accent2);
+            font-family: var(--mono);
+        }
+        .timeline-item:hover .timeline-dot {
+            background: var(--accent);
+            color: #fff;
+            transition: .2s;
+        }
+        .timeline-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            transition: .2s;
+        }
+        .timeline-card:hover {
+            border-color: var(--border2);
+        }
+        .timeline-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            flex-wrap: wrap;
+        }
+        .timeline-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            flex-wrap: wrap;
+        }
+        .timeline-role {
+            font-size: .72rem;
+            padding: .2rem .5rem;
+            border-radius: 6px;
+            background: var(--accent-glow);
+            color: var(--accent2);
+            font-weight: 700;
+            letter-spacing: .03em;
+        }
+        .timeline-text {
+            font-size: .88rem;
+            color: var(--text2);
+            line-height: 1.7;
+        }
+        .timeline-list {
+            margin-top: .75rem;
+            padding-left: 1.2rem;
+            font-size: .82rem;
+            color: var(--text2);
+            display: flex;
+            flex-direction: column;
+            gap: .3rem;
+        }
+        .timeline-list li::marker {
+            color: var(--accent2);
+        }
+
+        /* ─── ACCORDION ─── */
+        .acc-item {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: .75rem;
+            overflow: hidden;
+            transition: .2s;
+        }
+        .acc-item.open {
+            border-color: var(--border2);
+            box-shadow: var(--shadow);
+        }
+        .acc-header {
+            padding: 1.15rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            user-select: none;
+        }
+        .acc-header:hover {
+            background: var(--bg3);
+        }
+        .acc-q {
+            font-weight: 700;
+            color: var(--text);
+            font-size: .95rem;
+            display: flex;
+            align-items: flex-start;
+            gap: .6rem;
+            flex: 1;
+        }
+        .acc-icon {
+            color: var(--text3);
+            font-size: 1.25rem;
+            transition: .3s;
+            flex-shrink: 0;
+            font-family: var(--mono);
+            font-weight: 300;
+        }
+        .acc-item.open .acc-icon {
+            transform: rotate(45deg);
+            color: var(--accent2);
+        }
+        .acc-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .4s ease;
+        }
+        .acc-body-inner {
+            padding: 0 1.5rem 1.5rem;
+            color: var(--text2);
+            font-size: .9rem;
+            line-height: 1.75;
+            border-top: 1px solid var(--border);
+            padding-top: 1.25rem;
+        }
+        .acc-body-inner strong {
+            color: var(--green);
+            font-weight: 700;
+        }
+        .acc-body-inner em {
+            color: var(--accent2);
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        /* ─── TABLES ─── */
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg2);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .85rem;
+        }
+        th {
+            padding: .85rem 1rem;
+            text-align: left;
+            font-weight: 700;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            background: var(--bg3);
+        }
+        td {
+            padding: .85rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text2);
+            vertical-align: top;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        tbody tr:hover {
+            background: var(--bg3);
+        }
+        td strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+        .mono {
+            font-family: var(--mono);
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: .7rem;
+            font-weight: 500;
+            padding: 4px 11px;
+            border-radius: 100px;
+            white-space: nowrap;
+        }
+        .chip-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-border);
+        }
+        .chip-red {
+            background: rgba(239, 68, 68, .1);
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .3);
+        }
+        .chip-blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, .25);
+        }
+        .chip-orange {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-border);
+        }
+        .chip-purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, .25);
+        }
+
+        /* ─── INFOGRAFIKA: ARCHITECTURE ─── */
+        .arch-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        .arch-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: stretch;
+        }
+        .arch-track {
+            flex: 1 1 280px;
+            min-width: 240px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            position: relative;
+            transition: .2s;
+        }
+        .arch-track:hover {
+            border-color: var(--border2);
+            box-shadow: var(--shadow);
+        }
+        .arch-track-header {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text);
+            margin-bottom: .5rem;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+        .arch-track-header .tag {
+            font-size: .65rem;
+            font-weight: 600;
+            padding: .2rem .6rem;
+            border-radius: 100px;
+            background: var(--accent-glow);
+            color: var(--accent2);
+            border: 1px solid var(--border2);
+        }
+        .arch-track-body {
+            color: var(--text2);
+            font-size: .85rem;
+            line-height: 1.6;
+        }
+        .arch-track-body ul {
+            list-style: none;
+            margin-top: .6rem;
+        }
+        .arch-track-body ul li {
+            padding: .25rem 0 .25rem 1.2rem;
+            position: relative;
+            border-bottom: 1px dashed rgba(255, 255, 255, .05);
+        }
+        .arch-track-body ul li:last-child {
+            border-bottom: none;
+        }
+        .arch-track-body ul li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+        .arch-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--accent);
+            padding: 0 .5rem;
+            flex-shrink: 0;
+            font-family: var(--mono);
+            font-weight: 300;
+        }
+
+        .arch-hub {
+            flex: 1 1 340px;
+            min-width: 280px;
+            background: var(--bg2);
+            border: 2px solid var(--accent-line, var(--border2));
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 0 0 30px rgba(99, 102, 241, .08);
+        }
+        .arch-hub::before {
+            content: 'ОБЩИЙ ТЫЛО';
+            position: absolute;
+            top: -0.6rem;
+            left: 1.5rem;
+            background: var(--bg);
+            padding: 0 .6rem;
+            font-size: .65rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            color: var(--accent2);
+            font-family: var(--mono);
+        }
+        .arch-hub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: .8rem;
+            margin-top: .5rem;
+        }
+        .arch-hub-item {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: .8rem .6rem;
+            text-align: center;
+        }
+        .arch-hub-item .emoji {
+            font-size: 1.4rem;
+            display: block;
+            margin-bottom: .3rem;
+        }
+        .arch-hub-item .label {
+            font-size: .7rem;
+            color: var(--text2);
+            font-weight: 600;
+            letter-spacing: .03em;
+        }
+
+        .arch-output {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .8rem;
+            justify-content: center;
+            margin-top: .8rem;
+        }
+        .arch-output-item {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: .5rem 1rem;
+            font-family: var(--mono);
+            font-size: .75rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        .arch-output-item .num {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .arch-flow-lines {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .2rem;
+            padding: .2rem 0;
+            color: var(--text3);
+            font-size: 1.2rem;
+            font-family: var(--mono);
+        }
+
+        /* ─── DEAL REGISTRATION FLOW ─── */
+        .flow-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: stretch;
+            margin-top: 1rem;
+        }
+        .flow-node {
+            flex: 1 1 220px;
+            min-width: 180px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem 1.5rem;
+            text-align: center;
+            transition: .2s;
+            position: relative;
+        }
+        .flow-node:hover {
+            border-color: var(--border2);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+        .flow-node .emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: .4rem;
+        }
+        .flow-node .title {
+            font-weight: 700;
+            font-size: .9rem;
+            color: var(--text);
+        }
+        .flow-node .desc {
+            font-size: .78rem;
+            color: var(--text2);
+            margin-top: .3rem;
+            line-height: 1.5;
+        }
+        .flow-node.decision {
+            border-color: var(--orange-border);
+            background: var(--orange-bg);
+        }
+        .flow-node.decision .title {
+            color: var(--orange);
+        }
+        .flow-node.terminal {
+            border-color: var(--green-border);
+            background: var(--green-bg);
+        }
+        .flow-node.terminal .title {
+            color: var(--green);
+        }
+        .flow-node.start {
+            border-color: var(--accent-line, var(--border2));
+            background: var(--accent-glow);
+        }
+        .flow-node.start .title {
+            color: var(--accent2);
+        }
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            color: var(--text3);
+            font-family: var(--mono);
+        }
+
+        /* ─── DASHBOARD ─── */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+        .dash-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            transition: .2s;
+        }
+        .dash-card:hover {
+            border-color: var(--border2);
+            box-shadow: var(--shadow);
+        }
+        .dash-card .dash-title {
+            font-weight: 700;
+            font-size: .95rem;
+            color: var(--text);
+            margin-bottom: .75rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .dash-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .4rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+            font-size: .82rem;
+        }
+        .dash-row:last-child {
+            border-bottom: none;
+        }
+        .dash-row .label {
+            color: var(--text2);
+        }
+        .dash-row .value {
+            font-weight: 700;
+            font-family: var(--mono);
+        }
+        .dash-row .value.green {
+            color: var(--green);
+        }
+        .dash-row .value.yellow {
+            color: var(--orange);
+        }
+        .dash-row .value.red {
+            color: var(--red);
+        }
+        .dash-row .value.blue {
+            color: var(--blue);
+        }
+
+        .dash-alert {
+            margin-top: .75rem;
+            padding: .6rem .8rem;
+            border-radius: var(--radius-sm);
+            font-size: .78rem;
+            border-left: 3px solid var(--red);
+            background: rgba(239, 68, 68, .06);
+            color: var(--text2);
+        }
+        .dash-alert strong {
+            color: var(--red);
+        }
+        .dash-action {
+            margin-top: .5rem;
+            padding: .5rem .8rem;
+            border-radius: var(--radius-sm);
+            background: var(--bg3);
+            font-size: .75rem;
+            color: var(--text2);
+            border: 1px solid var(--border);
+        }
+        .dash-action strong {
+            color: var(--accent2);
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            background: var(--bg2);
+            margin-top: 2rem;
+        }
+        .footer-brand {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: .5rem;
+            color: var(--text);
+        }
+        .footer-sub {
+            color: var(--text3);
+            font-size: .85rem;
+            margin-bottom: 1.5rem;
+        }
+        .footer-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: .85rem;
+            padding: .4rem .8rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: .2s;
+        }
+        .footer-links a:hover {
+            color: var(--accent2);
+            border-color: var(--border2);
+        }
+        .footer-date {
+            color: var(--text3);
+            font-size: .75rem;
+            margin-top: 1.5rem;
+            font-family: var(--mono);
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hero {
+                padding: 3rem 1rem 2rem;
+            }
+            .section {
+                padding: 2rem 1rem;
+            }
+            .tabs {
+                width: 100%;
+            }
+            .tab-btn {
+                flex: 1;
+                justify-content: center;
+                font-size: .82rem;
+                padding: .5rem .7rem;
+            }
+            .timeline {
+                padding-left: 2rem;
+            }
+            .timeline-dot {
+                left: -2rem;
+            }
+            .acc-header {
+                padding: 1rem;
+            }
+            .acc-body-inner {
+                padding: 0 1rem 1rem;
+                padding-top: 1rem;
+            }
+            .arch-hub-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .flow-node {
+                flex: 1 1 100%;
+            }
+            .flow-arrow {
+                transform: rotate(90deg);
+                padding: .2rem 0;
+            }
+            .metrics {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+            .arch-hub-grid {
+                grid-template-columns: 1fr;
+            }
+            .arch-track {
+                flex: 1 1 100%;
+            }
+            .arch-hub {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══ HEADER ═══ -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-brand">
+                <span>CF</span> Operating Model
+            </div>
+            <div class="nav-links">
+                <a href="#architecture">Архитектура</a>
+                <a href="#direct">Direct Engine</a>
+                <a href="#wl">WL Engine</a>
+                <a href="#intersection">Пересечения</a>
+                <a href="#dashboard">Панель</a>
+            </div>
+            <a href="https://t.me/Sagat9881" class="nav-cta" target="_blank">💬 Обсудить →</a>
+        </div>
+    </nav>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="hero">
+        <div class="hero-badge">Operating Model · v1.0 · Август 2026</div>
+        <h1>Операционная Модель: Сквозной Двигатель</h1>
+        <p class="hero-sub">
+            Два параллельных контура — <strong>Direct Outreach</strong> и <strong>WL-партнерства</strong> — работают синхронно,
+            делят общий тыл (Delivery, Support, Deal Registration) и конвертируют действия в MRR.
+            Единая приборная панель для управления пропускной способностью.
+        </p>
+    </section>
+
+    <!-- ═══ METRICS ═══ -->
+    <div class="metrics">
+        <div class="metric-card green">
+            <div class="metric-value">2<span class="unit">Контура</span></div>
+            <div class="metric-label">Direct + White Label</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">1<span class="unit">Общий Тыло</span></div>
+            <div class="metric-label">Delivery · Support · Deal Reg</div>
+        </div>
+        <div class="metric-card orange">
+            <div class="metric-value">End-to-End</div>
+            <div class="metric-label">Сквозные бизнес-процессы</div>
+        </div>
+        <div class="metric-card purple">
+            <div class="metric-value">📊</div>
+            <div class="metric-label">Приборная Панель</div>
+        </div>
+    </div>
+
+    <!-- ═══ SECTION 01 · ARCHITECTURE ═══ -->
+    <section class="section" id="architecture">
+        <div class="section-header">
+            <div class="section-num">01 · Архитектура Двигателя</div>
+            <h2 class="section-title">Глобальная схема: Два контура → Общий тыло → Выход</h2>
+            <p class="section-desc">
+                Контур А (Direct) и Контур Б (WL) работают параллельно, сходятся в едином операционном ядре и генерируют выручку.
+                Пропускная способность (Throughput) ограничена ресурсом Backend-команды.
+            </p>
+        </div>
+
+        <div class="arch-container">
+
+            <!-- Верхний ряд: два контура -->
+            <div class="arch-row">
+                <div class="arch-track">
+                    <div class="arch-track-header">
+                        🎯 Контур А · Direct
+                        <span class="tag">Охотник</span>
+                    </div>
+                    <div class="arch-track-body">
+                        <ul>
+                            <li><strong>Lead Gen:</strong> Парсинг 2GIS / VK / TG → фильтр «отсталости»</li>
+                            <li><strong>Outreach:</strong> Персонализированный питч + мокап</li>
+                            <li><strong>Conversion:</strong> Демо → КП → Сделка</li>
+                            <li><strong>Onboarding:</strong> 30 дней → рекуррент</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="arch-arrow">⤵</div>
+
+                <div class="arch-track">
+                    <div class="arch-track-header">
+                        🤝 Контур Б · White Label
+                        <span class="tag">Фермер</span>
+                    </div>
+                    <div class="arch-track-body">
+                        <ul>
+                            <li><strong>Studio Acquisition:</strong> Шорт-лист → Gap-анализ → Питч</li>
+                            <li><strong>Onboarding:</strong> Договор → обучение → КП-шаблоны</li>
+                            <li><strong>Deal Flow:</strong> ТЗ → оценка (2 дня) → разработка</li>
+                            <li><strong>Retention:</strong> Комьюнити → рефералы</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Стрелка вниз -->
+            <div class="arch-flow-lines">
+                <span>▼</span>
+                <span style="font-size:.7rem;color:var(--text3);letter-spacing:.1em">DEAL REGISTRATION · ЕДИНАЯ CRM-ЛОГИКА</span>
+                <span>▼</span>
+            </div>
+
+            <!-- Общий тыло -->
+            <div class="arch-row">
+                <div class="arch-hub">
+                    <div class="arch-hub-grid">
+                        <div class="arch-hub-item">
+                            <span class="emoji">🏗</span>
+                            <span class="label">Delivery</span>
+                        </div>
+                        <div class="arch-hub-item">
+                            <span class="emoji">🛡</span>
+                            <span class="label">Deal Reg</span>
+                        </div>
+                        <div class="arch-hub-item">
+                            <span class="emoji">🎧</span>
+                            <span class="label">Support</span>
+                        </div>
+                    </div>
+                    <div class="arch-output">
+                        <span class="arch-output-item"><span class="num">▸</span> Backend-разработка</span>
+                        <span class="arch-output-item"><span class="num">▸</span> Интеграции</span>
+                        <span class="arch-output-item"><span class="num">▸</span> DevOps</span>
+                        <span class="arch-output-item"><span class="num">▸</span> 2-я линия</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Стрелка вниз к выходу -->
+            <div class="arch-flow-lines">
+                <span>▼</span>
+                <span style="font-size:.7rem;color:var(--text3);letter-spacing:.1em">ВЫХОД</span>
+                <span>▼</span>
+            </div>
+
+            <!-- Выходные метрики -->
+            <div class="arch-row">
+                <div class="arch-track" style="flex:1 1 100%;border-color:var(--green-border);background:var(--green-bg)">
+                    <div class="arch-track-header" style="justify-content:center">
+                        📈 MRR · NRR · LTV · Churn · Gross Margin
+                    </div>
+                    <div class="arch-track-body" style="text-align:center;color:var(--text)">
+                        <span style="display:inline-flex;gap:1.5rem;flex-wrap:wrap;justify-content:center">
+                            <span><strong style="color:var(--green)">MRR</strong> +15% м/м</span>
+                            <span><strong style="color:var(--accent2)">NRR</strong> ≥130%</span>
+                            <span><strong style="color:var(--green)">LTV</strong> 380–600K</span>
+                            <span><strong style="color:var(--orange)">Churn</strong> &lt;3%</span>
+                            <span><strong style="color:var(--green)">GM</strong> ≥74%</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 02 · DIRECT ENGINE ═══ -->
+    <section class="section" id="direct">
+        <div class="section-header">
+            <div class="section-num">02 · Контур А: Прямые продажи</div>
+            <h2 class="section-title">Direct Engine — «Охотник»</h2>
+            <p class="section-desc">
+                Высокомаржинальный канал с ограниченной пропускной способностью. Генерирует Cash Flow и валидирует гипотезы.
+            </p>
+        </div>
+
+        <div class="tabs" id="tabs-direct">
+            <button class="tab-btn active" data-tab="d1">🎯 Lead Gen</button>
+            <button class="tab-btn" data-tab="d2">🚀 Outreach</button>
+            <button class="tab-btn" data-tab="d3">🤝 Onboarding</button>
+            <button class="tab-btn" data-tab="d4">📈 Lifecycle</button>
+        </div>
+
+        <!-- Tab D1 -->
+        <div class="tab-panel active" id="panel-d1">
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon blue">🔍</div>
+                    <div class="card-title">Источники и парсинг</div>
+                    <div class="card-text">
+                        <strong>2GIS</strong> (основной), открытые VK-группы, Telegram-каналы, базы из Playbook раздел 04A/B.
+                        <br><br>
+                        <strong>Алгоритм:</strong> Сбор сырых данных → скрининг по фильтрам «отсталости» → обогащение (ЛПР).
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon orange">🧹</div>
+                    <div class="card-title">Фильтры «отсталости»</div>
+                    <div class="card-text">
+                        <strong>CMS:</strong> Tilda, старый Bitrix, самописный движок до 2015.<br>
+                        <strong>SS:</strong> Нет 3D-калькулятора, нет онлайн-бронирования.<br>
+                        <strong>OOH:</strong> Нет интерактивной карты, нет калькулятора стоимости.<br>
+                        <strong>Признаки:</strong> PDF-презентации, WhatsApp-заявки.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon green">📊</div>
+                    <div class="card-title">Метрики</div>
+                    <div class="card-text">
+                        <strong>CPL:</strong> 0–8K ₽ (зависит от канала).<br>
+                        <strong>Пропускная способность:</strong> 3–5 качественных лидов в день.<br>
+                        <strong>Конверсия в Демо:</strong> ≥ 10%.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab D2 -->
+        <div class="tab-panel" id="panel-d2">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot">1</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 1 · Персонализированное сообщение</div>
+                        <div class="timeline-text">
+                            Email/Telegram по шаблону из раздела 05 Playbook. Упоминание конкретной боли:
+                            <em>«40% лидов уходят ночью»</em> (SS) или
+                            <em>«Клиенты уходят, пока вы считаете щиты в Excel»</em> (OOH).
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">2</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 3 · Демо-мокап</div>
+                        <div class="timeline-text">
+                            Повторное касание с отправкой персонального мокапа (карта или 3D-калькулятор с реальными данными клиента).
+                            <span class="badge badge-green">Конверсия ↑</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">3</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 7 · Follow-up</div>
+                        <div class="timeline-text">
+                            Предложение короткого звонка (15 минут).
+                            <span class="badge badge-blue">Демо-звонок</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">4</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 14 · Оффер</div>
+                        <div class="timeline-text">
+                            Последнее касание с ценностным предложением. Если нет реакции — лид уходит в «холодную» базу.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:1.5rem;background:var(--bg3);border-radius:var(--radius);padding:1rem 1.5rem;border:1px solid var(--border)">
+                <p style="color:var(--text2);font-size:.85rem">
+                    <strong style="color:var(--text)">Воронка конверсии (SS):</strong> Лид (CAC 15K) → Демо (60%) → КП (40%) → Сделка (80–150K чек)
+                    <br>
+                    <strong style="color:var(--text)">Воронка конверсии (OOH):</strong> Лид (CAC 0–4K) → Демо (70%) → КП (50%) → Сделка (40–80K чек)
+                </p>
+            </div>
+        </div>
+
+        <!-- Tab D3 -->
+        <div class="tab-panel" id="panel-d3">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot">1</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 1–2 · Kick-off</div>
+                        <div class="timeline-text">Сбор требований, подписание договора, предоплата 50%.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">2</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 3–7 · Импорт данных (Фаза 2)</div>
+                        <div class="timeline-text">Парсер Excel/API. Загрузка инвентаря клиента.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">3</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 7–21 · Разработка (Фазы 1–4)</div>
+                        <div class="timeline-text">Кастомизация, внутренний QA, деплой на staging.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">4</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 21–28 · UAT и обучение</div>
+                        <div class="timeline-text">Передача админки клиенту, обучение.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">5</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">День 30 · Активация поддержки</div>
+                        <div class="timeline-text">Переключение на рекуррентный тариф (MRR).</div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:1.5rem;background:var(--green-bg);border-radius:var(--radius);padding:1rem 1.5rem;border:1px solid var(--green-border)">
+                <p style="color:var(--text2);font-size:.85rem">
+                    <strong style="color:var(--green)">Activation Rate:</strong> ≥ 70% (переход с проекта на рекуррентный план)
+                    <br>
+                    <strong style="color:var(--green)">Time-to-Value:</strong> Первый запуск (MVP) — 2–3 недели.
+                </p>
+            </div>
+        </div>
+
+        <!-- Tab D4 -->
+        <div class="tab-panel" id="panel-d4">
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">⚡</div>
+                    <div class="card-title">Триггеры апсейла</div>
+                    <div class="card-text">
+                        <strong>«Объем»:</strong> &gt;200 активных договоров → Фаза 3 (CRM).<br>
+                        <strong>«Нагрузка»:</strong> &gt;5 часов ручного ввода/нед → Фаза 2 или 5.<br>
+                        <strong>«Рост»:</strong> Переход на B2B → Фаза 4 (Image/3D).
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon green">❤️</div>
+                    <div class="card-title">Health Check</div>
+                    <div class="card-text">
+                        Ежемесячный аудит использования админки. Контроль Churn Rate (сигнал: снижение активности).
+                        <br><br>
+                        <span class="badge badge-green">NRR ≥130%</span>
+                        <span class="badge badge-blue">Expansion MRR ↑</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 03 · WL ENGINE ═══ -->
+    <section class="section" id="wl">
+        <div class="section-header">
+            <div class="section-num">03 · Контур Б: White Label</div>
+            <h2 class="section-title">WL Engine — «Фермер»</h2>
+            <p class="section-desc">
+                Канал с нулевым CAC, высоким LTV партнера и масштабируемым ростом. Обеспечивает загрузку тыла.
+            </p>
+        </div>
+
+        <div class="tabs" id="tabs-wl">
+            <button class="tab-btn active" data-tab="w1">🔍 Studio Acquisition</button>
+            <button class="tab-btn" data-tab="w2">🛠 Partner Onboarding</button>
+            <button class="tab-btn" data-tab="w3">⚙️ Deal Flow</button>
+            <button class="tab-btn" data-tab="w4">🔄 Retention</button>
+        </div>
+
+        <!-- Tab W1 -->
+        <div class="tab-panel active" id="panel-w1">
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon blue">📋</div>
+                    <div class="card-title">Шорт-лист</div>
+                    <div class="card-text">
+                        Анализ рейтингов (Рейтинг Рунета, Tagline), портфолио студий.
+                        <br><br>
+                        <strong>Сегменты:</strong> P1 (Tilda-студии), P2 (Наградные студии), P3 (Корп-студии).
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon orange">🔎</div>
+                    <div class="card-title">Gap-анализ</div>
+                    <div class="card-text">
+                        <strong>P1:</strong> Переросли Tilda → нужен backend.<br>
+                        <strong>P2:</strong> Нет backend-команды → нужен аутсорс.<br>
+                        <strong>P3:</strong> Штатный разработчик — bottleneck.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon green">💬</div>
+                    <div class="card-title">Персонализированный питч</div>
+                    <div class="card-text">
+                        Показываем, как закрываем конкретный GAP студии.
+                        <br><br>
+                        <span class="badge badge-green">Time-to-First-Deal &lt; 30 дней</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab W2 -->
+        <div class="tab-panel" id="panel-w2">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot">1</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">Юридический этап</div>
+                        <div class="timeline-text">Подписание WL-договора (включая запрет на перехват клиентов из раздела 04 WL Playbook).</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">2</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">Настройка</div>
+                        <div class="timeline-text">Доступ к партнерской админке, брендирование (домен, логотип).</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">3</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">Обучение</div>
+                        <div class="timeline-text">Передача скриптов, КП-шаблонов, инструкций по ТЗ.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">4</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">Делегирование</div>
+                        <div class="timeline-text">Внесение первых потенциальных клиентов в Deal Registration.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab W3 -->
+        <div class="tab-panel" id="panel-w3">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot">1</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">Вход · ТЗ от студии</div>
+                        <div class="timeline-text">Студия подает ТЗ через партнерскую админку.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">2</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">Оценка · 2 дня (SLA)</div>
+                        <div class="timeline-text">CodeForge дает фиксированную оценку. <span class="badge badge-orange">Bottleneck</span></div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">3</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">Разработка</div>
+                        <div class="timeline-text">Распределение ресурсов Backend-команды.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">4</div>
+                    <div class="timeline-card">
+                        <div class="timeline-title">QA и Сдача</div>
+                        <div class="timeline-text">Внутренний QA → Сдача Студии → Сдача Клиенту (принцип «Невидимки»).</div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:1.5rem;background:var(--bg3);border-radius:var(--radius);padding:1rem 1.5rem;border:1px solid var(--border)">
+                <p style="color:var(--text2);font-size:.85rem">
+                    <strong style="color:var(--text)">Пропускная способность:</strong> Количество проектов, закрытых за месяц.
+                    <br>
+                    <strong style="color:var(--text)">Studio Project Volume:</strong> Объем выручки, генерируемый партнером.
+                </p>
+            </div>
+        </div>
+
+        <!-- Tab W4 -->
+        <div class="tab-panel" id="panel-w4">
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">🤝</div>
+                    <div class="card-title">Реферальная программа</div>
+                    <div class="card-text">
+                        Бонусы за приведенных партнеров. Студии становятся амбассадорами канала.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">💬</div>
+                    <div class="card-title">Закрытый клуб</div>
+                    <div class="card-text">
+                        Telegram-чат для обмена опытом, ранний доступ к новым фичам, вебинары.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon green">📈</div>
+                    <div class="card-title">Метрики удержания</div>
+                    <div class="card-text">
+                        <strong>Partner Retention Rate:</strong> ≥ 90% год к году.
+                        <br><br>
+                        <span class="badge badge-green">NRR ↑</span>
+                        <span class="badge badge-blue">LTV партнера ↑</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 04 · INTERSECTION ═══ -->
+    <section class="section" id="intersection">
+        <div class="section-header">
+            <div class="section-num">04 · Точки Пересечения</div>
+            <h2 class="section-title">Общий Тыло: Deal Registration · Delivery · Support</h2>
+            <p class="section-desc">
+                Единые стандарты и алгоритмы, которые обеспечивают бесшовную работу двух контуров.
+            </p>
+        </div>
+
+        <!-- Deal Registration Flow -->
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.2rem;color:var(--accent2)">🛡 Deal Registration — Алгоритм</h3>
+        <div class="flow-container">
+            <div class="flow-node start">
+                <span class="emoji">📥</span>
+                <div class="title">Входной запрос</div>
+                <div class="desc">От студии (WL) или сгенерирован лид (Direct)</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node decision">
+                <span class="emoji">🔍</span>
+                <div class="title">Проверка в реестре</div>
+                <div class="desc">Клиент в Реестре WL?</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node terminal">
+                <span class="emoji">✅</span>
+                <div class="title">WL Engine</div>
+                <div class="desc">Маршрут в Контур Б</div>
+            </div>
+            <div class="flow-arrow" style="flex-direction:column;gap:.2rem;font-size:.8rem">
+                <span>⬇</span>
+                <span style="color:var(--text3);font-size:.6rem">ELSE</span>
+                <span>⬇</span>
+            </div>
+            <div class="flow-node terminal" style="border-color:var(--blue-border,var(--border2));background:var(--blue-bg)">
+                <span class="emoji">🎯</span>
+                <div class="title" style="color:var(--blue)">Direct Engine</div>
+                <div class="desc">Маршрут в Контур А</div>
+            </div>
+        </div>
+        <div style="margin-top:1.2rem;background:var(--bg3);border-radius:var(--radius);padding:.8rem 1.2rem;border:1px solid var(--border);font-size:.82rem;color:var(--text2)">
+            <strong style="color:var(--text)">Эскалация:</strong> Спорные случаи решаются директором по продажам в течение 24 часов.
+            <span class="badge badge-red" style="margin-left:.5rem">Принцип «Первого касания»</span>
+        </div>
+
+        <!-- Delivery & QA + Support -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2.5rem">
+            <div class="card">
+                <div class="card-icon green">🏗</div>
+                <div class="card-title">Delivery & QA</div>
+                <div class="card-text">
+                    <strong>Единый стандарт качества:</strong> Независимо от источника (Direct или WL), продукт проходит одинаковые этапы QA Sign-off.
+                    <br><br>
+                    <strong>Управление Throughput:</strong> Backend-команда — основной ресурс. Планирование загрузки на основе бэклога проектов из обоих каналов.
+                    <br><br>
+                    <span class="badge badge-blue">Приоритет: Onboarding (Direct) > WL</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon purple">🎧</div>
+                <div class="card-title">Support & SLA</div>
+                <div class="card-text">
+                    <strong>1-я линия:</strong> Студия / Основатель (коммуникация с клиентом).<br>
+                    <strong>2-я линия:</strong> CodeForge (техническая поддержка).
+                    <br><br>
+                    <span class="badge badge-green">SLA 99.5% uptime</span>
+                    <span class="badge badge-orange">SEV-1: &lt; 4 ч</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLA Matrix -->
+        <h3 style="font-size:1.05rem;font-weight:700;margin:2rem 0 1rem;color:var(--accent2)">📊 Матрица эскалации (SEV-1 — SEV-4)</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Уровень</th><th>Описание</th><th>Решение</th><th>Владелец</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="chip chip-red">SEV-1</span></td>
+                        <td><strong>Критический:</strong> Система не работает. Блокировка бизнес-процесса.</td>
+                        <td class="mono" style="color:var(--red)">&lt; 4 часов</td>
+                        <td><span class="chip chip-blue">CodeForge 2-я линия</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="chip chip-orange">SEV-2</span></td>
+                        <td><strong>Высокий:</strong> Критический функциональный сбой.</td>
+                        <td class="mono" style="color:var(--orange)">&lt; 24 часов</td>
+                        <td><span class="chip chip-blue">CodeForge 2-я линия</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="chip chip-purple">SEV-3</span></td>
+                        <td><strong>Средний:</strong> Запрос на доработку / новый функционал.</td>
+                        <td class="mono" style="color:var(--purple)">&lt; 72 часов</td>
+                        <td><span class="chip chip-blue">CodeForge 2-я линия</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="chip chip-green">SEV-4</span></td>
+                        <td><strong>Низкий:</strong> Консультация / нетехнический вопрос.</td>
+                        <td class="mono" style="color:var(--green)">&lt; 5 дней</td>
+                        <td><span class="chip chip-orange">Студия / Основатель 1-я линия</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 05 · DASHBOARD ═══ -->
+    <section class="section" id="dashboard">
+        <div class="section-header">
+            <div class="section-num">05 · Приборная Панель</div>
+            <h2 class="section-title">Метрики и Триггеры</h2>
+            <p class="section-desc">
+                Дашборд с «зелеными» и «красными» зонами для каждого контура. Алгоритмы действий при отклонениях.
+            </p>
+        </div>
+
+        <div class="dash-grid">
+
+            <!-- Direct -->
+            <div class="dash-card">
+                <div class="dash-title">🎯 Контур А · Direct</div>
+                <div class="dash-row">
+                    <span class="label">CAC</span>
+                    <span class="value green">&lt; 10K</span>
+                    <span class="value yellow">10–15K</span>
+                    <span class="value red">&gt; 15K</span>
+                </div>
+                <div class="dash-row">
+                    <span class="label">Conversion (Демо→Сделка)</span>
+                    <span class="value green">&gt; 25%</span>
+                    <span class="value yellow">15–25%</span>
+                    <span class="value red">&lt; 15%</span>
+                </div>
+                <div class="dash-row">
+                    <span class="label">Churn Rate</span>
+                    <span class="value green">&lt; 3%</span>
+                    <span class="value yellow">3–5%</span>
+                    <span class="value red">&gt; 5%</span>
+                </div>
+                <div class="dash-row">
+                    <span class="label">Payback Period</span>
+                    <span class="value green">&lt; 1 мес</span>
+                    <span class="value yellow">1–2 мес</span>
+                    <span class="value red">&gt; 3 мес</span>
+                </div>
+                <div class="dash-alert">
+                    <strong>🔴 Красный флаг:</strong> Churn &gt; 5%
+                </div>
+                <div class="dash-action">
+                    <strong>Действие:</strong> Внедрить программу Health Check. Подключить клиента к следующей фазе Upsell Matrix для усиления lock-in.
+                </div>
+                <div class="dash-alert" style="border-left-color:var(--orange);background:rgba(245,158,11,.06)">
+                    <strong>🟡 Желтый флаг:</strong> CAC &gt; 15K
+                </div>
+                <div class="dash-action">
+                    <strong>Действие:</strong> Пересмотр каналов: переключиться с платного трафика на чистый outreach. Оптимизировать скрипты.
+                </div>
+            </div>
+
+            <!-- WL -->
+            <div class="dash-card">
+                <div class="dash-title">🤝 Контур Б · White Label</div>
+                <div class="dash-row">
+                    <span class="label">Time-to-First-Deal</span>
+                    <span class="value green">&lt; 30 д</span>
+                    <span class="value yellow">30–60 д</span>
+                    <span class="value red">&gt; 60 д</span>
+                </div>
+                <div class="dash-row">
+                    <span class="label">Partner Activity</span>
+                    <span class="value green">1+ лид/нед</span>
+                    <span class="value yellow">1 лид/мес</span>
+                    <span class="value red">0 лидов &gt; 2 мес</span>
+                </div>
+                <div class="dash-row">
+                    <span class="label">Partner Churn</span>
+                    <span class="value green">&lt; 10%</span>
+                    <span class="value yellow">10–20%</span>
+                    <span class="value red">&gt; 20%</span>
+                </div>
+                <div class="dash-alert">
+                    <strong>🔴 Красный флаг:</strong> WL-студия не приводит лидов &gt; 2 мес
+                </div>
+                <div class="dash-action">
+                    <strong>Действие:</strong> Личный контакт с владельцем студии. Пересмотр ценности партнерства. Предложить маркетинговую поддержку.
+                </div>
+                <div class="dash-alert" style="border-left-color:var(--orange);background:rgba(245,158,11,.06)">
+                    <strong>🟡 Желтый флаг:</strong> Time-to-First-Deal &gt; 60 д
+                </div>
+                <div class="dash-action">
+                    <strong>Действие:</strong> Внедрить менторство: назначить ответственного за онбординг студий. Упростить процесс регистрации сделки.
+                </div>
+            </div>
+
+            <!-- Delivery -->
+            <div class="dash-card">
+                <div class="dash-title">🏗 Общее Тыло · Delivery</div>
+                <div class="dash-row">
+                    <span class="label">SLA Compliance (SEV-1/2)</span>
+                    <span class="value green">100%</span>
+                    <span class="value yellow">90–99%</span>
+                    <span class="value red">&lt; 90%</span>
+                </div>
+                <div class="dash-row">
+                    <span class="label">Gross Margin</span>
+                    <span class="value green">&gt; 74%</span>
+                    <span class="value yellow">60–74%</span>
+                    <span class="value red">&lt; 60%</span>
+                </div>
+                <div class="dash-alert">
+                    <strong>🔴 Красный флаг:</strong> Gross Margin &lt; 60%
+                </div>
+                <div class="dash-action">
+                    <strong>Действие:</strong> Пересмотр структуры стоимости (COGS). Оптимизация инфраструктуры (хостинг, инструменты). Повышение цен для новых клиентов.
+                </div>
+                <div class="dash-alert" style="border-left-color:var(--orange);background:rgba(245,158,11,.06)">
+                    <strong>🟡 Желтый флаг:</strong> SLA Compliance &lt; 90%
+                </div>
+                <div class="dash-action">
+                    <strong>Действие:</strong> Аудит процесса эскалации. Усиление 2-й линии поддержки или DevOps.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Summary Table -->
+        <div style="margin-top:2.5rem">
+            <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:1rem;color:var(--accent2)">📋 Сводка целевых метрик</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Метрика</th><th>Зеленая зона</th><th>Желтая зона</th><th>Красная зона</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>CAC (Direct)</strong></td><td style="color:var(--green)">&lt; 10K</td><td style="color:var(--orange)">10–15K</td><td style="color:var(--red)">&gt; 15K</td></tr>
+                        <tr><td><strong>Churn (Direct)</strong></td><td style="color:var(--green)">&lt; 3%</td><td style="color:var(--orange)">3–5%</td><td style="color:var(--red)">&gt; 5%</td></tr>
+                        <tr><td><strong>Payback</strong></td><td style="color:var(--green)">&lt; 1 мес</td><td style="color:var(--orange)">1–2 мес</td><td style="color:var(--red)">&gt; 3 мес</td></tr>
+                        <tr><td><strong>Time-to-First-Deal (WL)</strong></td><td style="color:var(--green)">&lt; 30 д</td><td style="color:var(--orange)">30–60 д</td><td style="color:var(--red)">&gt; 60 д</td></tr>
+                        <tr><td><strong>Partner Activity (WL)</strong></td><td style="color:var(--green)">1+ лид/нед</td><td style="color:var(--orange)">1 лид/мес</td><td style="color:var(--red)">0 &gt; 2 мес</td></tr>
+                        <tr><td><strong>Gross Margin</strong></td><td style="color:var(--green)">&gt; 74%</td><td style="color:var(--orange)">60–74%</td><td style="color:var(--red)">&lt; 60%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer">
+        <div class="footer-brand">CodeForge · Operating Model v1.0</div>
+        <div class="footer-sub">Внутренний операционный документ · Двухконтурный Двигатель Выручки</div>
+        <div class="footer-links">
+            <a href="https://t.me/Sagat9881" target="_blank">→ Telegram: @Sagat9881</a>
+            <a href="mailto:apzakharov9881@gmail.com">→ apzakharov9881@gmail.com</a>
+            <a href="https://github.com/Sagat9881" target="_blank">→ github.com/Sagat9881</a>
+        </div>
+        <div class="footer-date">Обновлено: 02 августа 2026 · Санкт-Петербург · работаем удалённо по миру</div>
+    </footer>
+
+    <script>
+        // ─── TABS ───
+        document.querySelectorAll('.tabs').forEach(function(tabsEl) {
+            var btns = tabsEl.querySelectorAll('.tab-btn');
+            var panelId = tabsEl.id;
+            btns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    btns.forEach(function(b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    var tab = btn.dataset.tab;
+                    var parent = tabsEl.parentElement;
+                    var panels = parent.querySelectorAll('.tab-panel');
+                    panels.forEach(function(p) { p.classList.remove('active'); });
+                    var target = document.getElementById('panel-' + tab);
+                    if (target) target.classList.add('active');
+                });
+            });
+        });
+
+        // ─── ACCORDION ───
+        document.querySelectorAll('.acc-header').forEach(function(header) {
+            header.addEventListener('click', function() {
+                var item = header.parentElement;
+                var body = item.querySelector('.acc-body');
+                var inner = body.querySelector('.acc-body-inner');
+                var isOpen = item.classList.contains('open');
+
+                var list = item.closest('.acc-list') || item.parentElement;
+                list.querySelectorAll('.acc-item').forEach(function(i) {
+                    i.classList.remove('open');
+                    i.querySelector('.acc-body').style.maxHeight = '0';
+                });
+
+                if (!isOpen) {
+                    item.classList.add('open');
+                    body.style.maxHeight = inner.scrollHeight + 40 + 'px';
+                }
+            });
+        });
+
+        // ─── SMOOTH SCROLL ───
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                var href = this.getAttribute('href');
+                if (href === '#' || href.length < 2) return;
+                var target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    var offset = 80;
+                    var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    window.scrollTo({ top: top, behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
