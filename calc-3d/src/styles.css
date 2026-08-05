@@ -195,4 +195,148 @@ canvas#scene {
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
-#btn-clear:hover { color: var(--danger); border-color: rgba(255, 87, 34, 0.5
+#btn-clear:hover { color: var(--danger); border-color: rgba(255, 87, 34, 0.5); background: rgba(255, 87, 34, 0.08); }
+
+.btn-cta {
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 13.5px; font-weight: 700; color: #fff; text-decoration: none;
+  background: linear-gradient(135deg, #0051cc, #0066ff 60%, #4d9aff);
+  box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
+  transition: transform 0.12s, box-shadow 0.15s;
+}
+.btn-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(0, 102, 255, 0.55); }
+
+.note { font-size: 10px; color: var(--text-dim); text-align: center; line-height: 1.4; }
+
+/* ---------- Предупреждение о превышении объёма ---------- */
+.warn {
+  position: fixed;
+  top: 80px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  max-width: 480px;
+  padding: 12px 18px;
+  font-size: 12.5px; font-weight: 600; line-height: 1.45;
+  border-color: rgba(255, 87, 34, 0.4);
+  display: none;
+}
+.warn.show { display: block; }
+
+/* ---------- Подсказка по управлению ---------- */
+#hint {
+  position: fixed;
+  bottom: 18px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  padding: 9px 18px;
+  border-radius: 99px;
+  background: var(--panel);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid var(--panel-border);
+  font-size: 12px;
+  white-space: nowrap;
+  transition: opacity 1.2s ease;
+}
+#hint.dim { opacity: 0.4; }
+
+/* ---------- Лоадер ---------- */
+#loader {
+  position: fixed; inset: 0;
+  z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  background: var(--bg);
+  font-size: 13px; color: var(--text-dim);
+  transition: opacity 0.4s ease;
+}
+#loader.hide { opacity: 0; pointer-events: none; }
+.spinner {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(77, 154, 255, 0.2);
+  border-top-color: var(--accent-bright);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Мобильная раскладка (≤860px) ---------- */
+/* Дашборд свёрнут в плашку с цифрами над библиотекой; тап — раскрытие (.open) */
+@media (max-width: 860px) {
+  .brand {
+    top: 8px; left: 50%; right: auto;
+    transform: translateX(-50%);
+    padding: 8px 14px 8px 8px;
+  }
+
+  /* Библиотека — горизонтальная лента снизу */
+  .library {
+    top: auto; bottom: 0; left: 0; right: 0;
+    transform: none;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 18px 18px 0 0;
+    overflow-x: auto;
+    touch-action: pan-x;
+  }
+  .library h3, .lib-hint { display: none; }
+  #library-items { flex-direction: row; gap: 8px; }
+  .item-btn { min-width: 168px; width: auto; }
+
+  /* Свёрнутый дашборд: тонкая плашка, только цифры */
+  .dashboard {
+    top: auto; bottom: 84px; left: 10px; right: 10px;
+    transform: none;
+    width: auto;
+    padding: 10px 14px;
+    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    max-height: 56px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: max-height 0.25s ease;
+  }
+  .dashboard h3, .dashboard .fill, .dashboard .rec,
+  .dashboard .note, .dashboard #btn-clear, .dashboard .btn-cta { display: none; }
+
+  .stats { flex-direction: row; gap: 14px; }
+  .stat-row { font-size: 11px; }
+  .stat-row b { font-size: 12px; }
+  .price-block { gap: 0; text-align: right; }
+  .price-block .lbl { display: none; }
+  .price-block b { font-size: 18px; }
+
+  /* Раскрытое состояние по тапу */
+  .dashboard.open {
+    flex-direction: column;
+    align-items: stretch;
+    max-height: calc(100vh - 190px);
+    overflow-y: auto;
+  }
+  .dashboard.open h3 { display: block; }
+  .dashboard.open .fill { display: flex; }
+  .dashboard.open .rec { display: block; }
+  .dashboard.open #btn-clear { display: block; }
+  .dashboard.open .btn-cta { display: flex; }
+  .dashboard.open .note { display: block; }
+  .dashboard.open .stats { flex-direction: column; gap: 6px; }
+  .dashboard.open .stat-row { font-size: 12.5px; }
+  .dashboard.open .stat-row b { font-size: 13.5px; }
+  .dashboard.open .price-block { text-align: left; }
+  .dashboard.open .price-block .lbl { display: block; }
+  .dashboard.open .price-block b { font-size: 29px; }
+
+  #hint { display: none; }
+
+  .warn {
+    top: auto; bottom: 148px; left: 10px; right: 10px;
+    transform: none;
+    max-width: none;
+  }
+}
