@@ -125,7 +125,7 @@ function supportBelow(item, items, ys) {
     if (y > best) best = y;
   }
   if (best === -Infinity) return { y: bottom, blocked: true };
-  return { y: best, blocked: false };
+  return { y: bottom, blocked: false };
 }
 
 // -----------------------------------------------------------------------------
@@ -161,6 +161,35 @@ export function findFallen(items) {
     }
   }
   return fallen;
+}
+
+// -----------------------------------------------------------------------------
+// Reflow-проход (v1.1): пересборка стека после смены габаритов
+// -----------------------------------------------------------------------------
+
+// Пересчитать опоры для ВСЕХ предметов. В отличие от findFallen, допускает
+// и подъём: если опора под предметом выросла, предмет поднимается вместе с ней.
+// Каскад обрабатывается снизу вверх на копии массива: каждый следующий
+// предмет видит уже спроецированные высоты предыдущих. Менеджер использует
+// функцию дважды: как пробный прогон (валидация новых габаритов) и как
+// источник перемещений для анимаций.
+// Возвращает { ok, moves }: ok=false, если хотя бы один предмет некуда
+// поставить (blocked) — тогда изменение размеров откатывается целиком.
+export function findReflow(items, boxH) {
+  const moves = [];
+  // Снимок состояния: копии записей, чтобы прогон не трогал оригиналы
+  const snapshot = items.map(item => ({ ...item }));
+  snapshot.sort((a, b) => a.y - b.y);
+
+  for (const item of snapshot) {
+    const support = computeSupportY(item, snapshot, boxH);
+    if (support.blocked) return { ok: false, moves: [] };
+    if (Math.abs(support.y - item.y) > EPS) {
+      item.y = support.y; // следующие предметы увидят новую высоту опоры
+      moves.push({ id: item.id, toY: support.y });
+    }
+  }
+  return { ok: true, moves };
 }
 
 // -----------------------------------------------------------------------------
