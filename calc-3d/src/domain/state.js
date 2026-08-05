@@ -24,13 +24,27 @@ export function addItem(record) {
   return record;
 }
 
+// Обновить запись предмета (v1.1: смена габаритов из панели размеров).
+// Патч вливается в существующую запись на месте; суммарный объём
+// пересчитывается по дельте старого и нового объёма.
+export function updateItem(id, patch) {
+  const item = items.find(entry => entry.id === id);
+  if (!item) return null;
+  const oldVolume = item.volume;
+  Object.assign(item, patch);
+  totalVolume += item.volume - oldVolume;
+  // Защита от накопления ошибки плавающей точки
+  if (totalVolume < 0) totalVolume = 0;
+  notify();
+  return item;
+}
+
 // Удалить предмет по id. Возвращает удалённую запись или null.
 export function removeItem(id) {
   const index = items.findIndex(item => item.id === id);
   if (index === -1) return null;
   const [removed] = items.splice(index, 1);
   totalVolume -= removed.volume;
-  // Защита от накопления ошибки плавающей точки
   if (totalVolume < 0) totalVolume = 0;
   notify();
   return removed;
@@ -64,7 +78,7 @@ export function getTotalVolume() {
   return totalVolume;
 }
 
-// Подписка на изменение состава (add/remove/clear).
+// Подписка на изменение состава (add/update/remove/clear).
 // Возвращает функцию отписки.
 export function subscribe(listener) {
   listeners.push(listener);
