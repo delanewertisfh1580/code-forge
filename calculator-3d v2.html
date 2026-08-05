@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>3D-калькулятор бокса · CodeForge</title>
+<meta name="description" content="Интерактивный 3D-калькулятор размера бокса для складов самообслуживания. Прототип CodeForge." />
+
+<!-- Шрифт Inter (fontsource CDN) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/400.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/600.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/700.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/800.css" />
+
+<style>
+/* ============================================================
+   БАЗА И ПЕРЕМЕННЫЕ
+============================================================ */
+:root{
+  --bg: #12151b;
+  --panel: rgba(20, 25, 34, 0.72);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --text: #eef2f8;
+  --text-dim: #8f9cb0;
+  --accent: #0066ff;
+  --accent-bright: #4d9aff;
+  --accent-soft: rgba(0, 102, 255, 0.14);
+  --danger: #ff5722;
+  --radius: 18px;
+  --shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{
+  height:100%; overflow:hidden;
+  background:var(--bg);
+  font-family:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+body.dragging, body.dragging *{ cursor:grabbing !important; }
+
+/* 3D-канвас на весь экран */
+#scene{
+  position:fixed; inset:0;
+  display:block;
+  touch-action:none; /* важно для корректного drag на тач-экранах */
+}
+
+/* ============================================================
+   HUD-ПАНЕЛИ (стекло)
+============================================================ */
+.panel{
+  pointer-events:auto;
+  background:var(--panel);
+  -webkit-backdrop-filter:blur(16px) saturate(150%);
+  backdrop-filter:blur(16px) saturate(150%);
+  border:1px solid var(--panel-border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.lbl{
+  display:block;
+  font-size:10.5px; font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase;
+  color:var(--text-dim);
+  margin-bottom:6px;
+}
+h3{
+  font-size:11.5px; font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase;
+  color:var(--text-dim);
+  margin-bottom:12px;
+}
+
+/* ---------- Бренд (шапка) ---------- */
+.brand{
+  position:fixed; top:16px; left:16px; z-index:15;
+  display:flex; align-items:center; gap:11px;
+  padding:10px 16px 10px 10px;
+}
+.brand-logo{
+  width:38px; height:38px; border-radius:11px;
+  background:linear-gradient(135deg, #0066ff, #0044aa);
+  color:#fff; font-weight:800; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 18px rgba(0,102,255,.4);
+  flex:0 0 auto;
+}
+.brand b{ display:block; font-size:14px; font-weight:700; line-height:1.2; }
+.brand small{ display:block; font-size:11px; color:var(--text-dim); font-weight:500; }
+
+/* ---------- Левая панель: библиотека вещей ---------- */
+.library{
+  position:fixed; left:16px; top:50%; transform:translateY(-50%);
+  z-index:14; width:252px;
+  padding:16px;
+  display:flex; flex-direction:column; gap:9px;
+}
+.item-btn{
+  display:flex; align-items:center; gap:10px;
+  width:100%; padding:9px 11px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:13px;
+  color:var(--text); font-family:inherit; text-align:left;
+  cursor:pointer;
+  transition:background .18s, border-color .18s, transform .12s;
+}
+.item-btn:hover{ background:var(--accent-soft); border-color:rgba(0,102,255,.5); }
+.item-btn:active{ transform:scale(.965); }
+.item-ico{
+  width:38px; height:38px; flex:0 0 auto;
+  border-radius:10px; font-size:19px;
+  display:flex; align-items:center; justify-content:center;
+  background:color-mix(in srgb, var(--c) 20%, transparent);
+  border:1px solid color-mix(in srgb, var(--c) 45%, transparent);
+}
+.item-meta{ min-width:0; }
+.item-meta b{ display:block; font-size:13px; font-weight:600; line-height:1.25; }
+.item-meta small{ display:block; font-size:10.5px; color:var(--text-dim); white-space:nowrap; }
+.item-add{
+  margin-left:auto; flex:0 0 auto;
+  width:22px; height:22px; border-radius:50%;
+  background:var(--accent); color:#fff;
+  font-size:15px; font-weight:700; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 12px rgba(0,102,255,.4);
+}
+.lib-hint{ font-size:10.5px; color:var(--text-dim); text-align:center; margin-top:2px; }
+
+/* ---------- Правая панель: дашборд ---------- */
+.dashboard{
+  position:fixed; right:16px; top:50%; transform:translateY(-50%);
+  z-index:14; width:292px;
+  padding:18px;
+}
+.stats{ display:flex; flex-direction:column; gap:11px; }
+.stat-row{
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-size:12.5px; color:var(--text-dim);
+}
+.stat-row b{
+  font-size:15px; font-weight:700; color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+.stat-row small{ font-size:10.5px; font-weight:600; color:var(--text-dim); }
+
+.fill-head{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); }
+.fill-head b{ color:var(--text); font-size:13.5px; font-variant-numeric:tabular-nums; }
+.fill-bar{
+  height:8px; margin-top:7px; border-radius:99px;
+  background:rgba(255,255,255,.07); overflow:hidden;
+}
+.fill-bar i{
+  display:block; height:100%; width:0%;
+  border-radius:99px;
+  background:linear-gradient(90deg, #0066ff, #4d9aff);
+  transition:width .4s ease, background .3s;
+}
+.fill-bar i.hot{ background:linear-gradient(90deg, #ff5722, #ffa066); }
+
+.rec-box{
+  display:flex; align-items:center; gap:11px;
+  padding:10px 12px; margin-top:2px;
+  border-radius:13px;
+  background:var(--accent-soft);
+  border:1px solid rgba(0,102,255,.35);
+}
+.rec-badge{
+  width:44px; height:44px; flex:0 0 auto;
+  border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; font-weight:800; color:#fff;
+  background:rgba(255,255,255,.08);
+  transition:background .3s;
+}
+.rec-badge[data-s="S"]{ background:linear-gradient(135deg,#16a34a,#34d399); }
+.rec-badge[data-s="M"]{ background:linear-gradient(135deg,#0052cc,#3d8bff); }
+.rec-badge[data-s="L"]{ background:linear-gradient(135deg,#7c3aed,#a855f7); }
+.rec-badge[data-s="XL"]{ background:linear-gradient(135deg,#ea580c,#f97316); }
+.rec-badge.pop{ animation:pop .45s ease; }
+@keyframes pop{ 0%{transform:scale(.7);} 55%{transform:scale(1.14);} 100%{transform:scale(1);} }
+.rec-info b{ display:block; font-size:14px; font-weight:700; line-height:1.25; }
+.rec-info small{ display:block; font-size:11px; color:var(--text-dim); }
+
+.price-block{
+  padding:13px 14px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+.price-block b{
+  display:block;
+  font-size:29px; font-weight:800; line-height:1.1;
+  color:var(--accent-bright);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-0.01em;
+}
+
+.btn-clear{
+  width:100%; margin-top:12px; padding:10px;
+  border-radius:12px; cursor:pointer;
+  font-family:inherit; font-size:13px; font-weight:600;
+  color:var(--text-dim);
+  background:transparent;
+  border:1px solid rgba(255,255,255,.12);
+  transition:all .18s;
+}
+.btn-clear:hover{ color:#ff9b82; border-color:rgba(255,87,34,.5); background:rgba(255,87,34,.08); }
+.btn-cta{
+  display:block; text-align:center; text-decoration:none;
+  margin-top:8px; padding:12px;
+  border-radius:12px;
+  background:linear-gradient(135deg,#0066ff,#0050c8);
+  color:#fff; font-size:14px; font-weight:700;
+  box-shadow:0 8px 24px rgba(0,102,255,.35);
+  transition:transform .15s, box-shadow .15s;
+}
+.btn-cta:hover{ transform:translateY(-1px); box-shadow:0 12px 30px rgba(0,102,255,.5); }
+.note{ margin-top:10px; font-size:10px; color:var(--text-dim); text-align:center; line-height:1.4; }
+
+/* ---------- Предупреждение (>27 м³) ---------- */
+.warn{
+  position:fixed; top:80px; left:50%; z-index:25;
+  transform:translateX(-50%) translateY(-10px);
+  max-width:min(92vw, 540px);
+  padding:13px 18px;
+  border-radius:14px;
+  background:rgba(58, 22, 12, 0.88);
+  border:1px solid rgba(255,87,34,.55);
+  color:#ffd9cc;
+  font-size:13px; line-height:1.5;
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  opacity:0; pointer-events:none;
+  transition:opacity .3s, transform .3s;
+}
+.warn.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.warn b{ color:#ffb59e; }
+
+/* ---------- Подсказка ---------- */
+#hint{
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  z-index:12; padding:8px 16px;
+  border-radius:99px;
+  background:rgba(18,22,30,.6);
+  border:1px solid rgba(255,255,255,.07);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  font-size:12px; color:var(--text-dim);
+  pointer-events:none;
+  transition:opacity 1s;
+  white-space:nowrap;
+}
+#hint.dim{ opacity:.45; }
+
+/* ---------- Лоадер ---------- */
+#loader{
+  position:fixed; inset:0; z-index:100;
+  background:var(--bg);
+  display:flex; flex-direction:column; gap:16px;
+  align-items:center; justify-content:center;
+  transition:opacity .5s;
+}
+#loader.hide{ opacity:0; pointer-events:none; }
+.spin{
+  width:38px; height:38px; border-radius:50%;
+  border:3px solid rgba(255,255,255,.12);
+  border-top-color:var(--accent);
+  animation:rot .8s linear infinite;
+}
+@keyframes rot{ to{ transform:rotate(360deg);} }
+#loader p{ font-size:13px; color:var(--text-dim); }
+
+/* ============================================================
+   МОБИЛЬНАЯ ВЕРСИЯ (Mobile First адаптив)
+============================================================ */
+@media (max-width: 860px){
+  .brand{
+    top:10px; left:50%; transform:translateX(-50%);
+    padding:8px 14px 8px 8px;
+  }
+  .brand small{ display:none; }
+
+  /* Дашборд — сверху */
+  .dashboard{
+    top:64px; left:10px; right:10px;
+    transform:none; width:auto;
+    padding:14px;
+    max-height:calc(100dvh - 190px);
+    overflow-y:auto;
+  }
+  .stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px 14px;
+  }
+  .stats .wide{ grid-column:1 / -1; }
+  .price-block b{ font-size:25px; }
+  .btn-clear, .btn-cta{ padding:10px; }
+
+  /* Библиотека — снизу, горизонтальный скролл */
+  .library{
+    top:auto; bottom:10px; left:10px; right:10px;
+    transform:none; width:auto;
+    flex-direction:row;
+    overflow-x:auto;
+    touch-action:pan-x;
+    padding:10px;
+    gap:8px;
+    scrollbar-width:none;
+  }
+  .library::-webkit-scrollbar{ display:none; }
+  .library h3, .lib-hint{ display:none; }
+  .item-btn{ min-width:168px; width:auto; flex:0 0 auto; }
+
+  #hint{ display:none; }
+  .warn{ top:auto; bottom:106px; font-size:12px; padding:11px 14px; }
+}
+</style>
+
+<!-- Импорт Three.js и аддонов через importmap -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+
+<body>
+<!-- 3D-сцена -->
+<canvas id="scene"></canvas>
+
+<!-- Лоадер при старте -->
+<div id="loader">
+  <div class="spin"></div>
+  <p>Загружаем 3D-сцену…</p>
+</div>
+
+<!-- Шапка -->
+<header class="brand panel">
+  <div class="brand-logo">CF</div>
+  <div>
+    <b>3D-калькулятор бокса</b>
+    <small>CodeForge · Self-Storage</small>
+  </div>
+</header>
+
+<!-- Левая панель: библиотека вещей (на мобилке — снизу) -->
+<aside class="library panel">
+  <h3>Библиотека вещей</h3>
+
+  <button class="item-btn" data-type="box">
+    <span class="item-ico" style="--c:#c9955c">📦</span>
+    <span class="item-meta"><b>Коробка</b><small>0,5 × 0,5 × 0,5 м · 0,13 м³</small></span>
+    <span class="item-add">+</span>
+  </button>
+
+  <button class="item-btn" data-type="sofa">
+    <span class="item-ico" style="--c:#5b7db1">🛋️</span>
+    <span class="item-meta"><b>Диван</b><small>2 × 1 × 1 м · 2 м³</small></span>
+    <span class="item-add">+</span>
+  </button>
+
+  <button class="item-btn" data-type="bike">
+    <span class="item-ico" style="--c:#45b39d">🚲</span>
+    <span class="item-meta"><b>Велосипед / самокат</b><small>1,5 × 0,5 × 1 м · 0,75 м³</small></span>
+    <span class="item-add">+</span>
+  </button>
+
+  <button class="item-btn" data-type="fridge">
+    <span class="item-ico" style="--c:#b8c4d0">🧊</span>
+    <span class="item-meta"><b>Холодильник</b><small>0,8 × 0,8 × 1,8 м · 1,15 м³</small></span>
+    <span class="item-add">+</span>
+  </button>
+
+  <div class="lib-hint">Клик — добавить вещь в бокс</div>
+</aside>
+
+<!-- Правая панель: дашборд (на мобилке — сверху) -->
+<aside class="dashboard panel">
+  <h3>Расчёт стоимости</h3>
+
+  <div class="stats">
+    <div class="stat-row"><span>Вещей</span><b id="m-count">0</b></div>
+
+    <div class="stat-row">
+      <span>Объём вещей</span>
+      <b><span id="m-vol">0</span> м³<small id="m-cap"></small></b>
+    </div>
+
+    <div class="wide">
+      <div class="fill-head"><span>Заполненность бокса</span><b id="m-fill">0%</b></div>
+      <div class="fill-bar"><i id="m-fill-bar"></i></div>
+    </div>
+
+    <div class="wide">
+      <span class="lbl">Рекомендуемый бокс</span>
+      <div class="rec-box">
+        <div class="rec-badge" id="m-rec">—</div>
+        <div class="rec-info">
+          <b id="m-rec-name">Добавьте вещи</b>
+          <small id="m-rec-dims">Нажмите на предмет из библиотеки</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="price-block wide">
+      <span class="lbl">Итого в месяц</span>
+      <b id="m-price">0 ₽</b>
+    </div>
+  </div>
+
+  <button class="btn-clear" id="btn-clear">🗑 Очистить сцену</button>
+  <a class="btn-cta" href="https://t.me/Sagat9881" target="_blank" rel="noopener">Забронировать бокс →</a>
+  <p class="note">Демо-прототип CodeForge · точную стоимость подтвердит менеджер склада</p>
+</aside>
+
+<!-- Предупреждение о превышении Бокса L -->
+<div class="warn" id="warning">
+  ⚠️ <b>Объём превышает 27 м³.</b> Вам нужен складской комплекс или нестандартный бокс — оставьте заявку, рассчитаем индивидуально.
+</div>
+
+<!-- Подсказка -->
+<div id="hint">🖱 Перетаскивайте вещи мышью или пальцем · двойной клик — удалить</div>
+
+<script type="module">
+/* ============================================================
+   3D-КАЛЬКУЛЯТОР БОКСА · CodeForge MVP
+   Ниша: Self-Storage
+   Логика: клиент «накидывает» вещи → считаем объём →
+   подбираем минимальный бокс → показываем цену/мес.
+============================================================ */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { DragControls } from 'three/addons/controls/DragControls.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+/* ------------------------------------------------------------
+   1. КОНСТАНТЫ БИЗНЕС-ЛОГИКИ
+------------------------------------------------------------ */
+// Тарифная сетка боксов (ширина × глубина × высота, объём, цена)
+const BOXES = [
+  { id: 'S', w: 1, d: 1.5, h: 2,   volume: 3,  price: 3000  },
+  { id: 'M', w: 2, d: 2,   h: 2.5, volume: 10, price: 7000  },
+  { id: 'L', w: 3, d: 3,   h: 3,   volume: 27, price: 15000 },
+];
+const MAX_BOX = BOXES[2];
+const EPS = 1e-6;
+
+// Библиотека вещей: габариты (w — по X, d — по Z, h — по Y), объём и цвет
+const ITEMS = {
+  box:    { label: 'Коробка',     w: 0.5, d: 0.5, h: 0.5, volume: 0.125, color: 0xc9955c, rough: 0.8,  metal: 0.02 },
+  sofa:   { label: 'Диван',       w: 2,   d: 1,   h: 1,   volume: 2,     color: 0x5b7db1, rough: 0.85, metal: 0.0  },
+  bike:   { label: 'Велосипед',   w: 0.5, d: 1.5, h: 1,   volume: 0.75,  color: 0x45b39d, rough: 0.55, metal: 0.35 },
+  fridge: { label: 'Холодильник', w: 0.8, d: 0.8, h: 1.8, volume: 1.15,  color: 0xb8c4d0, rough: 0.35, metal: 0.5  },
+};
+
+// Глобальное состояние калькулятора
+const state = { totalVolume: 0, rec: null };
+
+/* ------------------------------------------------------------
+   2. РЕНДЕРЕР, СЦЕНА, КАМЕРА, СВЕТ
+------------------------------------------------------------ */
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x12151b);
+scene.fog = new THREE.Fog(0x12151b, 20, 45);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(6.2, 4.6, 7.2);
+
+// Орбитальная камера с ограничениями (нельзя улететь далеко или под пол)
+const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.target.set(0, 0.9, 0);
+orbit.enableDamping = true;
+orbit.dampingFactor = 0.07;
+orbit.minDistance = 3.5;
+orbit.maxDistance = 16;
+orbit.maxPolarAngle = Math.PI / 2 - 0.05;
+orbit.enablePan = false;
+
+// Свет: hemisphere для мягкого заполнения + directional с тенями
+scene.add(new THREE.HemisphereLight(0xcfe0ff, 0x11141a, 0.65));
+const sun = new THREE.DirectionalLight(0xffffff, 1.7);
+sun.position.set(6, 10, 5);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -9; sun.shadow.camera.right = 9;
+sun.shadow.camera.top = 9;   sun.shadow.camera.bottom = -9;
+sun.shadow.camera.near = 1;  sun.shadow.camera.far = 30;
+sun.shadow.bias = -0.0005;
+scene.add(sun);
+const fillLight = new THREE.DirectionalLight(0x5577ff, 0.35);
+fillLight.position.set(-6, 4, -6);
+scene.add(fillLight);
+
+/* ------------------------------------------------------------
+   3. ПОЛ И СЕТКА
+------------------------------------------------------------ */
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 60),
+  new THREE.MeshStandardMaterial({ color: 0x171b23, roughness: 0.96, metalness: 0 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const grid = new THREE.GridHelper(26, 26, 0x2f3b55, 0x1e2431);
+grid.position.y = 0.002;
+grid.material.transparent = true;
+grid.material.opacity = 0.55;
+scene.add(grid);
+
+/* ------------------------------------------------------------
+   4. ВИРТУАЛЬНЫЙ БОКС (прозрачный каркас)
+   Единичная геометрия, масштабируется под рекомендованный размер.
+------------------------------------------------------------ */
+const boxGroup = new THREE.Group();
+const wallMat = new THREE.MeshBasicMaterial({
+  color: 0x0066ff, transparent: true, opacity: 0.045,
+  side: THREE.DoubleSide, depthWrite: false
+});
+const walls = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), wallMat);
+
+const edgeMat = new THREE.LineBasicMaterial({ color: 0x3d8bff, transparent: true, opacity: 0.85 });
+const edges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)), edgeMat);
+
+// Акцентная «подложка» зоны хранения на полу
+const padMat = new THREE.MeshBasicMaterial({ color: 0x0066ff, transparent: true, opacity: 0.10, depthWrite: false });
+const pad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), padMat);
+pad.rotation.x = -Math.PI / 2;
+pad.position.y = -0.498;
+
+boxGroup.add(walls, edges, pad);
+scene.add(boxGroup);
+
+// Начальный размер бокса — 3×3×3 м (по ТЗ)
+const boxCur    = { w: 3, h: 3, d: 3 }; // текущие (анимируемые) габариты
+const boxTarget = { w: 3, h: 3, d: 3 }; // целевые габариты
+let edgePulse = 0; // вспышка рёбер при смене рекомендации
+
+function applyBoxScale(){
+  boxGroup.scale.set(boxCur.w, boxCur.h, boxCur.d);
+  boxGroup.position.y = boxCur.h / 2; // низ бокса всегда на полу
+}
+applyBoxScale();
+
+function setBoxTarget(w, h, d){ boxTarget.w = w; boxTarget.h = h; boxTarget.d = d; }
+
+/* ------------------------------------------------------------
+   5. ГЕОМЕТРИЯ ВЕЩЕЙ (только примитивы Three.js)
+   Каждая вещь — один Mesh из склеенных примитивов
+   (удобно для DragControls и raycast). Начало координат —
+   в центре «пятна контакта» с полом (y=0).
+------------------------------------------------------------ */
+function makeBox(w, h, d, x = 0, y = 0, z = 0){
+  const g = new THREE.BoxGeometry(w, h, d);
+  g.translate(x, y, z);
+  return g;
+}
+function makeWheel(r, thickness, x, y, z){
+  // Колесо — цилиндр, ось вдоль X (диск в вертикальной плоскости YZ)
+  const g = new THREE.CylinderGeometry(r, r, thickness, 24);
+  g.rotateZ(Math.PI / 2);
+  g.translate(x, y, z);
+  return g;
+}
+
+const BUILDERS = {
+  // 📦 Коробка 0.5×0.5×0.5 + «скотч» сверху
+  box(){
+    return mergeGeometries([
+      makeBox(0.5, 0.5, 0.5, 0, 0.25, 0),
+      makeBox(0.5, 0.02, 0.14, 0, 0.5, 0),
+      makeBox(0.14, 0.02, 0.5, 0, 0.5, 0),
+    ]);
+  },
+  // 🛋️ Диван 2×1×1: основание, спинка, подлокотники, подушки
+  sofa(){
+    return mergeGeometries([
+      makeBox(2, 0.42, 1, 0, 0.21, 0),
+      makeBox(2, 0.6, 0.24, 0, 0.7, -0.38),
+      makeBox(0.24, 0.32, 1, -0.88, 0.58, 0),
+      makeBox(0.24, 0.32, 1,  0.88, 0.58, 0),
+      makeBox(0.83, 0.14, 0.68, -0.44, 0.49, 0.08),
+      makeBox(0.83, 0.14, 0.68,  0.44, 0.49, 0.08),
+    ]);
+  },
+  // 🚲 Велосипед 0.5×1.5×1 (ориентирован вдоль оси Z, чтобы помещаться в узкие боксы)
+  bike(){
+    return mergeGeometries([
+      makeWheel(0.32, 0.05, 0, 0.32, -0.42),   // заднее колесо
+      makeWheel(0.32, 0.05, 0, 0.32,  0.42),   // переднее колесо
+      makeBox(0.06, 0.06, 0.9, 0, 0.5, 0),      // рама
+      makeBox(0.05, 0.34, 0.05, 0, 0.66, -0.3), // подседельный штырь
+      makeBox(0.2, 0.05, 0.16, 0, 0.84, -0.3),  // сиденье
+      makeBox(0.05, 0.42, 0.05, 0, 0.71, 0.44), // рулевая стойка
+      makeBox(0.46, 0.05, 0.06, 0, 0.93, 0.44), // руль
+    ]);
+  },
+  // 🧊 Холодильник 0.8×0.8×1.8: корпус, шов между дверцами, ручки
+  fridge(){
+    return mergeGeometries([
+      makeBox(0.78, 1.8, 0.72, 0, 0.9, 0),
+      makeBox(0.8, 0.02, 0.74, 0, 1.16, 0),
+      makeBox(0.045, 0.55, 0.04, 0.27, 1.42, 0.378),
+      makeBox(0.045, 0.35, 0.04, 0.27, 0.66, 0.378),
+    ]);
+  },
+};
+
+/* ------------------------------------------------------------
+   6. УПРАВЛЕНИЕ ВЕЩАМИ: добавление, удаление, границы
+------------------------------------------------------------ */
+const itemsGroup = new THREE.Group();
+scene.add(itemsGroup);
+const draggables = []; // живой массив объектов для DragControls
+
+// Подбор свободной позиции внутри бокса (25 попыток без пересечений)
+function findSpawn(def, bx, bz){
+  const rx = Math.max(0, bx / 2 - def.w / 2 - 0.05);
+  const rz = Math.max(0, bz / 2 - def.d / 2 - 0.05);
+  const fits = (x, z) => !draggables.some(it => {
+    const d2 = it.userData.def;
+    return Math.abs(it.position.x - x) < (def.w + d2.w) / 2 + 0.02 &&
+           Math.abs(it.position.z - z) < (def.d + d2.d) / 2 + 0.02;
+  });
+  for (let i = 0; i < 25; i++){
+    const x = (Math.random() * 2 - 1) * rx;
+    const z = (Math.random() * 2 - 1) * rz;
+    if (fits(x, z)) return { x, z };
+  }
+  return { x: (Math.random() * 2 - 1) * rx, z: (Math.random() * 2 - 1) * rz };
+}
+
+// Габариты бокса, в который попадёт вещь после добавления (для спавна)
+function prospectiveDims(def){
+  const v = state.totalVolume + def.volume;
+  if (v > MAX_BOX.volume + EPS) return { w: MAX_BOX.w, d: MAX_BOX.d };
+  for (const b of BOXES){
+    if (b.volume + EPS >= v) return { w: b.w, d: b.d };
+  }
+  return { w: MAX_BOX.w, d: MAX_BOX.d };
+}
+
+// ГЛАВНАЯ ПРОВЕРКА ГРАНИЦ: вещь не может покинуть бокс по X/Z, всегда на полу
+function clampToBox(it){
+  const d = it.userData.def;
+  const hx = Math.max(0, boxCur.w / 2 - d.w / 2);
+  const hz = Math.max(0, boxCur.d / 2 - d.d / 2);
+  it.position.x = THREE.MathUtils.clamp(it.position.x, -hx, hx);
+  it.position.z = THREE.MathUtils.clamp(it.position.z, -hz, hz);
+  it.position.y = 0;
+}
+
+function easeOutBack(t){
+  const c1 = 1.70158, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+// Добавление вещи в сцену
+function addItem(type){
+  const def = ITEMS[type];
+  if (!def) return;
+
+  const dims = prospectiveDims(def);
+  const pos = findSpawn(def, dims.w, dims.d);
+
+  const material = new THREE.MeshStandardMaterial({
+    color: def.color, roughness: def.rough, metalness: def.metal
+  });
+  const mesh = new THREE.Mesh(BUILDERS[type](), material);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.position.set(pos.x, 0, pos.z);
+  mesh.scale.setScalar(0.01); // вырастет через spawn-анимацию
+  mesh.userData = { def, spawn: 0, hover: false, dragging: false };
+
+  itemsGroup.add(mesh);
+  draggables.push(mesh);
+  state.totalVolume += def.volume;
+  recompute();
+}
+
+// Удаление вещи (двойной клик или очистка)
+function removeItem(mesh){
+  const idx = draggables.indexOf(mesh);
+  if (idx === -1) return;
+  draggables.splice(idx, 1);
+  itemsGroup.remove(mesh);
+  mesh.geometry.dispose();
+  mesh.material.dispose();
+  state.totalVolume -= mesh.userData.def.volume;
+  if (state.totalVolume < 0) state.totalVolume = 0;
+  recompute();
+}
+
+function clearScene(){
+  [...draggables].forEach(m => {
+    itemsGroup.remove(m);
+    m.geometry.dispose();
+    m.material.dispose();
+  });
+  draggables.length = 0;
+  state.totalVolume = 0;
+  recompute();
+}
+
+/* ------------------------------------------------------------
+   7. БИЗНЕС-ЛОГИКА: рекомендация бокса
+   Учитываем и объём, и габариты каждой вещи.
+------------------------------------------------------------ */
+function computeRecommendation(){
+  if (draggables.length === 0) return { type: 'empty' };
+  const vol = state.totalVolume;
+  if (vol > MAX_BOX.volume + EPS) return { type: 'xl', volume: vol }; // нужен складской комплекс
+  for (const b of BOXES){
+    if (b.volume + EPS < vol) continue;
+    const fits = draggables.every(it => {
+      const d = it.userData.def;
+      return d.w <= b.w + EPS && d.d <= b.d + EPS && d.h <= b.h + EPS;
+    });
+    if (fits) return { type: 'box', box: b, volume: vol };
+  }
+  return { type: 'box', box: MAX_BOX, volume: vol };
+}
+
+function recompute(){
+  state.rec = computeRecommendation();
+  if (state.rec.type === 'box'){
+    const b = state.rec.box;
+    setBoxTarget(b.w, b.h, b.d); // виртуальный бокс подстраивается под рекомендацию
+  } else {
+    setBoxTarget(3, 3, 3); // пусто или XL → базовый каркас 3×3×3
+  }
+  edgePulse = 1; // подсветить смену размера
+  updateDashboard();
+}
+
+/* ------------------------------------------------------------
+   8. UI: ДАШБОРД
+------------------------------------------------------------ */
+const els = {
+  count:    document.getElementById('m-count'),
+  vol:      document.getElementById('m-vol'),
+  cap:      document.getElementById('m-cap'),
+  fillVal:  document.getElementById('m-fill'),
+  fillBar:  document.getElementById('m-fill-bar'),
+  recBadge: document.getElementById('m-rec'),
+  recName:  document.getElementById('m-rec-name'),
+  recDims:  document.getElementById('m-rec-dims'),
+  price:    document.getElementById('m-price'),
+  warn:     document.getElementById('warning'),
+  loader:   document.getElementById('loader'),
+};
+const fmtInt = n => new Intl.NumberFormat('ru-RU').format(n);
+const fmtNum = n => String(n).replace('.', ',');
+const fmtVol = v => fmtNum(String(Math.round(v * 100) / 100));
+
+function setFill(p, hot){
+  els.fillVal.textContent = p + '%';
+  els.fillBar.style.width = p + '%';
+  els.fillBar.classList.toggle('hot', hot);
+}
+function setBadge(text, size){
+  if (els.recBadge.textContent !== text){
+    els.recBadge.classList.remove('pop');
+    void els.recBadge.offsetWidth; // перезапуск CSS-анимации
+    els.recBadge.classList.add('pop');
+  }
+  els.recBadge.textContent = text;
+  if (size) els.recBadge.dataset.s = size;
+  else delete els.recBadge.dataset.s;
+}
+
+function updateDashboard(){
+  const rec = state.rec;
+  const vol = state.totalVolume;
+  els.count.textContent = draggables.length;
+  els.vol.textContent = fmtVol(vol);
+
+  if (!rec || rec.type === 'empty'){
+    els.cap.textContent = '';
+    setFill(0, false);
+    setBadge('—', null);
+    els.recName.textContent = 'Добавьте вещи';
+    els.recDims.textContent = 'Нажмите на предмет из библиотеки';
+    els.price.textContent = '0 ₽';
+    els.warn.classList.remove('show');
+  } else if (rec.type === 'box'){
+    const b = rec.box;
+    els.cap.textContent = ' · из ' + fmtVol(b.volume) + ' м³';
+    const ratio = vol / b.volume;
+    setFill(Math.min(100, Math.round(ratio * 100)), ratio > 0.85);
+    setBadge(b.id, b.id);
+    els.recName.textContent = 'Бокс ' + b.id;
+    els.recDims.textContent = fmtNum(b.w) + ' × ' + fmtNum(b.d) + ' × ' + fmtNum(b.h) + ' м · до ' + fmtVol(b.volume) + ' м³';
+    els.price.textContent = fmtInt(b.price) + ' ₽/мес';
+    els.warn.classList.remove('show');
+  } else {
+    // Edge case: вещей больше, чем влезает в Бокс L (>27 м³)
+    els.cap.textContent = ' · из 27 м³';
+    setFill(100, true);
+    setBadge('XL', 'XL');
+    els.recName.textContent = 'Нестандартный бокс';
+    els.recDims.textContent = 'Объём больше 27 м³';
+    els.price.textContent = 'По запросу';
+    els.warn.classList.add('show');
+  }
+}
+
+// Кнопки библиотеки и очистки
+document.querySelectorAll('.item-btn').forEach(btn => {
+  btn.addEventListener('click', () => addItem(btn.dataset.type));
+});
+document.getElementById('btn-clear').addEventListener('click', clearScene);
+
+// Подсказка тускнеет через 9 секунд
+setTimeout(() => document.getElementById('hint').classList.add('dim'), 9000);
+
+/* ------------------------------------------------------------
+   9. DRAG CONTROLS + HOVER-ПОДСВЕТКА
+------------------------------------------------------------ */
+const dragControls = new DragControls(draggables, camera, renderer.domElement);
+
+function setEmissive(mesh, intensity){
+  mesh.material.emissive.setHex(intensity > 0 ? 0x0066ff : 0x000000);
+  mesh.material.emissiveIntensity = intensity;
+}
+
+dragControls.addEventListener('dragstart', (e) => {
+  orbit.enabled = false; // отключаем вращение камеры на время перетаскивания
+  e.object.userData.dragging = true;
+  setEmissive(e.object, 0.5);
+  document.body.classList.add('dragging');
+});
+
+dragControls.addEventListener('drag', (e) => {
+  clampToBox(e.object); // фиксируем на полу и внутри бокса
+});
+
+dragControls.addEventListener('dragend', (e) => {
+  orbit.enabled = true;
+  e.object.userData.dragging = false;
+  clampToBox(e.object);
+  setEmissive(e.object, e.object.userData.hover ? 0.35 : 0);
+  document.body.classList.remove('dragging');
+});
+
+// Лёгкая подсветка при наведении курсора
+dragControls.addEventListener('hoveron', (e) => {
+  e.object.userData.hover = true;
+  if (!e.object.userData.dragging) setEmissive(e.object, 0.35);
+  renderer.domElement.style.cursor = 'grab';
+});
+dragControls.addEventListener('hoveroff', (e) => {
+  e.object.userData.hover = false;
+  if (!e.object.userData.dragging) setEmissive(e.object, 0);
+  renderer.domElement.style.cursor = '';
+});
+
+// Двойной клик — удалить вещь
+const raycaster = new THREE.Raycaster();
+const pointerNdc = new THREE.Vector2();
+renderer.domElement.addEventListener('dblclick', (e) => {
+  pointerNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
+  pointerNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(pointerNdc, camera);
+  const hits = raycaster.intersectObjects(draggables, false);
+  if (hits.length > 0) removeItem(hits[0].object);
+});
+
+/* ------------------------------------------------------------
+   10. РЕСАЙЗ И ГЛАВНЫЙ ЦИКЛ
+------------------------------------------------------------ */
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+const clock = new THREE.Clock();
+let firstFrame = true;
+
+function tick(){
+  requestAnimationFrame(tick);
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  // Плавная анимация размеров виртуального бокса к целевым
+  const k = 1 - Math.exp(-dt * 5);
+  boxCur.w += (boxTarget.w - boxCur.w) * k;
+  boxCur.h += (boxTarget.h - boxCur.h) * k;
+  boxCur.d += (boxTarget.d - boxCur.d) * k;
+  applyBoxScale();
+
+  // Spawn-анимация + постоянный контроль границ (в т.ч. при сжатии бокса)
+  for (const it of draggables){
+    if (it.userData.spawn < 1){
+      it.userData.spawn = Math.min(1, it.userData.spawn + dt * 3.2);
+      it.scale.setScalar(Math.max(0.01, easeOutBack(it.userData.spawn)));
+    }
+    clampToBox(it);
+  }
+
+  // Затухающая вспышка рёбер бокса при смене рекомендации
+  edgePulse = Math.max(0, edgePulse - dt * 1.1);
+  edgeMat.opacity = 0.6 + edgePulse * 0.4;
+  padMat.opacity = 0.10 + edgePulse * 0.12;
+
+  orbit.update();
+  renderer.render(scene, camera);
+
+  // Прячем лоадер после первого кадра
+  if (firstFrame){
+    firstFrame = false;
+    els.loader.classList.add('hide');
+  }
+}
+
+// Первичный расчёт (пустая сцена) и запуск
+recompute();
+tick();
+</script>
+</body>
+</html>
