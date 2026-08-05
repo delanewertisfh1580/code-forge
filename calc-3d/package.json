@@ -1,0 +1,19 @@
+{
+  "name": "calc-3d",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Интерактивный 3D-калькулятор размера бокса для Self-Storage (CodeForge)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.8",
+    "vite-plugin-singlefile": "^2.0.2"
+  }
+}
