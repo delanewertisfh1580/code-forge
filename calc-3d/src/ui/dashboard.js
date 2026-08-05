@@ -30,6 +30,16 @@ export function initDashboard() {
   let lastBadge = null; // текст бейджа — для анимации смены
   let hintDimmed = false;
 
+  // --- Мобильное раскрытие дашборда по тапу ---
+  // На ≤860px дашборд свёрнут в плашку с цифрами; тап раскрывает и сворачивает.
+  // Клики по кнопкам и ссылкам внутри не перехватываем.
+  const root = document.querySelector('.dashboard');
+  root.addEventListener('click', (event) => {
+    if (!window.matchMedia('(max-width: 860px)').matches) return;
+    if (event.target.closest('button, a')) return;
+    root.classList.toggle('open');
+  });
+
   // Смена бейджа с анимацией .pop (перезапуск через reflow)
   function setBadge(text, dataS) {
     if (lastBadge === text) return;
