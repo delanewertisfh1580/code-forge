@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <!-- Viewport: запрещаем пинч-зум, чтобы touch-перетаскивание не конфликтовало с жестами -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>3D-калькулятор бокса · CodeForge · Self-Storage</title>
+
+  <!-- Шрифт Inter: только fontsource через CDN jsdelivr, веса 400/600/700/800 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/400.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/600.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/700.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/800.css">
+
+  <!-- Стили и точка входа приложения (при сборке Vite инлайнит всё в этот файл) -->
+  <link rel="stylesheet" href="/src/styles.css">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <!-- Канвас 3D-сцены (touch-action: none задаётся в CSS) -->
+  <canvas id="scene"></canvas>
+
+  <!-- Лоадер: скрывается после первого кадра -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <span>Загружаем 3D-сцену…</span>
+  </div>
+
+  <!-- Шапка бренда -->
+  <header class="brand panel">
+    <div class="brand-logo">CF</div>
+    <div class="brand-text">
+      <b>3D-калькулятор бокса</b>
+      <small>CodeForge · Self-Storage</small>
+    </div>
+  </header>
+
+  <!-- Библиотека вещей: кнопки генерируются из config через JS -->
+  <aside class="library panel">
+    <h3>Библиотека вещей</h3>
+    <div id="library-items"></div>
+    <div class="lib-hint">Клик — добавить вещь в бокс</div>
+  </aside>
+
+  <!-- Дашборд расчёта -->
+  <aside class="dashboard panel">
+    <h3>Расчёт стоимости</h3>
+
+    <!-- Базовые метрики -->
+    <div class="stats">
+      <div class="stat-row"><span>Вещей</span><b id="m-count">0</b></div>
+      <div class="stat-row"><span>Объём вещей</span><b><span id="m-vol">0</span><small id="m-cap"></small></b></div>
+    </div>
+
+    <!-- Заполненность рекомендованного бокса -->
+    <div class="fill wide">
+      <div class="fill-head"><span>Заполненность бокса</span><b id="m-fill">0%</b></div>
+      <div class="fill-bar"><i id="m-fill-bar"></i></div>
+    </div>
+
+    <!-- Рекомендованный бокс -->
+    <div class="rec wide">
+      <div class="lbl">Рекомендуемый бокс</div>
+      <div class="rec-box">
+        <div class="rec-badge" id="m-rec">—</div>
+        <div class="rec-info">
+          <b id="m-rec-name">Добавьте вещи</b>
+          <small id="m-rec-dims">Нажмите на предмет из библиотеки</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Цена -->
+    <div class="price-block wide">
+      <div class="lbl">Итого в месяц</div>
+      <b id="m-price">0 ₽</b>
+    </div>
+
+    <!-- Действия -->
+    <button id="btn-clear">🗑 Очистить сцену</button>
+    <a class="btn-cta" href="https://t.me/Sagat9881" target="_blank" rel="noopener">Забронировать бокс →</a>
+    <p class="note">Демо-прототип CodeForge · точную стоимость подтвердит менеджер склада</p>
+  </aside>
+
+  <!-- Предупреждение о превышении объёма: скрыто по умолчанию -->
+  <div id="warning" class="panel warn">⚠️ Объём превышает 27 м³. Вам нужен складской комплекс или нестандартный бокс — оставьте заявку, рассчитаем индивидуально.</div>
+
+  <!-- Подсказка по управлению -->
+  <div id="hint">🖱 Перетаскивайте вещи мышью или пальцем · двойной клик — удалить</div>
+</body>
+</html>
