@@ -1,6 +1,7 @@
 /* ============================================================
-   Панель размера вещи (v1.1). Стили подключаются импортом из
-   ui/sizePanel.js — базовый styles.css остаётся эталонным.
+   Панель размера вещи (v1.1) и секция полок стеллажа (v1.1.1).
+   Стили подключаются импортом из ui/sizePanel.js — базовый
+   styles.css остаётся эталонным.
    ============================================================ */
    .size-panel {
     position: fixed;
@@ -55,6 +56,56 @@
   .size-vol { font-size: 11px; color: var(--text-dim); }
   .size-error { display: none; font-size: 11px; line-height: 1.35; color: var(--danger); }
   .size-error.show { display: block; }
+  
+  /* ---------- Секция полок стеллажа (v1.1.1) ---------- */
+  .size-shelf { display: flex; flex-direction: column; gap: 8px; }
+  .size-shelf:empty { display: none; }
+  .size-shelf-head {
+    font-size: 9.5px; font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .size-shelf-list { display: flex; flex-direction: column; gap: 6px; }
+  .size-shelf-row { display: flex; align-items: center; gap: 6px; }
+  .size-shelf-row input {
+    flex: 1; min-width: 0;
+    padding: 6px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12.5px; font-weight: 600;
+  }
+  .size-shelf-row input:focus { outline: none; border-color: var(--accent-bright); }
+  .size-shelf-unit { font-size: 11px; color: var(--text-dim); }
+  .size-shelf-remove {
+    width: 22px; height: 22px;
+    flex: 0 0 22px;
+    border: none; border-radius: 7px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-dim);
+    font-size: 10px; line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+  }
+  .size-shelf-remove:hover { color: var(--danger); background: rgba(255, 87, 34, 0.12); }
+  .size-shelf-add {
+    padding: 7px;
+    border-radius: 10px;
+    border: 1px dashed var(--panel-border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit; font-size: 11.5px; font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .size-shelf-add:hover:not(:disabled) {
+    color: var(--accent-bright);
+    border-color: rgba(77, 154, 255, 0.5);
+    background: rgba(0, 102, 255, 0.08);
+  }
+  .size-shelf-add:disabled { opacity: 0.4; cursor: default; }
   
   /* Мобилка: панель над свёрнутым дашбордом, на всю ширину */
   @media (max-width: 860px) {

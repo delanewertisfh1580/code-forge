@@ -2,14 +2,17 @@
 // items/builders.js — построители геометрии предметов (v1.1: параметрические).
 // Каждый билдер принимает габариты (w — X, d — Z, h — Y) и возвращает ОДИН
 // BufferGeometry (mergeGeometries) с началом координат в центре основания
-// (min.y = 0) — это критично для стекинга.
-// Поверхности полок стеллажа строятся по уровням из domain/dims.js
-// (h/3, 2h/3, h), поэтому визуаль и кинематика всегда совпадают.
+// (min.y = 0) — это критично для стекинга. Стеллаж дополнительно принимает
+// список уровней полок: визуальные доски строятся ровно по этим уровням,
+// толщина доски — единый источник SHELF_LIMITS.SHELF_BOARD из config.
 // Никаких внешних моделей: только базовые примитивы Three.js.
 // =============================================================================
 
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { SHELF_LIMITS } from '../config.js';
+
+const SHELF_BOARD = SHELF_LIMITS.SHELF_BOARD; // толщина доски полки
 
 // Ящик с центром в точке (x, y, z); y — высота ЦЕНТРА детали
 function makeBox(w, h, d, x, y, z) {
@@ -93,27 +96,31 @@ function buildFridge(w, d, h) {
   ]);
 }
 
-// --- Стеллаж: боковины, задняя стенка, несущие полки на h/3, 2h/3, h ---
-function buildShelf(w, d, h) {
+// --- Стеллаж: боковины, задняя стенка и доски по списку уровней levels (v1.1.1) ---
+function buildShelf(w, d, h, levels) {
   const side = Math.min(0.05, w / 4); // боковина (не толще четверти ширины)
-  const shelfW = w - 2 * side;        // полка между боковинами
+  const shelfW = w - 2 * side;        // доска между боковинами
+  // Список уровней: пользовательский либо 3 полки равномерно по умолчанию
+  const boards = Array.isArray(levels) && levels.length > 0
+    ? [...levels].sort((a, b) => a - b)
+    : [h / 3, (2 * h) / 3, h];
   const parts = [
     makeBox(side, h, d, -(w / 2 - side / 2), h / 2, 0), // левая боковина
     makeBox(side, h, d, w / 2 - side / 2, h / 2, 0),    // правая боковина
     // Задняя стенка
     makeBox(w - 0.06, h - 0.06, 0.02, 0, (h - 0.06) / 2, -(d / 2 - 0.01)),
     // Декоративная нижняя полка
-    makeBox(shelfW, 0.04, d, 0, Math.min(0.08, h / 4), 0)
+    makeBox(shelfW, SHELF_BOARD, d, 0, Math.min(0.08, h / 4), 0)
   ];
-  // Несущие полки: ВЕРХНЯЯ поверхность каждой ровно на уровне из domain/dims.js
-  for (let i = 1; i <= 3; i += 1) {
-    const level = (h * i) / 3;
-    parts.push(makeBox(shelfW, 0.04, d, 0, level - 0.02, 0));
+  // Несущие доски: ВЕРХНЯЯ поверхность каждой ровно на уровне из levels —
+  // те же числа, что использует кинематика стекинга (shelfLevels записи)
+  for (const level of boards) {
+    parts.push(makeBox(shelfW, SHELF_BOARD, d, 0, level - SHELF_BOARD / 2, 0));
   }
   return finalize(parts);
 }
 
-// Карта построителей по типам предметов: (w, d, h) → BufferGeometry
+// Карта построителей по типам предметов: (w, d, h, levels?) → BufferGeometry
 export const BUILDERS = {
   box: buildBox,
   sofa: buildSofa,

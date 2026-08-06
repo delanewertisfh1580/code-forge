@@ -8,12 +8,12 @@ import * as THREE from 'three';
 import { BUILDERS } from './builders.js';
 import { ITEM_TYPES, SCENE } from '../config.js';
 
-// Создать меш предмета по типу и габаритам.
+// Создать меш предмета по типу и габаритам (для стеллажа — список полок).
 // userData.id связывает меш с записью в state.
-export function createItemMesh(type, id, w, d, h) {
+export function createItemMesh(type, id, w, d, h, levels) {
   const cfg = ITEM_TYPES[type];
   const mesh = new THREE.Mesh(
-    BUILDERS[type](w, d, h),
+    BUILDERS[type](w, d, h, levels),
     new THREE.MeshStandardMaterial({
       color: cfg.color,
       roughness: cfg.roughness,
@@ -26,11 +26,11 @@ export function createItemMesh(type, id, w, d, h) {
   return mesh;
 }
 
-// Перестроить геометрию под новые габариты (v1.1):
+// Перестроить геометрию под новые габариты/полки (v1.1):
 // старая геометрия обязательно диспозится, материал переиспользуется
-export function rebuildItemGeometry(mesh, type, w, d, h) {
+export function rebuildItemGeometry(mesh, type, w, d, h, levels) {
   mesh.geometry.dispose();
-  mesh.geometry = BUILDERS[type](w, d, h);
+  mesh.geometry = BUILDERS[type](w, d, h, levels);
 }
 
 // Освобождение ресурсов — обязательно при удалении предмета

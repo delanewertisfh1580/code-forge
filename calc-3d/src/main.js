@@ -1,7 +1,8 @@
 // =============================================================================
 // main.js — точка сборки приложения.
 // Направление зависимостей: config ← domain ← (items, scene, controls, ui) ← main.
-// v1.1: подключена панель размеров предметов.
+// v1.1: панель размеров предметов. v1.1.1: настройка полок стеллажа,
+// исправлено пересечение предметов на полках (clearance-проверка в домене).
 // =============================================================================
 
 import * as THREE from 'three';
@@ -30,8 +31,14 @@ const dashboard = initDashboard();
 // scene передаётся в deps — менеджер добавляет и удаляет меши
 const manager = createManager({ scene, virtualBox, animation, onChanged: recompute });
 
-// --- Панель размеров (v1.1): валидацию и применение делает менеджер ---
-const sizePanel = createSizePanel({ onResize: manager.resizeItem });
+// --- Панель размеров и полок (v1.1 / v1.1.1) ---
+// Валидацию и применение делает менеджер; getItem нужен панели, чтобы
+// перечитывать применённые значения после ресайза (полки масштабируются).
+const sizePanel = createSizePanel({
+  onResize: manager.resizeItem,
+  onShelfLevels: manager.setShelfLevels,
+  getItem
+});
 
 // --- Управление: перетаскивание, выбор кликом, удаление двойным кликом ---
 initControls({
