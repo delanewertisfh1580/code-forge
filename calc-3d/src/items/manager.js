@@ -12,6 +12,7 @@ import {
   addItem as stateAdd,
   removeItem as stateRemove,
   clear as stateClear,
+  updateItem as stateUpdate,
   getItems,
   getItem
 } from '../domain/state.js';
@@ -19,9 +20,11 @@ import {
   computeSupportY,
   clampToBounds,
   findFallen,
+  findReflow,
   findSpawnSpot
 } from '../domain/stacking.js';
-import { createItemMesh, disposeMesh } from './factory.js';
+import { deriveItemProps, isValidDims } from '../domain/dims.js';
+import { createItemMesh, disposeMesh, rebuildItemGeometry } from './factory.js';
 
 const EPS = ANIM.EPS;
 
@@ -74,7 +77,7 @@ export function createManager(deps) {
     record.z = spot.z;
     record.y = computeSupportY(record, getItems(), box.h).y;
 
-    const mesh = createItemMesh(type, record.id);
+    const mesh = createItemMesh(type, record.id, record.w, record.d, record.h);
     mesh.position.set(record.x, record.y, record.z);
     scene.add(mesh);
     meshes.push(mesh);
@@ -141,6 +144,49 @@ export function createManager(deps) {
     onChanged();
   }
 
+  // --- Изменение габаритов (v1.1) ---
+
+  // Сменить размеры предмета. Возвращает true при успехе и false, если новые
+  // габариты недопустимы или ломают сцену, — тогда всё остаётся как было.
+  // Механика: пробный reflow на копии состава; если все предметы расставляются
+  // без пересечений и потолка — применяем: запись в state, новая геометрия
+  // (старая в dispose), анимации перемещений для всего пересобранного стека.
+  function resizeItem(id, w, d, h) {
+    const record = getItem(id);
+    const mesh = getMeshById(id);
+    if (!record || !mesh) return false;
+    if (!isValidDims(w, d, h)) return false;
+
+    const box = virtualBox.getCur();
+    const props = deriveItemProps(record.type, w, d, h);
+
+    // Предмет мог вырасти — его центр обрезается по стенам текущего бокса
+    const clamped = clampToBounds(record.x, record.z, props, box);
+
+    // Пробный прогон: копия состава с новыми габаритами
+    const trial = getItems().map(item => {
+      if (item.id !== id) return { ...item };
+      return { ...item, ...props, x: clamped.x, z: clamped.z };
+    });
+    const reflow = findReflow(trial, box.h);
+    if (!reflow.ok) return false; // потолок, полки или соседи против — отказ
+
+    // Применяем: state уведомит подписчиков (дашборд, виртуальный бокс) сам
+    stateUpdate(id, { ...props, x: clamped.x, z: clamped.z });
+    rebuildItemGeometry(mesh, record.type, w, d, h);
+    animation.cancel(id);
+    mesh.position.set(clamped.x, mesh.position.y, clamped.z);
+
+    // Анимируем всё, что пересобрал reflow (включая сам предмет)
+    for (const move of reflow.moves) {
+      const m = getMeshById(move.id);
+      const r = getItem(move.id);
+      if (m && r) animation.startDrop(m, r, move.toY);
+    }
+    onChanged();
+    return true;
+  }
+
   // --- Удаление ---
 
   function removeItem(id) {
@@ -173,6 +219,7 @@ export function createManager(deps) {
     startDrag,
     dragItem,
     endDrag,
+    resizeItem,
     removeItem,
     clear,
     getMeshes: () => meshes, // живая ссылка для DragControls

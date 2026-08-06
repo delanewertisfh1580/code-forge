@@ -8,11 +8,12 @@ import * as THREE from 'three';
 import { BUILDERS } from './builders.js';
 import { ITEM_TYPES, SCENE } from '../config.js';
 
-// Создать меш предмета по типу. userData.id связывает меш с записью в state.
-export function createItemMesh(type, id) {
+// Создать меш предмета по типу и габаритам.
+// userData.id связывает меш с записью в state.
+export function createItemMesh(type, id, w, d, h) {
   const cfg = ITEM_TYPES[type];
   const mesh = new THREE.Mesh(
-    BUILDERS[type](),
+    BUILDERS[type](w, d, h),
     new THREE.MeshStandardMaterial({
       color: cfg.color,
       roughness: cfg.roughness,
@@ -23,6 +24,13 @@ export function createItemMesh(type, id) {
   mesh.receiveShadow = true;
   mesh.userData.id = id;
   return mesh;
+}
+
+// Перестроить геометрию под новые габариты (v1.1):
+// старая геометрия обязательно диспозится, материал переиспользуется
+export function rebuildItemGeometry(mesh, type, w, d, h) {
+  mesh.geometry.dispose();
+  mesh.geometry = BUILDERS[type](w, d, h);
 }
 
 // Освобождение ресурсов — обязательно при удалении предмета
