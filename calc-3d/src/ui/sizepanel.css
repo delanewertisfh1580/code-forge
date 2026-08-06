@@ -1,0 +1,66 @@
+/* ============================================================
+   Панель размера вещи (v1.1). Стили подключаются импортом из
+   ui/sizePanel.js — базовый styles.css остаётся эталонным.
+   ============================================================ */
+   .size-panel {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    z-index: 25;
+    width: 252px;
+    padding: 14px 16px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .size-panel.show { display: flex; }
+  
+  .size-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .size-panel-title {
+    font-size: 13px; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .size-panel-close {
+    width: 24px; height: 24px;
+    flex: 0 0 24px;
+    border: none; border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-dim);
+    font-size: 12px; line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+  }
+  .size-panel-close:hover { color: var(--danger); background: rgba(255, 87, 34, 0.12); }
+  
+  .size-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .size-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .size-field span {
+    font-size: 9.5px; font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .size-field input {
+    width: 100%;
+    padding: 7px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px; font-weight: 600;
+  }
+  .size-field input:focus { outline: none; border-color: var(--accent-bright); }
+  .size-field input.invalid { border-color: var(--danger); }
+  
+  .size-vol { font-size: 11px; color: var(--text-dim); }
+  .size-error { display: none; font-size: 11px; line-height: 1.35; color: var(--danger); }
+  .size-error.show { display: block; }
+  
+  /* Мобилка: панель над свёрнутым дашбордом, на всю ширину */
+  @media (max-width: 860px) {
+    .size-panel {
+      left: 10px; right: 10px; bottom: 148px;
+      width: auto;
+      padding: 12px;
+    }
+  }
