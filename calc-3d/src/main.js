@@ -1,11 +1,12 @@
 // =============================================================================
 // main.js — точка сборки приложения.
 // Направление зависимостей: config ← domain ← (items, scene, controls, ui) ← main.
+// v1.1: подключена панель размеров предметов.
 // =============================================================================
 
 import * as THREE from 'three';
 import { MAX_BOX } from './config.js';
-import { getItems, getTotalVolume, subscribe } from './domain/state.js';
+import { getItems, getTotalVolume, getItem, subscribe } from './domain/state.js';
 import { computeRecommendation } from './domain/pricing.js';
 import { initScene } from './scene/renderer.js';
 import { createVirtualBox } from './scene/virtualBox.js';
@@ -14,18 +15,53 @@ import * as animation from './items/animation.js';
 import { initControls } from './controls/drag.js';
 import { initDashboard } from './ui/dashboard.js';
 import { initLibrary } from './ui/library.js';
+import { createSizePanel } from './ui/sizePanel.js';
 
-// --- Сцена и виртуальный бокс (стартовый размер 3×3×3) ---
+// --- Сцена и виртуальный бокс ---
 const canvas = document.getElementById('scene');
 const { renderer, scene, camera, orbit } = initScene(canvas);
 
-const virtualBox = createVirtualBox(scene);
+const virtualBox = createVirtualBox(scene); // стартовый размер 3×3×3 (MAX_BOX)
 
-// --- Дашборд (кэширует DOM один раз) ---
+// --- Дашборд ---
 const dashboard = initDashboard();
 
 // --- Менеджер предметов ---
-// Примечание: scene передана в deps — менеджер добавляет/удаляет меши в сцене
+// scene передаётся в deps — менеджер добавляет и удаляет меши
+const manager = createManager({ scene, virtualBox, animation, onChanged: recompute });
+
+// --- Панель размеров (v1.1): валидацию и применение делает менеджер ---
+const sizePanel = createSizePanel({ onResize: manager.resizeItem });
+
+// --- Управление: перетаскивание, выбор кликом, удаление двойным кликом ---
+initControls({
+  camera,
+  domElement: canvas,
+  orbit,
+  manager,
+  onSelect: (id) => {
+    // null — клик в пустоту или предмет удалён: панель закрываем
+    if (id === null) {
+      sizePanel.close();
+      return;
+    }
+    const record = getItem(id);
+    if (record) sizePanel.open(id, record);
+  }
+});
+
+// --- Библиотека ---
+initLibrary({
+  onAdd: manager.addItem,
+  onClear: () => {
+    sizePanel.close(); // панель выбранного предмета закрываем вместе с очисткой
+    manager.clear();
+  }
+});
+
+// --- Пересчёт при любом изменении состава ---
+let lastRecId = 'empty'; // id последней рекомендации для пульса
+
 function recompute() {
   const items = getItems();
   const totalVolume = getTotalVolume();
@@ -39,25 +75,14 @@ function recompute() {
   } else {
     // empty или xl: держим максимальный бокс 3×3×3
     virtualBox.setTarget(MAX_BOX.w, MAX_BOX.h, MAX_BOX.d);
-    lastRecId = rec.type; // 'empty' | 'xl'
+    lastRecId = rec.type;
   }
 
-  // Дашборд обновляется только здесь — НЕ в render-цикле
+  // Дашборд обновляется только здесь — не в render-цикле
   dashboard.update(items, totalVolume, rec);
 }
 
-let lastRecId = 'empty'; // id последней рекомендации — для pulse()
-
-const manager = createManager({ scene, virtualBox, animation, onChanged: recompute });
-
-// --- Управление: перетаскивание, hover, двойной клик ---
-initControls({ camera, domElement: canvas, orbit, manager });
-
-// --- Библиотека вещей ---
-initLibrary({ onAdd: manager.addItem, onClear: manager.clear });
-
-// Единственная «реактивность»: подписка на изменение состава в state.
-// Событийной шины нет — только этот subscribe и инъекция зависимостей.
+// Единственная «реактивность»: подписка на изменение состава в state
 subscribe(recompute);
 
 // --- Render-цикл ---
@@ -66,7 +91,7 @@ let firstFrame = true;
 
 function tick() {
   requestAnimationFrame(tick);
-  // dt clamp ≤ 0.05: после возврата на вкладку Clock может дать большой скачок
+  // Clamp dt: после возвращения на вкладку clock может дать большое значение
   const dt = Math.min(clock.getDelta(), 0.05);
   virtualBox.update(dt);
   animation.update(dt);
@@ -75,7 +100,7 @@ function tick() {
 
   if (firstFrame) {
     firstFrame = false;
-    dashboard.hideLoader(); // лоадер скрываем после первого кадра
+    dashboard.hideLoader(); // лоадер убираем после первого кадра
   }
 }
 tick();
