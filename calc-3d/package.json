@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Интерактивный 3D-калькулятор размера бокса для Self-Storage (CodeForge)",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview"
   },
