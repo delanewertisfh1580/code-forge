@@ -15,7 +15,7 @@ function cloneSeedState(): AppState {
   };
 }
 
-function mergeResearchSeed(saved: AppState): AppState {
+export function mergeResearchSeed(saved: AppState): AppState {
   const companyIds = new Set(saved.companies.map((company) => company.id));
   const evidenceIds = new Set(saved.evidence.map((item) => item.id));
   const activityIds = new Set(saved.activities.map((item) => item.id));
@@ -33,8 +33,6 @@ export function loadState(): AppState {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return cloneSeedState();
     const parsed = JSON.parse(saved) as Partial<AppState>;
-    const hasAnySavedData = Boolean(parsed.companies?.length || parsed.evidence?.length || parsed.activities?.length || parsed.calculationRuns?.length || parsed.researchImports?.length);
-    if (!parsed.researchSeedVersion && !hasAnySavedData) return cloneSeedState();
     const savedState: AppState = {
       companies: parsed.companies ?? [],
       evidence: parsed.evidence ?? [],
@@ -44,7 +42,9 @@ export function loadState(): AppState {
       researchSeedVersion: parsed.researchSeedVersion,
       researchImports: parsed.researchImports ?? [],
     };
-    if (parsed.researchSeedVersion && parsed.researchSeedVersion !== RESEARCH_SEED_VERSION) return mergeResearchSeed(savedState);
+    // Migrate both legacy workspaces without a seed version and workspaces stamped by
+    // the previous loader. The merge is idempotent and never overwrites user records.
+    if (parsed.researchSeedVersion !== RESEARCH_SEED_VERSION) return mergeResearchSeed(savedState);
     return savedState;
   } catch {
     return cloneSeedState();

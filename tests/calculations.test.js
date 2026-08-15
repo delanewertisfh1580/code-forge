@@ -5,6 +5,7 @@ import { calculateAllScenarios, calculateProductCatalog, calculateScenario, getD
 import { validatePrimitives } from "../src/lib/validation.ts";
 import { assertValidResearchImportDraft, normalizeTwoGisResponse, normalizeVkGroupsResponse } from "../src/lib/researchImport.ts";
 import { researchSeedState, RESEARCH_SEED_VERSION } from "../src/data/researchSeed.ts";
+import { mergeResearchSeed } from "../src/lib/storage.ts";
 
 describe("CodeForge calculation engine", () => {
   test("calculates all three scenarios from primitives", () => {
@@ -87,6 +88,22 @@ describe("CodeForge calculation engine", () => {
     expect(primitives.derived_estimates.every((item) => item.source_ids.every((sourceId) => sourceIds.has(sourceId)))).toBe(true);
     expect(primitives.market_benchmarks.ooh.out_of_home_market_2025).toBe(109100000000);
     expect(primitives.market_benchmarks.ooh.out_of_home_market_2025_revised_working_group).toBe(114600000000);
+  });
+
+  test("existing CRM workspaces receive the research seed without overwriting user records", () => {
+    const customCompany = { id: "custom-company", name: "Моя компания" };
+    const saved = { companies: [customCompany], evidence: [], activities: [], calculationRuns: [], selectedScenario: "base", researchSeedVersion: "legacy" };
+    const migrated = mergeResearchSeed(saved);
+    expect(migrated.companies.some((company) => company.id === customCompany.id)).toBe(true);
+    expect(migrated.companies.find((company) => company.id === customCompany.id)?.name).toBe("Моя компания");
+    expect(migrated.companies.length).toBe(researchSeedState.companies.length + 1);
+    expect(migrated.evidence.length).toBe(researchSeedState.evidence.length);
+    expect(migrated.activities.length).toBe(researchSeedState.activities.length);
+    expect(migrated.researchSeedVersion).toBe(RESEARCH_SEED_VERSION);
+    const rerun = mergeResearchSeed(migrated);
+    expect(rerun.companies.length).toBe(migrated.companies.length);
+    expect(rerun.evidence.length).toBe(migrated.evidence.length);
+    expect(rerun.activities.length).toBe(migrated.activities.length);
   });
 
   test("white-label research covers the selected five cities and connector policy", () => {

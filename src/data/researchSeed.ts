@@ -1,6 +1,7 @@
 import type { Activity, AppState, Company, Evidence } from "../lib/types";
 
-export const RESEARCH_SEED_VERSION = "2026-08-15.open-web-pass-2-directory-social";
+// Bumped when the CRM seed schema changes so existing local workspaces receive missing research records once.
+export const RESEARCH_SEED_VERSION = "2026-08-15.open-web-pass-2-directory-social.crm-seed-migration";
 const observedAt = "2026-08-15";
 
 const company = (input: Omit<Company, "createdAt" | "updatedAt">): Company => ({
