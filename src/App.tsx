@@ -335,7 +335,26 @@ function SalesPlaybookPanel({ content, state }: { content: Extract<DocumentConte
 }
 
 function SystemDocumentPanel({ content }: { content: Extract<DocumentContent, { kind: "system" }> }) {
-  return <div className="structured-doc"><DocumentBlock eyebrow="GOVERNANCE RULES" title="Правила, которые нельзя обходить"><ul className="rule-list">{content.operatingRules.map((rule) => <li key={rule}><span>↳</span>{rule}</li>)}</ul></DocumentBlock><DocumentBlock eyebrow="OPERATING CADENCE" title="Ритм управления"><div className="cadence-grid">{content.cadence.map((item) => <article key={item.title}><span>{item.frequency}</span><h4>{item.title}</h4><small>{item.owner}</small><p>{item.output}</p></article>)}</div></DocumentBlock></div>;
+  const [selectedStageId, setSelectedStageId] = useState(content.stages[0]?.id ?? "");
+  const selectedStage = content.stages.find((stage) => stage.id === selectedStageId) ?? content.stages[0];
+  return <div className="structured-doc">
+    <DocumentBlock eyebrow="OPERATING MISSION" title="Для чего существует этот документ">
+      <div className="system-mission"><p>{content.mission}</p><div className="system-callout"><span>Правило рабочего дня</span><strong>Открой активную запись → определи этап → выполни чек-лист → приложи артефакт → назначь следующий шаг.</strong></div></div>
+    </DocumentBlock>
+    <DocumentBlock eyebrow="NON-NEGOTIABLES" title="Минимальный стандарт работы сотрудника">
+      <ul className="rule-list">{content.nonNegotiables.map((rule) => <li key={rule}><span>!</span>{rule}</li>)}</ul>
+    </DocumentBlock>
+    <DocumentBlock eyebrow="STAGE ROUTER" title="Что делать на текущем этапе">
+      <p className="block-intro">Выберите этап сотрудничества. Карточка ниже — не описание стратегии, а рабочий чек-лист: что должно быть на входе, что сделать, что сохранить и когда остановиться.</p>
+      <div className="stage-tabs">{content.stages.map((stage) => <button key={stage.id} className={selectedStage?.id === stage.id ? "active" : ""} onClick={() => setSelectedStageId(stage.id)}><span>{stage.number}</span><strong>{stage.name}</strong></button>)}</div>
+      {selectedStage && <article className="stage-detail"><div className="stage-detail-head"><div><span className="stage-number">{selectedStage.number}</span><div><div className="eyebrow">{selectedStage.owner}</div><h4>{selectedStage.name}</h4><p>{selectedStage.purpose}</p></div></div><span className="stage-owner">OWNER<br /><b>{selectedStage.owner}</b></span></div><div className="stage-columns"><div><span className="stage-column-title">На входе</span><ul className="compact-list">{selectedStage.entryCriteria.map((item) => <li key={item}>{item}</li>)}</ul></div><div><span className="stage-column-title">Чек-лист</span><ol className="compact-list numbered">{selectedStage.checklist.map((item) => <li key={item}>{item}</li>)}</ol></div><div><span className="stage-column-title">Сохранить</span><ul className="compact-list artifact-list">{selectedStage.artifacts.map((item) => <li key={item}>{item}</li>)}</ul></div></div><div className="stage-outcome-grid"><div><span className="stage-column-title">Критерии выхода</span><ul className="compact-list">{selectedStage.exitCriteria.map((item) => <li key={item}>{item}</li>)}</ul></div><div className="stage-stop"><span className="stage-column-title">Стоп / не делать</span><ul className="compact-list">{selectedStage.stopConditions.map((item) => <li key={item}>{item}</li>)}</ul></div></div><div className="stage-escalation"><b>Эскалация:</b> {selectedStage.escalation}</div></article>}
+    </DocumentBlock>
+    <DocumentBlock eyebrow="DECISION RULES" title="Если видишь это — делай так">
+      <div className="decision-rule-list">{content.decisionRules.map((rule) => <article key={rule.signal}><div className="decision-rule-signal"><span>IF</span><strong>{rule.signal}</strong></div><div className="decision-rule-action"><span>THEN</span><p>{rule.action}</p></div><div className="decision-rule-meta"><small>Владелец</small><b>{rule.owner}</b><small>Передача</small><b>{rule.handoff}</b></div></article>)}</div>
+    </DocumentBlock>
+    <DocumentBlock eyebrow="GOVERNANCE RULES" title="Правила данных и решений"><ul className="rule-list">{content.operatingRules.map((rule) => <li key={rule}><span>↳</span>{rule}</li>)}</ul></DocumentBlock>
+    <DocumentBlock eyebrow="OPERATING CADENCE" title="Когда процесс проверяется"><div className="cadence-grid">{content.cadence.map((item) => <article key={item.title}><span>{item.frequency}</span><h4>{item.title}</h4><small>{item.owner}</small><p>{item.output}</p></article>)}</div></DocumentBlock>
+  </div>;
 }
 
 function OperatingDocumentPanel({ content }: { content: Extract<DocumentContent, { kind: "operating" }> }) {

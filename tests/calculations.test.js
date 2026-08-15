@@ -85,6 +85,20 @@ describe("CodeForge calculation engine", () => {
     expect(sales.kind === "sales" ? sales.sequence.length : 0).toBeGreaterThanOrEqual(5);
   });
 
+  test("AI Operating System exposes an executable employee SOP", () => {
+    const system = documentContent["ai-os"];
+    expect(system.kind).toBe("system");
+    if (system.kind !== "system") return;
+    expect(system.mission.length).toBeGreaterThan(80);
+    expect(system.nonNegotiables.length).toBeGreaterThanOrEqual(5);
+    expect(system.stages).toHaveLength(7);
+    expect(system.stages.every((stage) => stage.owner && stage.checklist.length >= 4 && stage.artifacts.length >= 2 && stage.exitCriteria.length >= 2 && stage.stopConditions.length >= 2 && stage.escalation.length > 20)).toBe(true);
+    expect(system.stages.map((stage) => stage.id)).toEqual(["intake", "qualification", "first-contact", "discovery", "proposal", "delivery", "close-learn"]);
+    expect(system.decisionRules.length).toBeGreaterThanOrEqual(5);
+    expect(system.decisionRules.every((rule) => rule.signal && rule.action && rule.owner && rule.handoff)).toBe(true);
+    expect(system.cadence.length).toBeGreaterThanOrEqual(4);
+  });
+
   test("open-web research pack contains linked, reviewable seed records", () => {
     const companyIds = new Set(researchSeedState.companies.map((company) => company.id));
     const sourceIds = new Set(primitives.research_sources.map((source) => source.id));
