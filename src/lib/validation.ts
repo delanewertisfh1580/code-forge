@@ -51,6 +51,7 @@ export function validatePrimitives(value: unknown): PrimitivesValidation {
   }
 
   const sourceIds = new Set<string>();
+  const researchObservationIds = new Set<string>();
   if (Array.isArray(candidate.research_sources)) {
     candidate.research_sources.forEach((source, index) => {
       const path = `research_sources[${index}]`;
@@ -76,6 +77,70 @@ export function validatePrimitives(value: unknown): PrimitivesValidation {
     });
   }
 
+  const whiteLabelResearch = candidate.white_label_research;
+  if (!isRecord(whiteLabelResearch)) {
+    error("white_label_research", "Ожидается отдельный white-label research контур");
+  } else {
+    if (typeof whiteLabelResearch.focus !== "string" || !whiteLabelResearch.focus) error("white_label_research.focus", "Нужно описание фокуса исследования");
+    const whiteLabelRecord = whiteLabelResearch as Record<string, unknown>;
+    const whiteLabelObservationIds = new Set<string>();
+    const validateWhiteLabelObservation = (observation: unknown, path: string, kind: "directory" | "social") => {
+      if (!isRecord(observation)) {
+        error(path, "White-label observation должен быть объектом");
+        return;
+      }
+      const record = observation as Record<string, unknown>;
+      if (typeof record.id !== "string" || !record.id) error(`${path}.id`, "Нужен id white-label observation");
+      else if (whiteLabelObservationIds.has(record.id) || researchObservationIds.has(record.id)) error(`${path}.id`, `Дублирующийся id: ${record.id}`);
+      else {
+        whiteLabelObservationIds.add(record.id);
+        researchObservationIds.add(record.id);
+      }
+      if (typeof record.source_id !== "string" || !sourceIds.has(record.source_id)) error(`${path}.source_id`, "Источник white-label observation не найден");
+      if (!isHttpUrl(record.source_url)) error(`${path}.source_url`, "White-label observation должен иметь http(s) URL");
+      if (kind === "directory") {
+        if (!Array.isArray(record.listings)) error(`${path}.listings`, "Ожидается список карточек 2ГИС");
+        if (!isFiniteNumber(record.first_page_visible_listings) || record.first_page_visible_listings < 0) error(`${path}.first_page_visible_listings`, "Ожидается неотрицательное число карточек");
+        if (!isFiniteNumber(record.distinct_named_entities) || record.distinct_named_entities < 0) error(`${path}.distinct_named_entities`, "Ожидается неотрицательное число сущностей");
+      } else if (typeof record.handle !== "string" || !record.handle) {
+        error(`${path}.handle`, "Нужен публичный handle социальной страницы");
+      }
+    };
+    if (!Array.isArray(whiteLabelRecord.directory_observations)) error("white_label_research.directory_observations", "Ожидается массив 2ГИС observations");
+    else whiteLabelRecord.directory_observations.forEach((item, index) => validateWhiteLabelObservation(item, `white_label_research.directory_observations[${index}]`, "directory"));
+    if (!Array.isArray(whiteLabelRecord.social_observations)) error("white_label_research.social_observations", "Ожидается массив social observations");
+    else whiteLabelRecord.social_observations.forEach((item, index) => validateWhiteLabelObservation(item, `white_label_research.social_observations[${index}]`, "social"));
+    if (!Array.isArray(whiteLabelRecord.derived_estimates)) error("white_label_research.derived_estimates", "Ожидается массив derived estimates");
+    else whiteLabelRecord.derived_estimates.forEach((item, index) => {
+      const path = `white_label_research.derived_estimates[${index}]`;
+      if (!isRecord(item)) {
+        error(path, "Derived estimate должен быть объектом");
+        return;
+      }
+      const record = item as Record<string, unknown>;
+      if (typeof record.id !== "string" || !record.id) error(`${path}.id`, "Нужен id derived estimate");
+      else if (researchObservationIds.has(record.id)) error(`${path}.id`, `Дублирующийся id: ${record.id}`);
+      else researchObservationIds.add(record.id);
+      if (!isFiniteNumber(record.value)) error(`${path}.value`, "Derived estimate должен быть конечным числом");
+      if (!Array.isArray(record.input_observation_ids) || record.input_observation_ids.some((id) => typeof id !== "string" || !researchObservationIds.has(id))) error(`${path}.input_observation_ids`, "Derived estimate должен ссылаться на существующие observations");
+      if (!Array.isArray(record.source_ids) || record.source_ids.some((id) => typeof id !== "string" || !sourceIds.has(id))) error(`${path}.source_ids`, "Derived estimate должен ссылаться на существующие sources");
+    });
+    if (!isRecord(whiteLabelRecord.research_connectors)) error("white_label_research.research_connectors", "Ожидается конфигурация research connectors");
+    else Object.entries(whiteLabelRecord.research_connectors).forEach(([connectorId, connector]) => {
+      const path = `white_label_research.research_connectors.${connectorId}`;
+      if (!isRecord(connector)) {
+        error(path, "Connector должен быть объектом");
+        return;
+      }
+      const record = connector as Record<string, unknown>;
+      for (const field of ["provider", "kind", "status", "docs_url", "auth", "allowed_scope", "notes"]) if (typeof record[field] !== "string" || !record[field]) error(`${path}.${field}`, "Обязательное непустое поле connector");
+      if (!isHttpUrl(record.docs_url)) error(`${path}.docs_url`, "Connector должен иметь документацию с http(s) URL");
+      if (record.endpoint !== null && !isHttpUrl(record.endpoint)) error(`${path}.endpoint`, "endpoint должен быть null или http(s) URL");
+      if (!Array.isArray(record.required_env_vars) || record.required_env_vars.some((key) => typeof key !== "string" || !key)) error(`${path}.required_env_vars`, "Ожидается массив env-имен");
+      if (typeof record.status === "string" && !["blocked_missing_credentials", "ready", "manual_only"].includes(record.status)) error(`${path}.status`, "Недопустимый connector status");
+    });
+  }
+
   if (!Array.isArray(candidate.public_price_observations)) {
     error("public_price_observations", "Ожидается массив публичных наблюдений цен");
   } else {
@@ -90,6 +155,7 @@ export function validatePrimitives(value: unknown): PrimitivesValidation {
       if (typeof observation.id !== "string" || !observation.id) error(`${path}.id`, "Нужен id наблюдения");
       else if (observationIds.has(observation.id)) error(`${path}.id`, `Дублирующийся id: ${observation.id}`);
       else observationIds.add(observation.id);
+      if (typeof observation.id === "string" && observation.id) researchObservationIds.add(observation.id);
       for (const field of ["segment", "city", "item", "currency", "unit", "source_id", "source_url", "observed_at", "status", "notes"]) {
         if (typeof observationRecord[field] !== "string" || !observationRecord[field]) error(`${path}.${field}`, "Обязательное непустое поле");
       }
@@ -103,6 +169,94 @@ export function validatePrimitives(value: unknown): PrimitivesValidation {
       }
       if (observation.status === "stale") warning(path, "Устаревшее наблюдение не должно использоваться как текущая рыночная цена");
       if (observation.status === "partial") warning(path, "Наблюдение требует ручной проверки или уточнения условий");
+    });
+  }
+
+  const validateResearchStatus = (status: unknown, path: string) => {
+    if (typeof status === "string" && !["observed", "partial", "stale"].includes(status)) error(path, "Недопустимый статус исследовательского наблюдения");
+  };
+
+  if (!Array.isArray(candidate.directory_observations)) {
+    error("directory_observations", "Ожидается массив наблюдений из каталогов");
+  } else {
+    const directoryIds = new Set<string>();
+    candidate.directory_observations.forEach((observation, index) => {
+      const path = `directory_observations[${index}]`;
+      if (!isRecord(observation)) {
+        error(path, "Наблюдение каталога должно быть объектом");
+        return;
+      }
+      const record = observation as Record<string, unknown>;
+      if (typeof record.id !== "string" || !record.id) error(`${path}.id`, "Нужен id наблюдения каталога");
+      else if (directoryIds.has(record.id) || researchObservationIds.has(record.id)) error(`${path}.id`, `Дублирующийся id: ${record.id}`);
+      else {
+        directoryIds.add(record.id);
+        researchObservationIds.add(record.id);
+      }
+      for (const field of ["platform", "city", "segment", "query", "source_id", "source_url", "observed_at", "status", "notes"]) {
+        if (typeof record[field] !== "string" || !record[field]) error(`${path}.${field}`, "Обязательное непустое поле");
+      }
+      if (!isHttpUrl(record.source_url)) error(`${path}.source_url`, "Наблюдение каталога должно иметь http(s) URL");
+      if (!isFiniteNumber(record.first_page_visible_listings) || record.first_page_visible_listings < 0) error(`${path}.first_page_visible_listings`, "Ожидается неотрицательное число");
+      if (!isFiniteNumber(record.distinct_named_entities) || record.distinct_named_entities < 0) error(`${path}.distinct_named_entities`, "Ожидается неотрицательное число");
+      if (!Array.isArray(record.listings)) error(`${path}.listings`, "Ожидается массив найденных карточек");
+      else record.listings.forEach((listing, listingIndex) => {
+        if (!isRecord(listing) || typeof listing.name !== "string" || !listing.name) error(`${path}.listings[${listingIndex}]`, "Карточка должна иметь название");
+        if (isRecord(listing) && listing.rating !== undefined && (!isFiniteNumber(listing.rating) || listing.rating < 0 || listing.rating > 5)) error(`${path}.listings[${listingIndex}].rating`, "Рейтинг должен быть в диапазоне 0..5");
+        if (isRecord(listing) && listing.rating_count !== undefined && (!isFiniteNumber(listing.rating_count) || listing.rating_count < 0)) error(`${path}.listings[${listingIndex}].rating_count`, "Количество оценок должно быть неотрицательным числом");
+      });
+      validateResearchStatus(record.status, `${path}.status`);
+      if (typeof record.source_id === "string" && sourceIds.size > 0 && !sourceIds.has(record.source_id)) error(`${path}.source_id`, `Источник не найден: ${record.source_id}`);
+    });
+  }
+
+  if (!Array.isArray(candidate.social_observations)) {
+    error("social_observations", "Ожидается массив наблюдений из социальных сетей");
+  } else {
+    const socialIds = new Set<string>();
+    candidate.social_observations.forEach((observation, index) => {
+      const path = `social_observations[${index}]`;
+      if (!isRecord(observation)) {
+        error(path, "Наблюдение социальной сети должно быть объектом");
+        return;
+      }
+      const record = observation as Record<string, unknown>;
+      if (typeof record.id !== "string" || !record.id) error(`${path}.id`, "Нужен id наблюдения социальной сети");
+      else if (socialIds.has(record.id) || researchObservationIds.has(record.id)) error(`${path}.id`, `Дублирующийся id: ${record.id}`);
+      else {
+        socialIds.add(record.id);
+        researchObservationIds.add(record.id);
+      }
+      for (const field of ["platform", "company_name", "city", "segment", "handle", "source_id", "source_url", "observed_at", "status", "evidence", "notes"]) {
+        if (typeof record[field] !== "string" || !record[field]) error(`${path}.${field}`, "Обязательное непустое поле");
+      }
+      if (!isHttpUrl(record.source_url)) error(`${path}.source_url`, "Наблюдение социальной сети должно иметь http(s) URL");
+      validateResearchStatus(record.status, `${path}.status`);
+      if (typeof record.source_id === "string" && sourceIds.size > 0 && !sourceIds.has(record.source_id)) error(`${path}.source_id`, `Источник не найден: ${record.source_id}`);
+    });
+  }
+
+  if (!Array.isArray(candidate.derived_estimates)) {
+    error("derived_estimates", "Ожидается массив производных оценок");
+  } else {
+    const estimateIds = new Set<string>();
+    candidate.derived_estimates.forEach((estimate, index) => {
+      const path = `derived_estimates[${index}]`;
+      if (!isRecord(estimate)) {
+        error(path, "Производная оценка должна быть объектом");
+        return;
+      }
+      const record = estimate as Record<string, unknown>;
+      if (typeof record.id !== "string" || !record.id) error(`${path}.id`, "Нужен id производной оценки");
+      else if (estimateIds.has(record.id)) error(`${path}.id`, `Дублирующийся id: ${record.id}`);
+      else estimateIds.add(record.id);
+      for (const field of ["segment", "geography", "metric", "unit", "method", "status", "notes"]) {
+        if (typeof record[field] !== "string" || !record[field]) error(`${path}.${field}`, "Обязательное непустое поле");
+      }
+      if (!isFiniteNumber(record.value)) error(`${path}.value`, "Производная оценка должна быть конечным числом");
+      if (!Array.isArray(record.input_observation_ids) || record.input_observation_ids.some((id) => typeof id !== "string" || !researchObservationIds.has(id))) error(`${path}.input_observation_ids`, "Все входные наблюдения должны существовать в research dataset");
+      if (!Array.isArray(record.source_ids) || record.source_ids.some((id) => typeof id !== "string" || !sourceIds.has(id))) error(`${path}.source_ids`, "Все источники производной оценки должны существовать");
+      if (typeof record.status === "string" && !["derived_public_sample", "derived_market_estimate"].includes(record.status)) error(`${path}.status`, "Недопустимый статус производной оценки");
     });
   }
 

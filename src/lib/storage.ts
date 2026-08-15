@@ -11,6 +11,20 @@ function cloneSeedState(): AppState {
     evidence: researchSeedState.evidence.map((item) => ({ ...item })),
     activities: researchSeedState.activities.map((item) => ({ ...item })),
     calculationRuns: [],
+    researchImports: [],
+  };
+}
+
+function mergeResearchSeed(saved: AppState): AppState {
+  const companyIds = new Set(saved.companies.map((company) => company.id));
+  const evidenceIds = new Set(saved.evidence.map((item) => item.id));
+  const activityIds = new Set(saved.activities.map((item) => item.id));
+  return {
+    ...saved,
+    companies: [...saved.companies, ...researchSeedState.companies.filter((company) => !companyIds.has(company.id)).map((company) => ({ ...company }))],
+    evidence: [...saved.evidence, ...researchSeedState.evidence.filter((item) => !evidenceIds.has(item.id)).map((item) => ({ ...item }))],
+    activities: [...saved.activities, ...researchSeedState.activities.filter((item) => !activityIds.has(item.id)).map((item) => ({ ...item }))],
+    researchSeedVersion: RESEARCH_SEED_VERSION,
   };
 }
 
@@ -19,16 +33,19 @@ export function loadState(): AppState {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return cloneSeedState();
     const parsed = JSON.parse(saved) as Partial<AppState>;
-    const hasAnySavedData = Boolean(parsed.companies?.length || parsed.evidence?.length || parsed.activities?.length || parsed.calculationRuns?.length);
+    const hasAnySavedData = Boolean(parsed.companies?.length || parsed.evidence?.length || parsed.activities?.length || parsed.calculationRuns?.length || parsed.researchImports?.length);
     if (!parsed.researchSeedVersion && !hasAnySavedData) return cloneSeedState();
-    return {
+    const savedState: AppState = {
       companies: parsed.companies ?? [],
       evidence: parsed.evidence ?? [],
       activities: parsed.activities ?? [],
       calculationRuns: parsed.calculationRuns ?? [],
       selectedScenario: parsed.selectedScenario ?? "base",
-      researchSeedVersion: parsed.researchSeedVersion ?? RESEARCH_SEED_VERSION,
+      researchSeedVersion: parsed.researchSeedVersion,
+      researchImports: parsed.researchImports ?? [],
     };
+    if (parsed.researchSeedVersion && parsed.researchSeedVersion !== RESEARCH_SEED_VERSION) return mergeResearchSeed(savedState);
+    return savedState;
   } catch {
     return cloneSeedState();
   }

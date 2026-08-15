@@ -46,8 +46,90 @@ export type ResearchSource = {
   methodology: string;
   notes: string;
   verification_status?: "verified" | "partial" | "stale" | "pending_manual_verification";
-  source_type?: "official" | "industry_media" | "aggregator" | "provider" | "job_market" | "registry";
+  source_type?: "official" | "industry_media" | "aggregator" | "provider" | "job_market" | "registry" | "social";
   next_review_at?: string;
+};
+
+export type DirectoryListing = {
+  name: string;
+  rating?: number;
+  rating_count?: number;
+  address?: string;
+  note?: string;
+};
+
+export type DirectoryObservation = {
+  id: string;
+  platform: "2gis" | "yandex";
+  city: string;
+  segment: CompanySegment;
+  query: string;
+  source_id: string;
+  source_url: string;
+  observed_at: string;
+  first_page_visible_listings: number;
+  distinct_named_entities: number;
+  listings: DirectoryListing[];
+  status: "observed" | "partial" | "stale";
+  notes: string;
+};
+
+export type SocialObservation = {
+  id: string;
+  platform: "vk" | "telegram" | "instagram";
+  company_name: string;
+  city: string;
+  segment: CompanySegment;
+  handle: string;
+  source_id: string;
+  source_url: string;
+  observed_at: string;
+  status: "observed" | "partial" | "stale";
+  evidence: string;
+  notes: string;
+};
+
+export type DerivedEstimate = {
+  id: string;
+  segment: CompanySegment;
+  geography: string;
+  metric: string;
+  value: number;
+  unit: string;
+  method: string;
+  input_observation_ids: string[];
+  source_ids: string[];
+  status: "derived_public_sample" | "derived_market_estimate";
+  notes: string;
+};
+
+export type ResearchConnector = {
+  provider: string;
+  kind: string;
+  status: "blocked_missing_credentials" | "ready" | "manual_only";
+  endpoint: string | null;
+  docs_url: string;
+  required_env_vars: string[];
+  auth: string;
+  allowed_scope: string;
+  notes: string;
+};
+
+export type WhiteLabelResearch = {
+  focus: string;
+  directory_observations: DirectoryObservation[];
+  social_observations: SocialObservation[];
+  derived_estimates: DerivedEstimate[];
+  research_connectors: Record<string, ResearchConnector>;
+};
+
+export type ResearchImportRecord = {
+  id: string;
+  connectorId: "2gis_places_api" | "vk_groups_search_api";
+  importedAt: string;
+  source: ResearchSource;
+  directoryObservation?: DirectoryObservation;
+  socialObservations?: SocialObservation[];
 };
 
 export type Claim = {
@@ -114,8 +196,12 @@ export type Primitives = {
   schema_version: string;
   updated_at: string;
   currency: string;
+  white_label_research: WhiteLabelResearch;
   research_sources: ResearchSource[];
   public_price_observations: PublicPriceObservation[];
+  directory_observations: DirectoryObservation[];
+  social_observations: SocialObservation[];
+  derived_estimates: DerivedEstimate[];
   data_governance: {
     market_benchmarks_rule: string;
     scenario_inputs_rule: string;
@@ -193,7 +279,7 @@ export type Evidence = {
   field: string;
   value: string;
   sourceUrl: string;
-  sourceType: "official_site" | "registry" | "2gis" | "yandex" | "interview" | "document" | "other";
+  sourceType: "official_site" | "registry" | "2gis" | "yandex" | "social" | "interview" | "document" | "other";
   observedAt: string;
   status: VerificationStatus;
   confidence: number;
@@ -252,6 +338,7 @@ export type AppState = {
   calculationRuns: CalculationRun[];
   selectedScenario: ScenarioId;
   researchSeedVersion?: string;
+  researchImports?: ResearchImportRecord[];
 };
 
 export type DocumentId = "ai-os" | "operating-model" | "product-knowledge-base" | "sales-playbook" | "upsell-matrix" | "white-label-playbook";
