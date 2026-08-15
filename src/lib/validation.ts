@@ -83,6 +83,52 @@ export function validatePrimitives(value: unknown): PrimitivesValidation {
   } else {
     if (typeof whiteLabelResearch.focus !== "string" || !whiteLabelResearch.focus) error("white_label_research.focus", "Нужно описание фокуса исследования");
     const whiteLabelRecord = whiteLabelResearch as Record<string, unknown>;
+    const microSourceIds = new Set<string>();
+    if (!Array.isArray(whiteLabelRecord.micro_sources)) {
+      error("white_label_research.micro_sources", "Ожидается отдельный реестр источников micro shortlist");
+    } else {
+      whiteLabelRecord.micro_sources.forEach((source, index) => {
+        const path = `white_label_research.micro_sources[${index}]`;
+        if (!isRecord(source)) {
+          error(path, "Micro source должен быть объектом");
+          return;
+        }
+        const sourceRecord = source as Record<string, unknown>;
+        if (typeof sourceRecord.id !== "string" || !sourceRecord.id) error(`${path}.id`, "Нужен уникальный id micro source");
+        else if (sourceIds.has(sourceRecord.id) || microSourceIds.has(sourceRecord.id)) error(`${path}.id`, `Дублирующийся id источника: ${sourceRecord.id}`);
+        else microSourceIds.add(sourceRecord.id);
+        for (const field of ["title", "publisher", "geography", "methodology", "notes"]) {
+          if (typeof sourceRecord[field] !== "string" || !sourceRecord[field]) error(`${path}.${field}`, "Обязательное непустое поле micro source");
+        }
+        if (!isHttpUrl(sourceRecord.url)) error(`${path}.url`, "Micro source должен иметь http(s) URL");
+        if (typeof sourceRecord.accessed_at !== "string" || !sourceRecord.accessed_at) error(`${path}.accessed_at`, "Нужна дата проверки micro source");
+        if (sourceRecord.verification_status !== undefined && !["verified", "partial", "stale", "pending_manual_verification"].includes(String(sourceRecord.verification_status))) error(`${path}.verification_status`, "Недопустимый статус micro source");
+      });
+    }
+    if (!Array.isArray(whiteLabelRecord.micro_candidates)) {
+      error("white_label_research.micro_candidates", "Ожидается micro shortlist");
+    } else {
+      const candidateIds = new Set<string>();
+      whiteLabelRecord.micro_candidates.forEach((candidate, index) => {
+        const path = `white_label_research.micro_candidates[${index}]`;
+        if (!isRecord(candidate)) {
+          error(path, "Micro candidate должен быть объектом");
+          return;
+        }
+        const record = candidate as Record<string, unknown>;
+        if (typeof record.id !== "string" || !record.id) error(`${path}.id`, "Нужен id micro candidate");
+        else if (candidateIds.has(record.id)) error(`${path}.id`, `Дублирующийся id micro candidate: ${record.id}`);
+        else candidateIds.add(record.id);
+        for (const field of ["name", "city", "discovery_channel", "source_id", "source_url", "observed_at", "service_signal", "micro_signal", "fit", "status", "notes"]) {
+          if (typeof record[field] !== "string" || !record[field]) error(`${path}.${field}`, "Обязательное непустое поле micro candidate");
+        }
+        if (typeof record.source_id === "string" && !microSourceIds.has(record.source_id)) error(`${path}.source_id`, `Micro source не найден: ${record.source_id}`);
+        if (!isHttpUrl(record.source_url)) error(`${path}.source_url`, "Micro candidate должен иметь http(s) URL");
+        if (typeof record.discovery_channel === "string" && !["2gis", "official_site", "social", "marketplace"].includes(record.discovery_channel)) error(`${path}.discovery_channel`, "Недопустимый discovery channel");
+        if (typeof record.fit === "string" && !["high", "medium", "manual_review"].includes(record.fit)) error(`${path}.fit`, "Недопустимый fit status");
+        if (typeof record.status === "string" && !["partial", "pending_manual_verification"].includes(record.status)) error(`${path}.status`, "Недопустимый статус micro candidate");
+      });
+    }
     const whiteLabelObservationIds = new Set<string>();
     const validateWhiteLabelObservation = (observation: unknown, path: string, kind: "directory" | "social") => {
       if (!isRecord(observation)) {

@@ -125,9 +125,12 @@ const productOffer = (
   };
 };
 
-const whiteLabelCities = primitives.white_label_research.directory_observations.map((item) => item.city);
-const whiteLabelDirectorySourceIds = primitives.white_label_research.directory_observations.map((item) => item.source_id);
-const marmeladPriceSource = primitives.public_price_observations.find((item) => item.id === "price_marmelad_multisite_start");
+const whiteLabelResearch = primitives.white_label_research;
+const whiteLabelCities = whiteLabelResearch.directory_observations.map((item) => item.city);
+const whiteLabelDirectorySourceIds = whiteLabelResearch.directory_observations.map((item) => item.source_id);
+const whiteLabelMicroSourceIds = whiteLabelResearch.micro_sources.map((item) => item.id);
+const whiteLabelMicroCandidates = whiteLabelResearch.micro_candidates;
+const microCandidateCities = [...new Set(whiteLabelMicroCandidates.map((item) => item.city))];
 
 export const documentContent: Record<DocumentId, DocumentContent> = {
   "ai-os": {
@@ -189,12 +192,12 @@ export const documentContent: Record<DocumentId, DocumentContent> = {
       ),
       productOffer(
         "white_label",
-        "Digital/web-студия, которая уже продает разработку и хочет закрывать delivery без раскрытия подрядчика клиенту.",
-        "В пяти городах видна конкурентная выдача, но capacity, white-label условия и реальная потребность не опубликованы — это нужно подтвердить интервью.",
-        "Предсказуемый handoff: discovery → оценка → разработка → QA → сдача студии. Это предложение, а не доказанный market fact.",
-        ["Проверить 2–3 свежих проекта студии и узкое место delivery.", "Согласовать границы клиента, бренда и коммуникаций.", "Провести оплаченный discovery до платформенной фазы."],
-        ["Не говорить «у вас точно не хватает разработчиков».", "Не обещать SLA, uptime или нулевой CAC без подписанного scope.", "Не продавать partner platform до повторяемого пилота."],
-        ["2gis_white_label_ekb_2026", "2gis_white_label_tyumen_2026", "2gis_white_label_perm_2026", "2gis_white_label_chelyabinsk_2026", "2gis_white_label_surgut_2026", "wl_victory_ekb_2026", "wl_marmelad_2026"],
+        "Соло-дизайнер, фрилансер или micro-студия до примерно 3 человек, которая продает дизайн/Tilda/no-code, но не может закрыть backend, интеграции или технический delivery самостоятельно.",
+        `В broad-выдаче 2ГИС много крупных и нерелевантных карточек; отдельный micro-pass нашел ${whiteLabelMicroCandidates.length} публичных кандидатов, но ни один еще не доказал спрос или capacity.`,
+        "Предсказуемый скрытый delivery: CodeForge закрывает backend, интеграции, QA и техническую передачу, а дизайнер сохраняет отношения со своим клиентом. Это оффер для теста, не доказанный market fact.",
+        ["Проверить один свежий дизайн-проект и конкретный технический пробел.", "Согласовать границы бренда, клиента, коммуникаций и handoff.", "Провести оплаченный discovery до любой разработки."],
+        ["Не говорить «у вас точно не хватает разработчиков».", "Не обещать SLA, uptime, сроки или нулевой CAC без scope и договора.", "Не включать в target-list крупные агентства, интеграторов и студии с собственной backend-командой."],
+        whiteLabelMicroSourceIds,
       ),
     ],
     commercialRules: [
@@ -208,44 +211,46 @@ export const documentContent: Record<DocumentId, DocumentContent> = {
     kind: "sales",
     targetCities: whiteLabelCities,
     qualificationRules: [
-      "Компания действительно продает разработку сайтов, digital или интеграции — подтверждается официальной страницей.",
-      "Есть конкретный владелец проблемы: founder, head of production, account/director или technical lead.",
-      "Есть живой проект, overflow или повторяющаяся delivery-проблема, а не только интерес к партнерству.",
-      "Партнер готов обсуждать оплачиваемый discovery и критерий приемки.",
+      "Публичный источник указывает конкретного дизайнера, фрилансера или micro-студию, а не крупное full-cycle агентство.",
+      "Есть явный сигнал дизайна, Figma, Tilda, Taplink или no-code; backend/integration delivery не заявлен как собственная сильная сторона.",
+      "Город входит в целевую пятерку, а источник и дата наблюдения сохранены в micro shortlist.",
+      "Есть конкретный владелец проблемы и живой проект, overflow или повторяющаяся техническая задача.",
+      "Партнер готов обсуждать оплачиваемый discovery, конфиденциальность и критерий приемки.",
     ],
     disqualificationRules: [
-      "Карточка 2ГИС без официального сайта и без подтвержденной услуги.",
+      "Публично заявлена большая команда разработки, enterprise-интеграции, собственный backend/mobile delivery или продуктовая IT-модель.",
+      "Есть только карточка 2ГИС, общий marketplace-раздел, школа или вакансия — без идентифицированного исполнителя.",
+      "Нет актуального портфолио/услуги или город подтверждается только неподтвержденным сниппетом.",
       "Запрос только на бесплатную оценку, реселлинг без клиента или «пассивный доход».",
-      "Невозможно определить, кто принимает решение и кто принимает работу.",
-      "Ожидание, что CodeForge будет отвечать конечному клиенту без отдельного договора и цены поддержки.",
+      "Ожидание, что CodeForge будет общаться с конечным клиентом без отдельного договора и цены поддержки.",
     ],
     researchSignals: [
       {
         id: "directory-noise",
-        title: "Shortlist требует ручной квалификации",
+        title: "Broad 2ГИС выдача не является target-list",
         status: "research_signal",
-        observation: `В выдаче 2ГИС по запросу «Разработка сайтов» есть по 12 видимых карточек в каждом из ${whiteLabelCities.length} выбранных городов, но notes прямо предупреждают о смеси агентств, IT-компаний, интеграторов и типографий.`,
-        hypothesis: "Самая вероятная первая боль CodeForge — не отсутствие компаний, а стоимость отбора и проверки подходящих партнеров.",
-        validationQuestion: "Сколько найденных проектов вы отсеиваете до разговора с production-владельцем и почему?",
+        observation: `В публичном срезе 2ГИС по запросу «Разработка сайтов» видно по 12 карточек в каждом из ${whiteLabelCities.length} городов, но сами notes фиксируют смесь крупных агентств, IT-компаний, интеграторов, типографий и школ.`,
+        hypothesis: "Первая операционная боль — стоимость ручного отбора: без micro-фильтра outreach будет адресован компаниям, которым CodeForge не нужен.",
+        validationQuestion: "Какие карточки вы отсеиваете до первого сообщения как слишком крупные или технически самодостаточные?",
         sourceIds: whiteLabelDirectorySourceIds,
       },
       {
-        id: "capacity-not-public",
-        title: "White-label capacity не видна снаружи",
+        id: "micro-cohort",
+        title: "Micro-сигналы есть, но спрос еще не доказан",
         status: "research_signal",
-        observation: "Публичные сайты подтверждают разработку и digital-услуги, но не раскрывают свободную capacity, правила работы с подрядчиком и partner economics.",
-        hypothesis: "У студии может быть интерес к внешнему delivery, но это нельзя выводить из наличия сайта или рейтинга.",
-        validationQuestion: "Какие типы проектов вы сейчас откладываете или отказываетесь брать из-за delivery-ограничений?",
-        sourceIds: ["wl_victory_ekb_2026", "wl_marmelad_2026", "wl_yusmp_2026"],
+        observation: `После отдельного фильтра найдено ${whiteLabelMicroCandidates.length} публичных кандидатов в ${microCandidateCities.length} городах: дизайнерские профили, Tilda/no-code и marketplace/social сигналы.`,
+        hypothesis: "Для CodeForge может существовать узкая ниша «дизайн умею — технический delivery не закрываю», но это проверяется только разговором и оплачиваемым пилотом.",
+        validationQuestion: "Какую часть последнего проекта вы не смогли сделать сами: backend, интеграцию, публикацию, QA или поддержку?",
+        sourceIds: whiteLabelMicroSourceIds,
       },
       {
-        id: "price-anchor",
-        title: "Публичная цена — только anchor",
+        id: "handoff-risk",
+        title: "Боль — не «нужен сайт», а риск потерять клиента при handoff",
         status: "research_signal",
-        observation: marmeladPriceSource ? `${marmeladPriceSource.item}: ${marmeladPriceSource.price.toLocaleString("ru-RU")} ₽. Это стартовая цена конкретной студии, а не средний рынок.` : "Найдена публичная цена конкретной студии; условия проекта нужно квалифицировать.",
-        hypothesis: "Цену CodeForge нужно обсуждать через scope, риск и delivery capacity, а не через сравнение с одной страницей «от». ",
-        validationQuestion: "Какой scope и валовая маржа остаются у студии после передачи части delivery подрядчику?",
-        sourceIds: marmeladPriceSource ? [marmeladPriceSource.source_id] : ["wl_marmelad_2026"],
+        observation: "В открытых профилях явно описаны дизайн, Tilda и no-code, но не видны backend, интеграции, QA и правила передачи работы.",
+        hypothesis: "Наиболее правдоподобный wedge — невидимый технический delivery под брендом дизайнера, без принуждения к найму команды.",
+        validationQuestion: "Что происходит, когда клиент просит форму, оплату, личный кабинет или интеграцию, которой нет в Tilda?",
+        sourceIds: whiteLabelMicroSourceIds.slice(0, 6),
       },
     ],
     sequence: [
@@ -308,10 +313,10 @@ export const documentContent: Record<DocumentId, DocumentContent> = {
   "white-label-playbook": {
     kind: "partner",
     stages: [
-      { stage: "01 · Qualify", partnerGets: "Понимание формата партнерства и границ клиента.", codeForgeOwns: "Проверку fit, scope и доступной capacity.", proof: "Официальный сайт, owner проблемы и реальный use case." },
-      { stage: "02 · Discovery", partnerGets: "Письменную оценку и понятный следующий шаг.", codeForgeOwns: "Архитектуру, список рисков и acceptance criterion.", proof: "Оплаченный discovery или явно зафиксированная причина отказа." },
-      { stage: "03 · Delivery", partnerGets: "Результат под своим брендом и прозрачный handoff.", codeForgeOwns: "Разработку, QA, техническую документацию и 2-ю линию.", proof: "Сданный scope, фактические часы и журнал изменений." },
-      { stage: "04 · Repeat", partnerGets: "Повторяемый процесс и возможность расширения.", codeForgeOwns: "Обновление цены, COGS, сроков и support capacity.", proof: "Повторный оплаченный заказ, а не обещание pipeline." },
+      { stage: "01 · Screen", partnerGets: "Разговор только о подходящем micro-профиле: дизайн, Tilda/no-code и технический пробел.", codeForgeOwns: "Отсев крупных агентств, интеграторов и неподтвержденных карточек.", proof: "Именованный публичный сигнал, город, дата и ручная проверка." },
+      { stage: "02 · Discovery", partnerGets: "Письменную оценку конкретного клиентского проекта без обязательства строить платформу.", codeForgeOwns: "Архитектуру, список рисков, конфиденциальность и acceptance criterion.", proof: "Оплаченный discovery или явно зафиксированная причина отказа." },
+      { stage: "03 · Hidden delivery", partnerGets: "Технический результат под своим брендом и контролируемый handoff.", codeForgeOwns: "Backend, интеграции, QA, техническую документацию и согласованную support-линию.", proof: "Сданный scope, фактические часы, журнал изменений и обратная связь дизайнера." },
+      { stage: "04 · Repeat", partnerGets: "Повторяемый процесс для следующих клиентов без найма полной команды.", codeForgeOwns: "Обновление цены, COGS, сроков, capacity и partner economics.", proof: "Повторный оплаченный заказ, а не количество переписок или подписанных партнеров." },
     ],
     guardrails: [
       "Студия остается владельцем отношений с конечным клиентом только если это отражено в договоре и процессе коммуникаций.",

@@ -89,6 +89,28 @@ export type SocialObservation = {
   notes: string;
 };
 
+export type WhiteLabelMicroCandidate = {
+  id: string;
+  name: string;
+  city: string;
+  discovery_channel: "2gis" | "official_site" | "social" | "marketplace";
+  source_id: string;
+  source_url: string;
+  observed_at: string;
+  service_signal: string;
+  micro_signal: string;
+  fit: "high" | "medium" | "manual_review";
+  status: "partial" | "pending_manual_verification";
+  notes: string;
+};
+
+export type WhiteLabelMicroScreening = {
+  target_profile: string;
+  inclusion_rules: string[];
+  exclusion_rules: string[];
+  interpretation: string;
+};
+
 export type DerivedEstimate = {
   id: string;
   segment: CompanySegment;
@@ -117,6 +139,9 @@ export type ResearchConnector = {
 
 export type WhiteLabelResearch = {
   focus: string;
+  micro_screening: WhiteLabelMicroScreening;
+  micro_candidates: WhiteLabelMicroCandidate[];
+  micro_sources: ResearchSource[];
   directory_observations: DirectoryObservation[];
   social_observations: SocialObservation[];
   derived_estimates: DerivedEstimate[];
@@ -269,6 +294,7 @@ export type Company = {
   priority: "P1" | "P2" | "P3";
   status: VerificationStatus;
   notes: string;
+  researchFit?: "micro_studio" | "legacy_context" | "unclassified";
   createdAt: string;
   updatedAt: string;
 };
