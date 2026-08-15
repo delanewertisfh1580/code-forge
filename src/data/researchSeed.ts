@@ -1,7 +1,8 @@
-import type { Activity, AppState, Company, Evidence } from "../lib/types";
+import { primitives } from "./primitives";
+import type { Activity, AppState, Company, Evidence, WhiteLabelMicroCandidate } from "../lib/types";
 
 // Bumped when the CRM seed schema changes so existing local workspaces receive missing research records once.
-export const RESEARCH_SEED_VERSION = "2026-08-15.open-web-pass-3-micro-white-label.crm-seed-migration";
+export const RESEARCH_SEED_VERSION = "2026-08-15.open-web-pass-5-expanded-micro-white-label.crm-seed-migration";
 const observedAt = "2026-08-15";
 
 const company = (input: Omit<Company, "createdAt" | "updatedAt">): Company => ({
@@ -12,11 +13,105 @@ const company = (input: Omit<Company, "createdAt" | "updatedAt">): Company => ({
 
 const evidence = (input: Evidence): Evidence => input;
 
+// The canonical primitives registry is the source of truth for the micro cohort. The
+// explicit records below retain the prior seed's narrative context, while the normalization
+// at the end of this module projects every current candidate into CRM exactly once.
+const canonicalMicroCandidates = primitives.white_label_research.micro_candidates;
+const expandedMicroCandidates = canonicalMicroCandidates; // canonical pass
+
+const microCompanyId = (candidate: WhiteLabelMicroCandidate): string => candidate.id.replace(/^micro_/, "research-micro-").replace(/_/g, "-");
+
+const microSourceType = (candidate: WhiteLabelMicroCandidate): Evidence["sourceType"] => {
+  if (candidate.discovery_channel === "official_site") return "official_site";
+  if (candidate.discovery_channel === "2gis") return "2gis";
+  if (candidate.discovery_channel === "social") return "social";
+  return "other";
+};
+
+const microPriority = (candidate: WhiteLabelMicroCandidate): Company["priority"] => {
+  if (candidate.fit === "high") return "P1";
+  if (candidate.fit === "medium") return "P2";
+  return "P3";
+};
+
+const microConfidence = (candidate: WhiteLabelMicroCandidate, field: "service" | "fit"): number => {
+  const base = candidate.fit === "high" ? 0.75 : candidate.fit === "medium" ? 0.6 : 0.4;
+  return field === "service" ? base : Math.max(0.3, Number((base - 0.15).toFixed(2)));
+};
+
+const microCompany = (candidate: WhiteLabelMicroCandidate): Company => company({
+  id: microCompanyId(candidate),
+  name: candidate.name,
+  city: candidate.city,
+  segment: "white_label",
+  website: candidate.source_url,
+  researchFit: "micro_studio",
+  stage: "researching",
+  priority: microPriority(candidate),
+  status: "in_review",
+  notes: `Micro shortlist · ${candidate.notes}`,
+});
+
+const microEvidence = (candidate: WhiteLabelMicroCandidate): Evidence[] => {
+  const companyId = microCompanyId(candidate);
+  const sourceType = microSourceType(candidate);
+  return [
+    evidence({
+      id: `evidence-${companyId}-service`,
+      companyId,
+      field: "public_service_signal",
+      value: candidate.service_signal,
+      sourceUrl: candidate.source_url,
+      sourceType,
+      observedAt,
+      status: "in_review",
+      confidence: microConfidence(candidate, "service"),
+      notes: `Канонический источник: ${candidate.source_id}. ${candidate.notes}`,
+    }),
+    evidence({
+      id: `evidence-${companyId}-fit`,
+      companyId,
+      field: "micro_screening_signal",
+      value: candidate.micro_signal,
+      sourceUrl: candidate.source_url,
+      sourceType,
+      observedAt,
+      status: "in_review",
+      confidence: microConfidence(candidate, "fit"),
+      notes: "Отсутствие публичного сигнала большой команды не доказывает solo-статус или наличие свободной capacity.",
+    }),
+  ];
+};
+
+const isMicroCompanyId = (id: string): boolean => id.startsWith("research-micro-");
+const canonicalizeCompanies = (items: Company[]): Company[] => [
+  ...items.filter((item) => !isMicroCompanyId(item.id)),
+  ...canonicalMicroCandidates.map(microCompany),
+];
+const canonicalizeEvidence = (items: Evidence[]): Evidence[] => [
+  ...items.filter((item) => !isMicroCompanyId(item.companyId)),
+  ...canonicalMicroCandidates.flatMap(microEvidence),
+];
+
+const microActivity = (candidate: WhiteLabelMicroCandidate): Activity => ({
+  id: `activity-${microCompanyId(candidate)}`,
+  companyId: microCompanyId(candidate),
+  type: "task",
+  title: `Проверить ${candidate.name}`,
+  body: `${candidate.notes} Открыть источник, подтвердить личность/город/актуальность услуги и только после этого обсуждать white-label.`,
+  dueAt: "2026-09-01T09:00:00.000Z",
+  createdAt: `${observedAt}T00:00:00.000Z`,
+});
+
+// Kept separate from the hand-curated operational tasks below so the CRM loader can merge
+// the complete canonical cohort without rewriting existing user activity.
+export const expandedMicroActivities = canonicalMicroCandidates.map(microActivity);
+
 export const researchSeedState: AppState = {
   researchSeedVersion: RESEARCH_SEED_VERSION,
   selectedScenario: "base",
   calculationRuns: [],
-  companies: [
+  companies: canonicalizeCompanies([
     company({
       id: "research-gbox-ekb",
       name: "GBOX",
@@ -263,7 +358,7 @@ export const researchSeedState: AppState = {
       notes: "Micro-target: именованный веб-дизайнер из публичного YouDo-профиля, где упомянуты Tilda/Figma. Это сигнал fit, не доказательство интереса к white-label."
     }),
     company({
-      id: "research-micro-ekb-maria",
+      id: "research-micro-ekb-maria-marrrr",
       name: "Мария / marrrr__iii",
       city: "Екатеринбург",
       segment: "white_label",
@@ -275,7 +370,7 @@ export const researchSeedState: AppState = {
       notes: "Micro-target: публичный social-сигнал веб-дизайнера и Tilda. Профиль и город требуют ручной проверки."
     }),
     company({
-      id: "research-micro-tyumen-tatyana",
+      id: "research-micro-tyumen-tatyana-yakusheva",
       name: "Татьяна Якушева",
       city: "Тюмень",
       segment: "white_label",
@@ -287,7 +382,7 @@ export const researchSeedState: AppState = {
       notes: "Micro-target: именованный профиль веб-дизайнера и Tilda в Тюмени. Проверить свежесть портфолио и интерес к работе под брендом студии."
     }),
     company({
-      id: "research-micro-tyumen-egor",
+      id: "research-micro-tyumen-egor-perevozkin",
       name: "Егор Перевозкин",
       city: "Тюмень",
       segment: "white_label",
@@ -299,7 +394,7 @@ export const researchSeedState: AppState = {
       notes: "Micro-target: публичный UX/UI-профиль с Tilda/no-code сигналом. Доля дизайна, кода и фактическая capacity не подтверждены."
     }),
     company({
-      id: "research-micro-perm-alexey",
+      id: "research-micro-perm-alexey-chmutov",
       name: "Алексей Чмутов",
       city: "Пермь",
       segment: "white_label",
@@ -311,7 +406,7 @@ export const researchSeedState: AppState = {
       notes: "Micro-target: индивидуальная Avito-страница услуг Tilda/web design. Публичная цена от не используется в расчетах."
     }),
     company({
-      id: "research-micro-perm-ravshan",
+      id: "research-micro-perm-ravshan-shermatov",
       name: "Равшан Шерматов",
       city: "Пермь",
       segment: "white_label",
@@ -323,7 +418,7 @@ export const researchSeedState: AppState = {
       notes: "Micro-target: именованный freelance-профиль с проектом на Tilda. Проверить актуальную специализацию и технические границы."
     }),
     company({
-      id: "research-micro-chel-anastasia",
+      id: "research-micro-chel-anastasia-profi",
       name: "Анастасия / профиль Profi.ru",
       city: "Челябинск",
       segment: "white_label",
@@ -335,7 +430,7 @@ export const researchSeedState: AppState = {
       notes: "Screening lead из категории Profi.ru: веб-дизайнер и Tilda упомянуты в сниппете, конкретный профиль еще не идентифицирован."
     }),
     company({
-      id: "research-micro-chel-grace",
+      id: "research-micro-chel-grace-designer-tilda",
       name: "grace_designer.tilda",
       city: "Челябинск",
       segment: "white_label",
@@ -347,7 +442,7 @@ export const researchSeedState: AppState = {
       notes: "Micro-target: social handle с сигналом Taplink/Tilda. Город выведен из поискового контекста и требует ручной проверки."
     }),
     company({
-      id: "research-micro-surgut-alexandra",
+      id: "research-micro-surgut-alexandra-radomskaya",
       name: "Александра Радомская",
       city: "Сургут",
       segment: "white_label",
@@ -359,7 +454,7 @@ export const researchSeedState: AppState = {
       notes: "Micro-target: публичная публикация с именем, городом Сургут и Tilda/web design. Проверить актуальность и формат партнерства."
     }),
     company({
-      id: "research-micro-surgut-yandex",
+      id: "research-micro-surgut-yandex-tilda",
       name: "Веб-дизайнер сайтов на Tilda / Яндекс Услуги",
       city: "Сургут",
       segment: "white_label",
@@ -370,8 +465,285 @@ export const researchSeedState: AppState = {
       status: "in_review",
       notes: "Screening lead из marketplace-сниппета; персональный исполнитель и актуальность объявления должны быть подтверждены вручную."
     }),
-  ],
-  evidence: [
+    company({
+      id: "research-micro-ekb-lada-maltseva",
+      name: "Лада Евгеньевна Мальцева",
+      city: "Екатеринбург",
+      segment: "white_label",
+      website: "https://profi.ru/profile/MaltsevaLY3/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: Profi.ru показывает веб-дизайн и Tilda. Регион и текущий профиль нужно подтвердить вручную."
+    }),
+    company({
+      id: "research-micro-ekb-arseniy-larin",
+      name: "Арсений Викторович Ларин",
+      city: "Екатеринбург",
+      segment: "white_label",
+      website: "https://profi.ru/profile/LarinAV83/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: UX/UI, веб-дизайн и Tilda в публичном профиле. Проверить регион и delivery границы."
+    }),
+    company({
+      id: "research-micro-ekb-vadim-ognev",
+      name: "Вадим Александрович Огнев",
+      city: "Екатеринбург",
+      segment: "white_label",
+      website: "https://profi.ru/profile/OgnevVA8/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: веб-дизайн, UX/UI и Tilda. Подтвердить город, портфолио и технический scope."
+    }),
+    company({
+      id: "research-micro-ekb-elizaveta-ivleva",
+      name: "Елизавета Евгеньевна Ивлева",
+      city: "Екатеринбург",
+      segment: "white_label",
+      website: "https://profi.ru/profile/IvlevaYY5/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный discovery lead по публичному web-дизайн профилю. Self-reported количество проектов не трактуется как размер команды."
+    }),
+    company({
+      id: "research-micro-ekb-irina-sofronova",
+      name: "Ирина Васильевна Софронова",
+      city: "Екатеринбург",
+      segment: "white_label",
+      website: "https://profi.ru/profile/SofronovaIV5/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный discovery lead по web-дизайн профилю. Tilda и город требуют ручного подтверждения."
+    }),
+    company({
+      id: "research-micro-tyumen-vlada-rahmatullina",
+      name: "Влада Владимировна Рахматуллина",
+      city: "Тюмень",
+      segment: "white_label",
+      website: "https://profi.ru/profile/ZheleznyakovaVV2/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный discovery lead: Tilda и веб-дизайн. Упоминание работодателя требует проверки, поэтому это не подтвержденный solo-профиль."
+    }),
+    company({
+      id: "research-micro-tyumen-maria-fursova",
+      name: "Мария Павловна Фурсова",
+      city: "Тюмень",
+      segment: "white_label",
+      website: "https://profi.ru/profile/FursovaMP/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: web-дизайн и сайты на Tilda. Проверить актуальность профиля и технический overflow."
+    }),
+    company({
+      id: "research-micro-tyumen-marina-yandex",
+      name: "Марина Т. / Яндекс Услуги",
+      city: "Тюмень",
+      segment: "white_label",
+      website: "https://uslugi.yandex.ru/55-tyumen/category?text=%D0%B2%D0%B5%D0%B1+%D0%B4%D0%B8%D0%B7%D0%B0%D0%B9%D0%BD",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный screening lead из Яндекс Услуг; персональная карточка еще не идентифицирована."
+    }),
+    company({
+      id: "research-micro-tyumen-ramil-yandex",
+      name: "Рамиль / Яндекс Услуги",
+      city: "Тюмень",
+      segment: "white_label",
+      website: "https://uslugi.yandex.ru/55-tyumen/category?text=%D0%B2%D0%B5%D0%B1+%D0%B4%D0%B8%D0%B7%D0%B0%D0%B9%D0%BD",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный screening lead: Tilda designer/developer по сниппету. Сначала проверить, не является ли это полноценной студией."
+    }),
+    company({
+      id: "research-micro-tyumen-anna-konyukhova",
+      name: "Анна Конюхова",
+      city: "Тюмень",
+      segment: "white_label",
+      website: "https://uslugi.yandex.ru/55-tyumen/category?text=%D0%B2%D0%B5%D0%B1+%D0%B4%D0%B8%D0%B7%D0%B0%D0%B9%D0%BD",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: сайты под ключ на Tilda. Найти конкретное объявление и живой use case."
+    }),
+    company({
+      id: "research-micro-perm-anna-ponomareva",
+      name: "Анна Владимировна Пономарева",
+      city: "Пермь",
+      segment: "white_label",
+      website: "https://prm.profi.ru/profile/PonomarevaAV73/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: веб-дизайн и уникальные сайты на Tilda. Проверить актуальное портфолио и handoff."
+    }),
+    company({
+      id: "research-micro-perm-nadezhda-testova",
+      name: "Надежда Викторовна Тестова",
+      city: "Пермь",
+      segment: "white_label",
+      website: "https://profi.ru/profile/TestovaNV5/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный discovery lead: сайты и Tilda под ключ. Уточнить границу между собственным delivery и внешним backend."
+    }),
+    company({
+      id: "research-micro-perm-yulia-yandex",
+      name: "Юля / Яндекс Услуги",
+      city: "Пермь",
+      segment: "white_label",
+      website: "https://uslugi.yandex.ru/50-perm/category?text=%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0+%D1%81%D0%B0%D0%B9%D1%82%D0%BE%D0%B2+%D0%BD%D0%B0+tilda",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный screening lead: графический/web-дизайн и Tilda. Найти персональную карточку до outreach."
+    }),
+    company({
+      id: "research-micro-perm-irina-fl",
+      name: "Ирина / FL.ru",
+      city: "Пермь",
+      segment: "white_label",
+      website: "https://www.fl.ru/freelancers/tilda/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный screening lead из FL.ru. Индивидуальный URL не извлечен; listing metadata требует ручной проверки."
+    }),
+    company({
+      id: "research-micro-chel-julian-askarov",
+      name: "Юлиан Шакирович Аскаров",
+      city: "Челябинск",
+      segment: "white_label",
+      website: "https://profi.ru/profile/AskarovYS2/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: веб-дизайн и Tilda в региональном профиле. Проверить активность и technical handoff."
+    }),
+    company({
+      id: "research-micro-chel-maria-kim",
+      name: "Мария Владимировна Ким",
+      city: "Челябинск",
+      segment: "white_label",
+      website: "https://profi.ru/profile/KimMV53/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: верстка сайтов и лендингов на Tilda. Не переносить catalog price в benchmark."
+    }),
+    company({
+      id: "research-micro-chel-anastasia-profi-ipatova",
+      name: "Анастасия Викторовна Ипатова",
+      city: "Челябинск",
+      segment: "white_label",
+      website: "https://profi.ru/profile/IpatovaAV10/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: веб-дизайн, landing pages и локальный Tilda-сигнал. Подтвердить регион и scope."
+    }),
+    company({
+      id: "research-micro-chel-maria-kuznetsova",
+      name: "Мария Сергеевна Кузнецова",
+      city: "Челябинск",
+      segment: "white_label",
+      website: "https://profi.ru/profile/KuznetsovaMS123",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный screening lead: web/Tilda-сигнал и локальный контекст. Проверить, оказывает ли специалист услуги сейчас."
+    }),
+    company({
+      id: "research-micro-chel-anastasia-profi-morozova",
+      name: "Анастасия Александровна Морозова",
+      city: "Челябинск",
+      segment: "white_label",
+      website: "https://profi.ru/profile/MorozovaAA334/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: веб-дизайн и продвижение сайтов на Tilda. Проверить, не является ли услуга частью крупной команды."
+    }),
+    company({
+      id: "research-micro-chel-dilya-valitova",
+      name: "Диля Маратовна Валитова",
+      city: "Челябинск",
+      segment: "white_label",
+      website: "https://profi.ru/geo-chel/profile/ValitovaDM4/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: веб- и графический дизайн, сайты и логотипы. Подтвердить Tilda/no-code scope."
+    }),
+    company({
+      id: "research-micro-chel-elena-postnikova",
+      name: "Елена Александровна Постникова",
+      city: "Челябинск",
+      segment: "white_label",
+      website: "https://profi.ru/profile/PostnikovaYA2",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный discovery lead: Tilda, корпоративные сайты и оформление VK. Подтвердить город, портфолио и technical scope."
+    }),
+    company({
+      id: "research-micro-surgut-tagiev",
+      name: "Тагиев Илькин Рагим оглы",
+      city: "Сургут",
+      segment: "white_label",
+      website: "https://profi.ru/profile/TagiyevIR2",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P2",
+      status: "in_review",
+      notes: "Расширенный discovery lead: локализованный профиль с услугой создания сайта на Tilda. Открыть карточку и подтвердить Сургут."
+    }),
+    company({
+      id: "research-micro-surgut-margarita-savchenko",
+      name: "Маргарита Савченко / margaritasw",
+      city: "Сургут",
+      segment: "white_label",
+      website: "https://www.instagram.com/margaritasw/",
+      researchFit: "micro_studio",
+      stage: "researching",
+      priority: "P3",
+      status: "in_review",
+      notes: "Расширенный social discovery lead: web-дизайн и Tilda. Город и размер команды требуют ручной проверки."
+    }),
+  ]),
+  evidence: canonicalizeEvidence([
+    ...expandedMicroCandidates.flatMap(microEvidence),
     evidence({ id: "evidence-gbox-site", companyId: "research-gbox-ekb", field: "official_site_and_scope", value: "Официальный сайт: сухие боксы 3–28 м² в Екатеринбурге; заявлены доступ 24/7, охрана и видеонаблюдение.", sourceUrl: "https://gboxonline.pro/", sourceType: "official_site", observedAt, status: "verified", confidence: 0.95, notes: "Подтверждает опубликованное предложение, но не юридическую регистрацию и фактическую загрузку." }),
     evidence({ id: "evidence-gbox-prices", companyId: "research-gbox-ekb", field: "public_price", value: "Промо-тарифы: S 3 м² — от 1 890 ₽/мес; M 7 м² — от 2 890 ₽/мес; L 14 м² — от 4 890 ₽/мес; XL 28 м² — от 7 890 ₽/мес.", sourceUrl: "https://gboxonline.pro/", sourceType: "official_site", observedAt, status: "verified", confidence: 0.9, notes: "На странице указано, что это промо-цены для новых клиентов и условия действуют до 31.08.2026; не использовать как среднюю цену рынка." }),
     evidence({ id: "evidence-gbox-scale", companyId: "research-gbox-ekb", field: "operator_scale_claim", value: "Сайт заявляет 14 площадок, 450+ боксов, 2 500+ клиентов и 4 500+ м².", sourceUrl: "https://gboxonline.pro/", sourceType: "official_site", observedAt, status: "in_review", confidence: 0.65, notes: "Самоотчет оператора; нужна ручная сверка по адресам, карточкам и договорным данным." }),
@@ -433,7 +805,7 @@ export const researchSeedState: AppState = {
     evidence({ id: "evidence-micro-surgut-alexandra-fit", companyId: "research-micro-surgut-alexandra", field: "micro_screening_signal", value: "Имя и first-person профиль дают сильный micro-сигнал; большой команды или backend-capacity публично не заявлено.", sourceUrl: "https://tenchat.ru/media/215819-internetmagazin", sourceType: "social", observedAt, status: "in_review", confidence: 0.6, notes: "Проверить актуальную занятость и интерес к white-label." }),
     evidence({ id: "evidence-micro-surgut-yandex-service", companyId: "research-micro-surgut-yandex", field: "public_service_signal", value: "Яндекс-сниппет категории указывает веб-дизайнера сайтов на Tilda, Сургут и проверенный паспорт.", sourceUrl: "https://uslugi.yandex.ru/11188-pyt-yah/category/dizajneryi/vebdizajner--223", sourceType: "other", observedAt, status: "in_review", confidence: 0.45, notes: "Конкретный исполнитель в URL не указан; открыть категорию вручную." }),
     evidence({ id: "evidence-micro-surgut-yandex-fit", companyId: "research-micro-surgut-yandex", field: "micro_screening_signal", value: "Marketplace-сигнал индивидуальной услуги без публичного признака команды.", sourceUrl: "https://uslugi.yandex.ru/11188-pyt-yah/category/dizajneryi/vebdizajner--223", sourceType: "other", observedAt, status: "in_review", confidence: 0.3, notes: "Проверить неустаревший профиль, город и возможность идентифицировать автора." }),
-  ],
+  ]),
   activities: [
     { id: "activity-gbox-followup", companyId: "research-gbox-ekb", type: "task", title: "Проверить GBOX вручную", body: "Сверить 14 площадок и актуальность промо-тарифов звонком; запросить юридические реквизиты и фактическую загрузку.", dueAt: "2026-08-22T09:00:00.000Z", createdAt: `${observedAt}T00:00:00.000Z` },
     { id: "activity-skladovka-followup", companyId: "research-skladovka72-tyumen", type: "task", title: "Уточнить противоречие тарифа теплого склада", body: "Сайт одновременно показывает 15 000 ₽ и примечание 7 000 ₽ для короткого срока; получить письменное предложение.", dueAt: "2026-08-19T09:00:00.000Z", createdAt: `${observedAt}T00:00:00.000Z` },

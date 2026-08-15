@@ -1,15 +1,16 @@
-import { researchSeedState, RESEARCH_SEED_VERSION } from "../data/researchSeed";
+import { expandedMicroActivities, researchSeedState, RESEARCH_SEED_VERSION } from "../data/researchSeed";
 import type { Activity, AppState, CalculationRun, Company, Evidence } from "./types";
 
 const STORAGE_KEY = "codeforge-strategic-os:v3";
 const now = () => new Date().toISOString();
+const allSeedActivities = [...researchSeedState.activities, ...expandedMicroActivities];
 
 function cloneSeedState(): AppState {
   return {
     ...researchSeedState,
     companies: researchSeedState.companies.map((company) => ({ ...company })),
     evidence: researchSeedState.evidence.map((item) => ({ ...item })),
-    activities: researchSeedState.activities.map((item) => ({ ...item })),
+    activities: allSeedActivities.map((item) => ({ ...item })),
     calculationRuns: [],
     researchImports: [],
   };
@@ -23,7 +24,7 @@ export function mergeResearchSeed(saved: AppState): AppState {
     ...saved,
     companies: [...saved.companies, ...researchSeedState.companies.filter((company) => !companyIds.has(company.id)).map((company) => ({ ...company }))],
     evidence: [...saved.evidence, ...researchSeedState.evidence.filter((item) => !evidenceIds.has(item.id)).map((item) => ({ ...item }))],
-    activities: [...saved.activities, ...researchSeedState.activities.filter((item) => !activityIds.has(item.id)).map((item) => ({ ...item }))],
+    activities: [...saved.activities, ...allSeedActivities.filter((item) => !activityIds.has(item.id)).map((item) => ({ ...item }))],
     researchSeedVersion: RESEARCH_SEED_VERSION,
   };
 }

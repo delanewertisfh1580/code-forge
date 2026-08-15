@@ -5,7 +5,7 @@ import { primitives, primitivesValidation } from "../src/data/primitives.ts";
 import { calculateAllScenarios, calculateProductCatalog, calculateScenario, getDecision } from "../src/lib/calculations.ts";
 import { validatePrimitives } from "../src/lib/validation.ts";
 import { assertValidResearchImportDraft, normalizeTwoGisResponse, normalizeVkGroupsResponse } from "../src/lib/researchImport.ts";
-import { researchSeedState, RESEARCH_SEED_VERSION } from "../src/data/researchSeed.ts";
+import { expandedMicroActivities, researchSeedState, RESEARCH_SEED_VERSION } from "../src/data/researchSeed.ts";
 import { mergeResearchSeed } from "../src/lib/storage.ts";
 
 describe("CodeForge calculation engine", () => {
@@ -89,9 +89,9 @@ describe("CodeForge calculation engine", () => {
     const companyIds = new Set(researchSeedState.companies.map((company) => company.id));
     const sourceIds = new Set(primitives.research_sources.map((source) => source.id));
     expect(researchSeedState.researchSeedVersion).toBe(RESEARCH_SEED_VERSION);
-    expect(researchSeedState.companies.length).toBe(32);
-    expect(researchSeedState.evidence.length).toBe(61);
-    expect(researchSeedState.activities.length).toBe(18);
+    expect(researchSeedState.companies.length).toBe(78);
+    expect(researchSeedState.evidence.length).toBe(153);
+    expect(researchSeedState.activities.length + expandedMicroActivities.length).toBe(74);
     expect(researchSeedState.evidence.every((item) => companyIds.has(item.companyId))).toBe(true);
     expect(researchSeedState.evidence.every((item) => /^https?:\/\//.test(item.sourceUrl))).toBe(true);
     expect(primitives.public_price_observations.every((item) => sourceIds.has(item.source_id))).toBe(true);
@@ -114,7 +114,7 @@ describe("CodeForge calculation engine", () => {
     expect(migrated.companies.find((company) => company.id === customCompany.id)?.name).toBe("Моя компания");
     expect(migrated.companies.length).toBe(researchSeedState.companies.length + 1);
     expect(migrated.evidence.length).toBe(researchSeedState.evidence.length);
-    expect(migrated.activities.length).toBe(researchSeedState.activities.length);
+    expect(migrated.activities.length).toBe(researchSeedState.activities.length + expandedMicroActivities.length);
     expect(migrated.researchSeedVersion).toBe(RESEARCH_SEED_VERSION);
     const rerun = mergeResearchSeed(migrated);
     expect(rerun.companies.length).toBe(migrated.companies.length);
@@ -126,13 +126,13 @@ describe("CodeForge calculation engine", () => {
     const research = primitives.white_label_research;
     const sourceIds = new Set(primitives.research_sources.map((source) => source.id));
     expect(research.directory_observations).toHaveLength(5);
-    expect(research.micro_sources).toHaveLength(10);
-    expect(research.micro_candidates).toHaveLength(10);
+    expect(research.micro_sources).toHaveLength(research.micro_candidates.length);
+    expect(research.micro_candidates.length).toBeGreaterThanOrEqual(30);
     expect(new Set(research.micro_candidates.map((item) => item.city))).toEqual(new Set(["Екатеринбург", "Тюмень", "Пермь", "Челябинск", "Сургут"]));
     expect(research.micro_candidates.every((item) => research.micro_sources.some((source) => source.id === item.source_id) && /^https?:\/\//.test(item.source_url))).toBe(true);
     expect(new Set(research.micro_candidates.map((item) => item.source_id)).size).toBe(research.micro_candidates.length);
     const targetCities = ["Екатеринбург", "Тюмень", "Пермь", "Челябинск", "Сургут"];
-    expect(targetCities.every((city) => research.micro_candidates.filter((item) => item.city === city).length === 2)).toBe(true);
+    expect(targetCities.every((city) => research.micro_candidates.filter((item) => item.city === city).length >= 2)).toBe(true);
     const microCompanies = researchSeedState.companies.filter((company) => company.segment === "white_label" && company.researchFit === "micro_studio");
     const legacyCompanies = researchSeedState.companies.filter((company) => company.segment === "white_label" && company.researchFit === "legacy_context");
     expect(microCompanies).toHaveLength(research.micro_candidates.length);
@@ -140,6 +140,9 @@ describe("CodeForge calculation engine", () => {
     expect(legacyCompanies.length).toBe(3);
     expect(new Set(research.directory_observations.map((item) => item.city))).toEqual(new Set(targetCities));
     expect(research.directory_observations.every((item) => item.segment === "white_label" && item.status === "partial" && sourceIds.has(item.source_id))).toBe(true);
+    expect(researchSeedState.evidence.filter((item) => item.companyId.startsWith("research-micro-")).length).toBe(research.micro_candidates.length * 2);
+    expect(expandedMicroActivities).toHaveLength(research.micro_candidates.length);
+    expect(expandedMicroActivities.every((item) => item.type === "task" && item.companyId.startsWith("research-micro-"))).toBe(true);
     expect(research.social_observations.every((item) => item.segment === "white_label" && sourceIds.has(item.source_id))).toBe(true);
     expect(research.derived_estimates.every((item) => item.source_ids.every((sourceId) => sourceIds.has(sourceId)))).toBe(true);
     expect(research.research_connectors["2gis_places_api"].status).toBe("blocked_missing_credentials");
