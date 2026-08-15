@@ -45,6 +45,9 @@ export type ResearchSource = {
   geography: string;
   methodology: string;
   notes: string;
+  verification_status?: "verified" | "partial" | "stale" | "pending_manual_verification";
+  source_type?: "official" | "industry_media" | "aggregator" | "provider" | "job_market" | "registry";
+  next_review_at?: string;
 };
 
 export type Claim = {
@@ -248,6 +251,7 @@ export type AppState = {
   activities: Activity[];
   calculationRuns: CalculationRun[];
   selectedScenario: ScenarioId;
+  researchSeedVersion?: string;
 };
 
 export type DocumentId = "ai-os" | "operating-model" | "product-knowledge-base" | "sales-playbook" | "upsell-matrix" | "white-label-playbook";

@@ -3,6 +3,7 @@ import { documentClaims, documentDefinitions, documentValidation } from "../src/
 import { primitives, primitivesValidation } from "../src/data/primitives.ts";
 import { calculateAllScenarios, calculateProductCatalog, calculateScenario, getDecision } from "../src/lib/calculations.ts";
 import { validatePrimitives } from "../src/lib/validation.ts";
+import { researchSeedState, RESEARCH_SEED_VERSION } from "../src/data/researchSeed.ts";
 
 describe("CodeForge calculation engine", () => {
   test("calculates all three scenarios from primitives", () => {
@@ -64,5 +65,19 @@ describe("CodeForge calculation engine", () => {
     expect(documentClaims.length).toBeGreaterThan(0);
     expect(documentValidation.valid).toBe(true);
     expect(documentDefinitions.every((document) => document.modelVersion === primitives.schema_version)).toBe(true);
+  });
+
+  test("open-web research pack contains linked, reviewable seed records", () => {
+    const companyIds = new Set(researchSeedState.companies.map((company) => company.id));
+    const sourceIds = new Set(primitives.research_sources.map((source) => source.id));
+    expect(researchSeedState.researchSeedVersion).toBe(RESEARCH_SEED_VERSION);
+    expect(researchSeedState.companies.length).toBeGreaterThanOrEqual(10);
+    expect(researchSeedState.evidence.length).toBeGreaterThanOrEqual(20);
+    expect(researchSeedState.evidence.every((item) => companyIds.has(item.companyId))).toBe(true);
+    expect(researchSeedState.evidence.every((item) => /^https?:\/\//.test(item.sourceUrl))).toBe(true);
+    expect(primitives.public_price_observations.every((item) => sourceIds.has(item.source_id))).toBe(true);
+    expect(primitives.public_price_observations.every((item) => ["observed", "partial", "stale"].includes(item.status))).toBe(true);
+    expect(primitives.market_benchmarks.ooh.out_of_home_market_2025).toBe(109100000000);
+    expect(primitives.market_benchmarks.ooh.out_of_home_market_2025_revised_working_group).toBe(114600000000);
   });
 });

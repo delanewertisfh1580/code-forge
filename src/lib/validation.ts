@@ -67,6 +67,12 @@ export function validatePrimitives(value: unknown): PrimitivesValidation {
       }
       if (!isHttpUrl(source.url)) error(`${path}.url`, "Источник должен иметь http(s) URL");
       if (typeof source.accessed_at !== "string" || !source.accessed_at) error(`${path}.accessed_at`, "Нужна дата проверки источника");
+      if (sourceRecord.verification_status !== undefined && !["verified", "partial", "stale", "pending_manual_verification"].includes(String(sourceRecord.verification_status))) {
+        error(`${path}.verification_status`, "Недопустимый статус источника");
+      }
+      if (sourceRecord.next_review_at !== undefined && (typeof sourceRecord.next_review_at !== "string" || !sourceRecord.next_review_at)) {
+        error(`${path}.next_review_at`, "Дата следующей проверки должна быть непустой строкой");
+      }
     });
   }
 
@@ -89,6 +95,9 @@ export function validatePrimitives(value: unknown): PrimitivesValidation {
       }
       if (!isFiniteNumber(observation.price) || observation.price < 0) error(`${path}.price`, "Цена должна быть неотрицательным числом");
       if (!isHttpUrl(observation.source_url)) error(`${path}.source_url`, "Наблюдение должно иметь http(s) URL");
+      if (typeof observation.status === "string" && !["observed", "partial", "stale"].includes(observation.status)) {
+        error(`${path}.status`, "Статус наблюдения должен быть observed, partial или stale");
+      }
       if (typeof observation.source_id === "string" && sourceIds.size > 0 && !sourceIds.has(observation.source_id)) {
         error(`${path}.source_id`, `Источник не найден: ${observation.source_id}`);
       }

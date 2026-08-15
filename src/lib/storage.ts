@@ -1,29 +1,41 @@
+import { researchSeedState, RESEARCH_SEED_VERSION } from "../data/researchSeed";
 import type { Activity, AppState, CalculationRun, Company, Evidence } from "./types";
 
 const STORAGE_KEY = "codeforge-strategic-os:v3";
 const now = () => new Date().toISOString();
 
-const initialState: AppState = { companies: [], evidence: [], activities: [], calculationRuns: [], selectedScenario: "base" };
+function cloneSeedState(): AppState {
+  return {
+    ...researchSeedState,
+    companies: researchSeedState.companies.map((company) => ({ ...company })),
+    evidence: researchSeedState.evidence.map((item) => ({ ...item })),
+    activities: researchSeedState.activities.map((item) => ({ ...item })),
+    calculationRuns: [],
+  };
+}
 
 export function loadState(): AppState {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return initialState;
+    if (!saved) return cloneSeedState();
     const parsed = JSON.parse(saved) as Partial<AppState>;
+    const hasAnySavedData = Boolean(parsed.companies?.length || parsed.evidence?.length || parsed.activities?.length || parsed.calculationRuns?.length);
+    if (!parsed.researchSeedVersion && !hasAnySavedData) return cloneSeedState();
     return {
       companies: parsed.companies ?? [],
       evidence: parsed.evidence ?? [],
       activities: parsed.activities ?? [],
       calculationRuns: parsed.calculationRuns ?? [],
       selectedScenario: parsed.selectedScenario ?? "base",
+      researchSeedVersion: parsed.researchSeedVersion ?? RESEARCH_SEED_VERSION,
     };
   } catch {
-    return initialState;
+    return cloneSeedState();
   }
 }
 
 export function saveState(state: AppState): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, researchSeedVersion: state.researchSeedVersion ?? RESEARCH_SEED_VERSION }));
 }
 
 export function makeCompany(input: Pick<Company, "name" | "city" | "segment" | "priority">): Company {

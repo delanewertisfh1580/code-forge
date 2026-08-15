@@ -36,6 +36,12 @@ bun run typecheck
 bun test tests/calculations.test.js
 ```
 
+## Исследовательский dataset
+
+При первом запуске пустого local workspace система загружает воспроизводимый open-web seed из `src/data/researchSeed.ts`: 10 компаний, связанные evidence, ручные задачи и только публичные URL. Источники и числовые наблюдения находятся в `primitives.json`; текущий research pass описан в `RESEARCH_DATASET_2026-08-15.md`.
+
+Seed не маскирует гипотезы под факты: компании имеют статус `in_review`, наблюдения несут `verified` / `partial` / `stale`, а OOH-оценки 109,1 и 114,6 млрд ₽ сохранены как конфликт опубликованных методик. Если workspace уже содержит пользовательские данные, seed их не заменяет.
+
 ## Хранение и настройки
 
 Без credentials приложение работает в `local-demo` режиме: состояние CRM сохраняется в `localStorage` браузера. В проекте есть безопасный адаптер Supabase и SQL-схема в `supabase/schema.sql`; для cloud persistence нужно задать `VITE_SUPABASE_URL` и `VITE_SUPABASE_ANON_KEY` через настройки окружения, не записывая секреты в репозиторий.
