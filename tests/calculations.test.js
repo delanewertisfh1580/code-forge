@@ -7,6 +7,7 @@ import { validatePrimitives } from "../src/lib/validation.ts";
 import { assertValidResearchImportDraft, normalizeTwoGisResponse, normalizeVkGroupsResponse } from "../src/lib/researchImport.ts";
 import { expandedMicroActivities, researchSeedState, RESEARCH_SEED_VERSION } from "../src/data/researchSeed.ts";
 import { mergeResearchSeed } from "../src/lib/storage.ts";
+import { createChecklistItems, evaluateStageGate, getOperationalSummary, normalizeCompany } from "../src/lib/domain.ts";
 
 describe("CodeForge calculation engine", () => {
   test("calculates all three scenarios from primitives", () => {
@@ -177,5 +178,42 @@ describe("CodeForge calculation engine", () => {
     expect(vk.socialObservations).toHaveLength(1);
     expect(vk.socialObservations?.[0].segment).toBe("white_label");
     expect(vk.socialObservations?.[0].status).toBe("partial");
+  });
+
+  test("operational domain keeps workflow, checklist and task data connected", () => {
+    const company = {
+      id: "domain-company",
+      name: "Studio Domain",
+      city: "Екатеринбург",
+      segment: "white_label",
+      stage: "intake",
+      priority: "P1",
+      status: "in_review",
+      notes: "Проверить технический разрыв",
+      createdAt: "2026-08-15T00:00:00.000Z",
+      updatedAt: "2026-08-15T00:00:00.000Z",
+    };
+    const normalized = normalizeCompany({ ...company, stage: "qualified" });
+    expect(normalized.stage).toBe("qualification");
+    expect(normalized.ownerRole).toBe("sales");
+
+    const checklist = createChecklistItems(company);
+    expect(checklist.length).toBeGreaterThanOrEqual(4);
+    expect(checklist.every((item) => item.companyId === company.id && item.stage === "intake" && item.required)).toBe(true);
+
+    const blocked = evaluateStageGate(company, "qualification", [], checklist, [], []);
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.missing).toEqual(expect.arrayContaining(["обязательный checklist этапа «Intake»", "владелец записи", "следующее действие", "срок следующего действия", "источник или evidence"]));
+
+    const readyCompany = { ...company, ownerId: "sales-1", nextAction: "Запросить discovery", dueAt: "2026-08-20T09:00:00.000Z" };
+    const completedChecklist = checklist.map((item) => ({ ...item, completed: true }));
+    const ready = evaluateStageGate(readyCompany, "qualification", [{ id: "evidence-domain", companyId: company.id, field: "site", value: "public", sourceUrl: "https://example.com", sourceType: "official_site", observedAt: "2026-08-15", status: "in_review", confidence: 0.5, notes: "" }], completedChecklist, [], []);
+    expect(ready.allowed).toBe(true);
+
+    const summary = getOperationalSummary([readyCompany], [{ id: "task-domain", companyId: company.id, title: "Follow up", description: "", status: "blocked", priority: "high", dueAt: "2020-01-01T00:00:00.000Z", createdAt: "2026-08-15T00:00:00.000Z" }], [{ id: "handoff-domain", companyId: company.id, fromRole: "sales", toRole: "delivery", status: "pending", context: "Scope", blockers: [], createdAt: "2026-08-15T00:00:00.000Z" }]);
+    expect(summary.activeCompanies).toBe(1);
+    expect(summary.blockedTasks).toBe(1);
+    expect(summary.overdueTasks).toBe(1);
+    expect(summary.openHandoffs).toBe(1);
   });
 });

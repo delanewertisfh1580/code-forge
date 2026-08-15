@@ -1,7 +1,9 @@
 export type ScenarioId = "conservative" | "base" | "optimistic";
 export type VerificationStatus = "unverified" | "in_review" | "verified" | "conflict" | "rejected" | "stale";
 export type CompanySegment = "self_storage" | "ooh" | "white_label";
-export type CompanyStage = "new" | "researching" | "qualified" | "contacted" | "discovery" | "proposal" | "won" | "lost";
+export type WorkflowStage = "intake" | "qualification" | "first_contact" | "discovery" | "proposal" | "delivery" | "acceptance" | "close_learn" | "on_hold" | "disqualified";
+export type CompanyStage = WorkflowStage;
+export type WorkflowRole = "research" | "sales" | "delivery" | "account" | "founder";
 export type ClaimType = "market_fact" | "internal_assumption" | "product_capability" | "policy" | "calculated_output";
 export type ClaimStatus = "draft" | "internal_hypothesis" | "observed" | "partial" | VerificationStatus;
 
@@ -291,6 +293,27 @@ export type Company = {
   contactEmail?: string;
   contactPhone?: string;
   stage: CompanyStage;
+  stageEnteredAt?: string;
+  ownerId?: string;
+  ownerRole?: WorkflowRole;
+  nextAction?: string;
+  dueAt?: string;
+  currentBlocker?: string;
+  lastContactAt?: string;
+  nextReviewAt?: string;
+  closeReason?: string;
+  problemOwner?: string;
+  workflowSummary?: string;
+  scope?: string;
+  acceptanceCriteria?: string;
+  feasibilityConfirmed?: boolean;
+  estimatedHours?: number;
+  actualHours?: number;
+  actualCogs?: number;
+  acceptanceAt?: string;
+  customerFeedback?: string;
+  postPilotReview?: string;
+  riskNotes?: string;
   priority: "P1" | "P2" | "P3";
   status: VerificationStatus;
   notes: string;
@@ -313,6 +336,49 @@ export type Evidence = {
 };
 
 export type Activity = { id: string; companyId: string; type: "note" | "call" | "email" | "meeting" | "task"; title: string; body: string; dueAt?: string; createdAt: string };
+export type TaskStatus = "open" | "in_progress" | "blocked" | "done" | "cancelled";
+export type TaskPriority = "low" | "medium" | "high";
+export type StageChecklistItem = {
+  id: string;
+  companyId: string;
+  stage: WorkflowStage;
+  title: string;
+  required: boolean;
+  completed: boolean;
+  completedBy?: string;
+  completedAt?: string;
+  evidenceId?: string;
+  comment?: string;
+};
+export type Task = {
+  id: string;
+  companyId?: string;
+  checklistItemId?: string;
+  handoffId?: string;
+  sourceActivityId?: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  assigneeId?: string;
+  dueAt?: string;
+  createdAt: string;
+  completedAt?: string;
+};
+export type HandoffStatus = "draft" | "pending" | "accepted" | "blocked" | "completed";
+export type Handoff = {
+  id: string;
+  companyId: string;
+  fromRole: WorkflowRole;
+  toRole: WorkflowRole;
+  status: HandoffStatus;
+  context: string;
+  blockers: string[];
+  requiredDecision?: string;
+  createdAt: string;
+  acceptedAt?: string;
+  taskId?: string;
+};
 export type ProductPhaseResult = {
   productId: string;
   phaseId: string;
@@ -361,6 +427,9 @@ export type AppState = {
   companies: Company[];
   evidence: Evidence[];
   activities: Activity[];
+  tasks?: Task[];
+  checklists?: StageChecklistItem[];
+  handoffs?: Handoff[];
   calculationRuns: CalculationRun[];
   selectedScenario: ScenarioId;
   researchSeedVersion?: string;
