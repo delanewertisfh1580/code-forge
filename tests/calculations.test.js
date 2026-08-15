@@ -1,5 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { documentClaims, documentDefinitions, documentValidation } from "../src/data/documents.ts";
+import { documentContent } from "../src/data/documentContent.ts";
 import { primitives, primitivesValidation } from "../src/data/primitives.ts";
 import { calculateAllScenarios, calculateProductCatalog, calculateScenario, getDecision } from "../src/lib/calculations.ts";
 import { validatePrimitives } from "../src/lib/validation.ts";
@@ -68,6 +69,20 @@ describe("CodeForge calculation engine", () => {
     expect(documentClaims.length).toBeGreaterThan(0);
     expect(documentValidation.valid).toBe(true);
     expect(documentDefinitions.every((document) => document.modelVersion === primitives.schema_version)).toBe(true);
+  });
+
+  test("documentation contains operational product and sales content linked to research", () => {
+    const sourceIds = new Set(primitives.research_sources.map((source) => source.id));
+    const product = documentContent["product-knowledge-base"];
+    const sales = documentContent["sales-playbook"];
+    expect(product.kind).toBe("product");
+    expect(product.kind === "product" ? product.offers.map((offer) => offer.id) : []).toEqual(["self_storage", "ooh", "white_label"]);
+    expect(product.kind === "product" ? product.offers.every((offer) => offer.phases.length === 3 && offer.researchSourceIds.every((sourceId) => sourceIds.has(sourceId))) : false).toBe(true);
+    expect(sales.kind).toBe("sales");
+    expect(sales.kind === "sales" ? sales.targetCities : []).toEqual(["Екатеринбург", "Тюмень", "Пермь", "Челябинск", "Сургут"]);
+    expect(sales.kind === "sales" ? sales.researchSignals.every((signal) => signal.sourceIds.every((sourceId) => sourceIds.has(sourceId))) : false).toBe(true);
+    expect(sales.kind === "sales" ? sales.templates.length : 0).toBeGreaterThanOrEqual(3);
+    expect(sales.kind === "sales" ? sales.sequence.length : 0).toBeGreaterThanOrEqual(5);
   });
 
   test("open-web research pack contains linked, reviewable seed records", () => {

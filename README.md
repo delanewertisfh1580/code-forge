@@ -9,7 +9,7 @@ CRM-like рабочее пространство для проверки биз�
 - **Verification** — источники каждого наблюдения, даты, confidence и статусы `unverified`, `in_review`, `verified`, `conflict`, `rejected`, `stale`.
 - **Scenarios** — conservative / base / optimistic из единого файла входов.
 - **Decision Center** — прозрачные пороги LTV/CAC, payback, delivery load и минимальное число подтвержденных фактов.
-- **Документация** — шесть отдельных страниц, доступных через навигацию: AI OS, Operating Model, Product Knowledge Base, Sales Playbook, Upsell Matrix и White Label Playbook.
+- **Документация** — шесть отдельных рабочих страниц: Product Knowledge Base с capability map и каталогом фаз, Sales Playbook с исследовательскими сигналами и персонализированными обращениями, а также AI OS, Operating Model, Upsell Matrix и White Label Playbook с operational checklists.
 - **История запусков** — результаты последних расчетов сохраняются в состоянии workspace.
 
 ## Единый источник расчетов
